@@ -2,15 +2,19 @@ function prepare_player()
 	player = {
 		x = 0,
  		y = 0,
-	  	name = "sundowns",
-	  	state ="STAND",
-	  	states = {},
-	  	orientation = "RIGHT",
-	  	x_vel = 0,
-	  	y_vel = 0,
-	  	max_movement_velocity = 140,
-	  	acceleration = 35,
-	  	controls = {}
+  	name = random_string(8),
+  	entity_type = "PLAYER", 
+  	state ="STAND",
+  	states = {},
+  	orientation = "RIGHT",
+  	x_vel = 0,
+  	y_vel = 0,
+  	max_movement_velocity = 140,
+  	acceleration = 35,
+  	movement_friction = 200,
+  	controls = {},
+  	height = nil,
+  	width = nil
   	}	
 
 	player.states["STAND"] = {
@@ -19,8 +23,8 @@ function prepare_player()
 	}
 
 	player.states["STAND"].animation[1] = {
-		right = love.graphics.newImage("assets/player/stand-right.png"),
-		left = love.graphics.newImage("assets/player/stand-left.png")
+		right = love.graphics.newImage("assets/player/red/stand-right.png"),
+		left = love.graphics.newImage("assets/player/red/stand-left.png")
 	}
 
 	player.controls['RIGHT'] = 'd'
@@ -32,6 +36,9 @@ function prepare_player()
 	player.controls['SPELL3'] = '3'
 	player.controls['SPELL4'] = '4'
 	player.controls['SPELL5'] = '5'
+
+	player.height = player.states["STAND"].animation[1].left:getHeight()
+	player.width = player.states["STAND"].animation[1].left:getWidth()
 
 	add_entity(player.name, "PLAYER", player)
 end
@@ -61,14 +68,51 @@ function process_input()
 			player.y_vel = math.min(player.y_vel + player.acceleration, player.max_movement_velocity)
 		end
 	end
+end
+
+function update_player_state(state)
+	player.states[player.state].currentFrame = 1
+	player.state = state
+	player.height = player.states[state].animation[1].left:getHeight()
+	player.width = player.states[state].animation[1].left:getWidth()
+end
+
+function calculate_player_movement(dt)
+	player.x = (player.x + (player.x_vel * dt))
+	player.y = (player.y + (player.y_vel * dt))
+	
+	--Movement velocity - movement friction	
+	if player.x_vel > 1 then 
+		player.orientation = "RIGHT"
+		player.x_vel = math.max(0, player.x_vel - (player.movement_friction * dt))
+	elseif player.x_vel < -1 then
+		player.orientation = "LEFT"
+		player.x_vel = math.min(0, player.x_vel + (player.movement_friction * dt)) 
+	end
+
+	if player.y_vel > 1 then 
+		player.y_vel = math.max(0, player.y_vel - (player.movement_friction * dt)) 
+	elseif player.y_vel < -1 then
+		player.y_vel = math.min(0, player.y_vel + (player.movement_friction * dt)) 
+	end
+
+	if player.x_vel < 1 and player.x_vel > -1 and player.y_vel < 1 and player.y_vel > -1 then
+		player.x_vel = 0
+		player.y_vel = 0
+	end
+
+	--Impact velocity - impact friction
+	-- if player.x_impact_velocity > 0 then 	
+	-- 	player.x_impact_velocity = math.max(0, player.x_impact_velocity - (player.impact_friction * dt))
+	-- elseif player.x_impact_velocity < 0 then
+	-- 	player.x_impact_velocity = math.min(0, player.x_impact_velocity + (player.impact_friction * dt)) 
+	-- end
+
+	-- if player.y_impact_velocity > 0 then 
+	-- 	player.y_impact_velocity = math.max(0, player.y_impact_velocity - (player.impact_friction * dt)) 
+	-- elseif player.y_impact_velocity < 0 then
+	-- 	player.y_impact_velocity = math.min(0, player.y_impact_velocity + (player.impact_friction * dt)) 
+	-- end
 
 	
-
-	-- local x, y = 0, 0
-	-- 	if love.keyboard.isDown('up') then		y=y-(20*worldTime) end
-	-- 	if love.keyboard.isDown('down') then 	y=y+(20*worldTime) end
-	-- 	if love.keyboard.isDown('left') then 	x=x-(20*worldTime) end
-	-- 	if love.keyboard.isDown('right') then 	x=x+(20*worldTime) end
-	-- 	local dg = string.format("%s %s %f %f", player.name, 'move', x, y)
-	-- 	udp:send(dg)
 end

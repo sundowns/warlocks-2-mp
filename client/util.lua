@@ -32,3 +32,16 @@ function calculate_direction_with_two_points(x1, y1, x2, y2)
 
     return dx, dy
 end
+
+function random_string(l)
+  if l < 1 then return nil end
+  local stringy=""
+  for i=1,l do
+    stringy=stringy..random_letter()
+  end
+  return stringy
+end
+
+function random_letter()
+    return string.char(math.random(97, 122));
+end
