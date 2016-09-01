@@ -11,12 +11,10 @@ function net_initialise()
 end
 
 function request_join()
-	local joindg = string.format("%s %s %s", username, 'JOIN', client_version)
-	udp:send(joindg)
+	udp:send(create_json_packet({client_version = client_version}, "JOIN", username))
 end
 
 function disconnect(msg)
-	local disconnectdg = string.format("%s %s %s", player.name, 'DISCONNECT', msg)
-	udp:send(disconnectdg)
+	udp:send(create_json_packet({msg = msg}, "DISCONNECT", username))
 	udp:close()
 end

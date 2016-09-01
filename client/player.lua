@@ -1,11 +1,13 @@
+player_state_buffer = {}
+
 function prepare_player(name, colour)
 	player = {
-		x = 0,
-		y = 0,
+			x = 0,
+			y = 0,
 	  	name = name,
 	  	entity_type = "PLAYER", 
 	  	state ="STAND",
-	  	states = {},
+	  	anim_states = {},
 	  	orientation = "RIGHT",
 	  	x_vel = 0,
 	  	y_vel = 0,
@@ -18,12 +20,12 @@ function prepare_player(name, colour)
 	  	colour = colour
   	}	
 
-	player.states["STAND"] = {
+	player.anim_states["STAND"] = {
 		animation={},
 		currentFrame = 1
 	}
 
-	player.states["STAND"].animation[1] = {
+	player.anim_states["STAND"].animation[1] = {
 		right = love.graphics.newImage("assets/player/" ..player.colour.."/stand-right.png"),
 		left = love.graphics.newImage("assets/player/" ..player.colour.."/stand-left.png")
 	}
@@ -38,8 +40,8 @@ function prepare_player(name, colour)
 	player.controls['SPELL4'] = '4'
 	player.controls['SPELL5'] = '5'
 
-	player.height = player.states["STAND"].animation[1].left:getHeight()
-	player.width = player.states["STAND"].animation[1].left:getWidth()
+	player.height = player.anim_states["STAND"].animation[1].left:getHeight()
+	player.width = player.anim_states["STAND"].animation[1].left:getWidth()
 
 	add_entity(player.name, "PLAYER", player)
 
@@ -49,9 +51,9 @@ end
 function get_player_img(player)
 	local img = nil
 	if player.orientation == "RIGHT" then
-		img = player.states[player.state].animation[player.states[player.state].currentFrame].right
+		img = player.anim_states[player.state].animation[player.anim_states[player.state].currentFrame].right
 	elseif player.orientation == "LEFT" then
-		img = player.states[player.state].animation[player.states[player.state].currentFrame].left
+		img = player.anim_states[player.state].animation[player.anim_states[player.state].currentFrame].left
 	end
 	return img
 end
@@ -74,10 +76,10 @@ function process_input()
 end
 
 function update_player_state(state)
-	player.states[player.state].currentFrame = 1
+	player.anim_states[player.state].currentFrame = 1
 	player.state = state
-	player.height = player.states[state].animation[1].left:getHeight()
-	player.width = player.states[state].animation[1].left:getWidth()
+	player.height = player.anim_states[state].animation[1].left:getHeight()
+	player.width = player.anim_states[state].animation[1].left:getWidth()
 end
 
 function calculate_player_movement(dt)
