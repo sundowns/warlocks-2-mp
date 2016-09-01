@@ -1,5 +1,4 @@
 world = {}
-enemies = {}
 
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
@@ -7,7 +6,12 @@ function add_entity(name, entity_type, ent)
 	elseif entity_type == "ENEMY" then
 		add_enemy(name, ent)
 	end
-	--maybe initialise x and y to 0 if they dont exist?
+end
+
+function remove_entity(name, entity_type)
+	if world[name] then
+		world[name] = nil
+	end
 end
 
 function add_enemy(name, enemy)
@@ -21,7 +25,7 @@ function add_enemy(name, enemy)
  			state ="STAND",
  			states = {},
  			height = nil,
-  		width = nil
+  			width = nil
 	}
 
 	enemy.states["STAND"] = {
@@ -34,8 +38,8 @@ function add_enemy(name, enemy)
 		left = love.graphics.newImage("assets/player/".. enemy.colour .."/stand-left.png")
 	}
 
-	player.height = player.states["STAND"].animation[1].left:getHeight()
-	player.width = player.states["STAND"].animation[1].left:getWidth()
+	enemy.height = enemy.states["STAND"].animation[1].left:getHeight()
+	enemy.width = enemy.states["STAND"].animation[1].left:getWidth()
 
 	world[name] = enemy
 end

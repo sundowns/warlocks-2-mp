@@ -1,20 +1,21 @@
-function prepare_player()
+function prepare_player(name, colour)
 	player = {
 		x = 0,
- 		y = 0,
-  	name = random_string(8),
-  	entity_type = "PLAYER", 
-  	state ="STAND",
-  	states = {},
-  	orientation = "RIGHT",
-  	x_vel = 0,
-  	y_vel = 0,
-  	max_movement_velocity = 140,
-  	acceleration = 35,
-  	movement_friction = 200,
-  	controls = {},
-  	height = nil,
-  	width = nil
+		y = 0,
+	  	name = name,
+	  	entity_type = "PLAYER", 
+	  	state ="STAND",
+	  	states = {},
+	  	orientation = "RIGHT",
+	  	x_vel = 0,
+	  	y_vel = 0,
+	  	max_movement_velocity = 140,
+	  	acceleration = 35,
+	  	movement_friction = 200,
+	  	controls = {},
+	  	height = nil,
+	  	width = nil,
+	  	colour = colour
   	}	
 
 	player.states["STAND"] = {
@@ -23,8 +24,8 @@ function prepare_player()
 	}
 
 	player.states["STAND"].animation[1] = {
-		right = love.graphics.newImage("assets/player/red/stand-right.png"),
-		left = love.graphics.newImage("assets/player/red/stand-left.png")
+		right = love.graphics.newImage("assets/player/" ..player.colour.."/stand-right.png"),
+		left = love.graphics.newImage("assets/player/" ..player.colour.."/stand-left.png")
 	}
 
 	player.controls['RIGHT'] = 'd'
@@ -41,6 +42,8 @@ function prepare_player()
 	player.width = player.states["STAND"].animation[1].left:getWidth()
 
 	add_entity(player.name, "PLAYER", player)
+
+	user_alive = true
 end
 
 function get_player_img(player)

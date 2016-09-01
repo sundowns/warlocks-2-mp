@@ -1,12 +1,23 @@
-function build_packet_string(...)
-	local packet_string = ""
-	for i,v in ipairs(arg) do
-		if i == 0 then
-			packet_string = packet_string .. tostring(v) 
+function build_packet(entity, command, dataList)
+	local params = build_params(dataList)
+  	return entity .. "," .. command .. "," .. params
+end
+
+function build_params(args)
+	local paramString = ""
+	local first = true
+	for i,v in ipairs(args) do
+		if first then
+			paramString = paramString .. tostring(v) 
+			first = false
 		else
-			packet_string = '|' .. packet_string .. tostring(v) 
+			paramString = paramString .. '|' .. tostring(v) 
 		end
-    
-  end
-  return packet_string
+	end
+  return paramString
+end
+
+function round_to_nth_decimal(num, n)
+  local mult = 10^(n or 0)
+  return math.floor(num * mult + 0.5) / mult
 end
