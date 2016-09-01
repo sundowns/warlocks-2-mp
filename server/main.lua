@@ -38,14 +38,15 @@ function send_world_update(ip, port, name)
 		local data = {v.entity_type}
 		udp:sendto(build_packet(k, "ENTITYDESTROY", data), ip, port)
 	end
+	print("world update sent to " .. name .." ip: " .. ip .. " port: " ..port)
 end
 
 function send_error_packet(ip, port, message)
 	udp:sendto(string.format("%s %s", "SERVERERROR", message), ip,  port)
 end
 
-function send_join_accept(ip, port, entity)
-	udp:sendto(build_packet(entity, "JOINACCEPTED", {table.remove(unused_colours)}), ip,  port)
+function send_join_accept(ip, port, entity, colour)
+	udp:sendto(build_packet(entity, "JOINACCEPTED", {colour}), ip,  port)
 end
 
 function remove_client(client, msg)
@@ -109,13 +110,14 @@ while running do
 				if (not clientList[entity]) then 
 					clientList[entity] =  {ip=msg_or_ip, port=port_or_nil, name=entity, time_since_last_msg = 0}
 					print(entity .. ' connected.')
-					send_join_accept(msg_or_ip, port_or_nil, entity)
+					local colour = table.remove(unused_colours)
+					send_join_accept(msg_or_ip, port_or_nil, entity, colour)
 					send_world_update(msg_or_ip, port_or_nil, entity)
 					if world[entity] then
 						send_error_packet(msg_or_ip, port_or_nil, "The alias " .. entity .. " is already in use.")
 						remove_client(entity, "Duplicate alias")
 					else
-						world[entity] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = table.remove(unused_colours)}
+						world[entity] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = colour}
 					end	
 				end
 			end
@@ -128,7 +130,7 @@ while running do
 			print("unrecognised command: " .. tostring(cmd))
 		end		
 	elseif msg_or_ip == "closed" then
-		print("Client closed")
+		--print("Client closed") --swallow these, timeout should take care of it
 	elseif msg_or_ip ~= "timeout" then
 		error("Network error: " .. tostring(msg_or_ip))
 	end
@@ -136,7 +138,7 @@ while running do
 	t = t+dt
 	if t > updateRate then
 		for id, client in pairs(clientList) do
-			send_world_update(client.ip, client.port)
+			send_world_update(client.ip, client.port, client.name)
 		end
 		deleted = {}
 		t = t - updateRate

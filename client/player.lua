@@ -81,8 +81,8 @@ function update_player_state(state)
 end
 
 function calculate_player_movement(dt)
-	player.x = (player.x + (player.x_vel * dt))
-	player.y = (player.y + (player.y_vel * dt))
+	player.x = round_to_nth_decimal((player.x + (player.x_vel * dt)),2)
+	player.y = round_to_nth_decimal((player.y + (player.y_vel * dt)),2)
 	
 	--Movement velocity - movement friction	
 	if player.x_vel > 1 then 

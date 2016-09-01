@@ -1,5 +1,5 @@
 debug = false
-clientVersion = "0.0.1"
+client_version = "0.0.1"
 
 username = ""
 user_alive = false
@@ -35,10 +35,9 @@ function love.update(dt)
 	repeat
 		data, msg = udp:receive()
 		if data then 
-			--print(data)
 			ent, cmd, params = data:match("^(%w+)%p(%w+)%p(.*)") 
 			if cmd == "ENTITYAT" then --need to add velocity here so we can interpolate movement on client
-				local x, y, ent_type, ent_colour = params:match("^(%-?[%d.e]*)|(%-?[%d.e]*)|(%a+)|(%a+)$")
+				local x, y, ent_type, ent_colour = params:match("^(%-?[%d.e]*)|(%-?[%d.e]*)|(%a+)|(%a+)$")		
 				assert(x and y and ent_type and ent_colour)
 				x, y = tonumber(x), tonumber(y)
 				if world[ent] == nil then
@@ -53,9 +52,8 @@ function love.update(dt)
 			elseif cmd == 'SERVERERROR' then
 				print(tostring(params))
 			elseif cmd == 'JOINACCEPTED' then
-				print("wtf")
 				prepare_player(username, tostring(params))
-			else -- need a JOINACCEPTED packet from server, to give player initial colour
+			else 
 				print(data)
 				print("unrecognised command:", cmd)
 			end

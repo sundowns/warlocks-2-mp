@@ -45,3 +45,8 @@ end
 function random_letter()
     return string.char(math.random(97, 122));
 end
+
+function round_to_nth_decimal(num, n)
+  local mult = 10^(n or 0)
+  return math.floor(num * mult + 0.5) / mult
+end

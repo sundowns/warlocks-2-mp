@@ -11,7 +11,7 @@ function net_initialise()
 end
 
 function request_join()
-	local joindg = string.format("%s %s %s", username, 'JOIN', clientVersion)
+	local joindg = string.format("%s %s %s", username, 'JOIN', client_version)
 	udp:send(joindg)
 end
 
