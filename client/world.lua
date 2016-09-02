@@ -1,16 +1,24 @@
 world = {}
 
 function add_entity(name, entity_type, ent)
+	print("adding entity " .. entity_type)
 	if entity_type == "PLAYER" then
 		world[name] = ent
 	elseif entity_type == "ENEMY" then
+		print("adding enemy")
 		add_enemy(name, ent)
 	end
 end
 
 function remove_entity(name, entity_type)
-	if world[name] then
-		world[name] = nil
+	if entity_type == "PLAYER" then
+		if world["players"][name] then
+			world["players"][name] = nil
+		end
+	else 
+		if world[name] then
+			world[name] = nil
+		end
 	end
 end
 

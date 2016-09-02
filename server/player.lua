@@ -1,4 +1,4 @@
-function construct_player(name, x, y) 
+function construct_player(name, x, y)
 	local player = {
 			x = x,
 			y = y,
@@ -13,6 +13,6 @@ function construct_player(name, x, y)
 	  	height = nil,
 	  	width = nil,
 	  	colour = colour
-  	}	
+  	}
   	return player
 end
