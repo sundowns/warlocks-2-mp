@@ -1,30 +1,26 @@
 package.path = './?.lua;' .. package.path
 
+require "socket" -- to keep track of time
 json = require("json")
 local enet = require "enet"
 local host = enet.host_create("localhost:12345")
-host:bandwidth_limit(1024000, 1024000)
-
---local socket = require "socket"
---local udp = socket.udp()
+--host:bandwidth_limit(1024000, 1024000)
 
 server_version = "0.0.1"
 require("util")
 
---udp:settimeout(0)
---assert(udp:setsockname('*', 12345))
---local data, msg_or_ip, port_or_nil
---local entity, cmd, params
-
 local client_player_map = {} -- look up player alias' by client ip
 local world = {} -- the empty world-state
 world["players"] = {} -- player collection
+
 local deleted = {} -- buffer table of entity delete message to send to all clients
 local running = true
-local updateRate = 0.1 -- Update world timer in seconds (6.67 times a second)
 local t = 0
 local prevTime = os.time()
 local tick = 0
+local tickrate = 0.015625 --64 tick
+local tick_timer = 0
+local updateRate = 8 -- send world updates every 16 ticks
 
 local unused_colours = {"green", "purple", "red"}
 local max_clients = 3
@@ -53,8 +49,15 @@ end
 
 function remove_client(peer, msg)
 	if (msg) then print(msg) end
+
+	local entId = client_player_map[peer]
+	if world["players"][entId] ~= nil then
+		remove_entity(entId)
+	end
+
 	clientList[peer] = nil
 	client_count = client_count - 1
+	peer:disconnect()
 end
 
 -- function update_client_timeout(dt)
@@ -88,83 +91,90 @@ end
 
 print("Beginning server loop.")
 while running do
-	local event = host:service(100)
-	local time = os.time()
+	-- if dt < 1/60 then -- 60 fps limit
+	-- 	love.timer.sleep(1/60 - dt)
+	-- end
+	--print(client_count)
+	time = socket.gettime()
 	local dt = time - prevTime
 	prevTime = time
-	tick = tick + 1
+	tick_timer = tick_timer + dt
 
-	--data, msg_or_ip, port_or_nil = udp:receivefrom()
-
-	if not event then
-		--do nothing (wait somehow maybe idk)
-	elseif event.type == "receive" then
-		if not xpcall(json.decode, event.data) then
-			payload = json.decode(event.data)
-			if not assert(payload.alias) then print(tostring(payload)) end
-			if clientList[event.peer] then
-				clientList[event.peer].time_since_last_msg = 0
-			end
-			assert(payload.cmd)
-			--print("cmd: " ..payload.cmd)
-			if payload.cmd == "MOVE" then
-				if clientList[event.peer] then
-					assert(payload.x_vel and payload.y_vel and payload.x and payload.y)
-					local ent = world["players"][payload.alias]
-					world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type}
-				end
-			elseif payload.cmd == 'JOIN' then
-				print("do we eva join")
-				if tostring(payload.client_version) ~= server_version then
-					send_error_packet(msg_or_ip, port_or_nil, "Incorrect version. Server is running " .. server_version)
-				elseif client_count >= max_clients then
-					send_error_packet(msg_or_ip, port_or_nil, "Game is full.")
-				else
-					print("adding new dude " .. payload.alias)
-					clientList[event.peer].name = payload.alias
-					send_world_update(event.peer, payload.alias)
-					if world["players"][payload.alias] then
-						send_error_packet(event.peer, "The alias " .. payload.alias .. " is already in use.")
-						remove_client(payload.alias, "Duplicate alias")
-					else
-						world["players"][payload.alias] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = colour}
-						client_player_map[event.peer] = payload.alias
+	if tick_timer > tickrate then
+		tick = tick + 1
+		tick_timer = 0
+		--print("tick. " .. tick)
+		local event = host:service()
+		while event ~= nil do
+			if event.type == "receive" then
+				if not xpcall(json.decode, event.data) then
+					payload = json.decode(event.data)
+					--print("receiving packet cmd: " ..payload.cmd)
+					if not assert(payload.alias) then print(tostring(payload)) end
+					if clientList[event.peer] then
+						clientList[event.peer].time_since_last_msg = 0
 					end
+					assert(payload.cmd)
+					--print("cmd: " ..payload.cmd)
+					if payload.cmd == "MOVE" then
+						if clientList[event.peer] then
+							assert(payload.x_vel and payload.y_vel and payload.x and payload.y)
+							local ent = world["players"][payload.alias]
+							if ent then
+								world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type}
+							else
+								print("tried to MOVE non existing player. " .. payload.alias)
+							end
+						end
+					elseif payload.cmd == 'JOIN' then
+						if tostring(payload.client_version) ~= server_version then
+							send_error_packet(event.peer, "Incorrect version. Server is running " .. server_version)
+							remove_client(event.peer, event.peer .. " version " .. payload.client_version .. " conflicts with server version " .. server_version)
+						elseif client_count > max_clients then
+							send_error_packet(event.peer, "Game is full.")
+							remove_client(event.peer, "Game is full.")
+						else
+							clientList[event.peer].name = payload.alias
+							send_world_update(event.peer, payload.alias)
+							if world["players"][payload.alias] then
+								send_error_packet(event.peer, "The alias " .. payload.alias .. " is already in use.")
+								remove_client(payload.alias, "Duplicate alias")
+							else
+								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = clientList[event.peer].colour }
+								client_player_map[event.peer] = payload.alias
+							end
+						end
+					elseif payload.cmd == 'UPDATE' then
+						print('[WARNING] Explicitly requested world update received. Potential security risk.')
+					else
+						print("[WARNING] unrecognised command: " .. payload.cmd)
+					end
+				else
+					print("Failed to JSON decode packet: " .. tostring(event.data))
 				end
-			--elseif payload.cmd == 'DISCONNECT' then
-				-- remove_client(payload.alias, payload.alias .. " disconnected. " .. payload.msg)
-				-- remove_entity(payload.alias)
-			elseif payload.cmd == 'UPDATE' then
-				print('[WARNING] Explicitly requested world update received. Potential security risk.')
-			else
-				print("[WARNING] unrecognised command: " .. payload.cmd)
+			elseif event.type == "connect" then
+					local colour = table.remove(unused_colours)
+					clientList[event.peer] =  {ip=msg_or_ip, port=port_or_nil, name=nil, time_since_last_msg = 0, colour = colour}
+					client_count = client_count + 1
+					print(event.peer:connect_id() .. ' connected.')
+					send_join_accept(event.peer, colour)
+			elseif event.type == "disconnect" then
+				remove_client(event.peer, payload.alias .. " disconnected. Closed by user")
+
+				--error("Network error: " .. tostring(msg_or_ip))
 			end
-		else
-			print("Failed to JSON decode packet: " .. tostring(event.data))
+			event = host:service()
 		end
-	elseif event.type == "connect" then
-			print("hello")
-			clientList[event.peer] =  {ip=msg_or_ip, port=port_or_nil, name=nil, time_since_last_msg = 0}
-			client_count = client_count + 1
-			print(event.peer:connect_id() .. ' connected.')
-			local colour = table.remove(unused_colours)
-			send_join_accept(event.peer, colour)
-	elseif event.type == "disconnect" then
-		remove_client(event.peer, payload.alias .. " disconnected. " .. payload.msg)
-		remove_entity(client_player_map[event.peer])
-		--error("Network error: " .. tostring(msg_or_ip))
+
+		update_entity_positions(dt)
+		if tick%updateRate == 0 then
+			send_world_update()
+			deleted = {}
+		end
 	end
 
-	t = t+dt
-	if t > updateRate then
-		send_world_update()
-		deleted = {}
-		t = t - updateRate
-	end
-	update_entity_positions(dt)
 	--update_client_timeout(dt)
-	event = host:service()
 	--socket.sleep(0.01) -- prevents CPU from going HAM
 end
 
---udp:close()
+host:disconnect()

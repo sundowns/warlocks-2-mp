@@ -27,7 +27,7 @@ function calculate_direction_with_two_points(x1, y1, x2, y2)
     local y_intercept = y1 - slope*x1 -- b = y -mx
     local newX = x2 + 1
     local newY = slope*newX + y_intercept
-    local dx = x2 - newX 
+    local dx = x2 - newX
     local dy = y2 - newY
 
     return dx, dy
@@ -55,4 +55,8 @@ function create_json_packet(payload, cmd, alias)
   if alias then payload.alias = alias end
   payload.cmd = cmd
   return json.encode(payload)
+end
+
+function dbg(msg)
+  if debug then print(msg) end
 end

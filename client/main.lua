@@ -6,9 +6,7 @@ client_version = "0.0.1"
 username = ""
 user_alive = false
 tick = 0
-tickrate = 0.015625
-updateRate = tickrate*8
-updateTimer = tickrate*8
+tickrate = 0.015625 --64 tick
 tick_timer = 0
 
 function love.load()
@@ -31,21 +29,16 @@ function love.update(dt)
 	worldTime = worldTime + dt
 	tick_timer = tick_timer + dt
 
-	-- if dt < 1/60 then -- 60 fps limit
-	-- 	love.timer.sleep(1/60 - dt)
-	-- end
-
 	if tick_timer > tickrate then
-		print("tick")
+		dbg("tick: ".. tick)
 		tick = tick + 1
 		tick_timer = tick_timer - tickrate
 
 		if connected and user_alive and tick%4 == 0 then
-			--print(tick)
 	   	table.insert(player_state_buffer, player)
 	   	if #player_state_buffer > 64 then
 	   		local last = table.remove(player_state_buffer)
-	   		--print("last x: ".. last.x .. " last y: " .. last.y)
+	   		--dbg("last x: ".. last.x .. " last y: " .. last.y)
 	   	end
 	 	end
 
@@ -53,60 +46,55 @@ function love.update(dt)
 			process_input()
 			calculate_player_movement(dt)
 			updateCamera()
-			--print("curr x: " .. player.x .. " y: " .. player.y)
 		end
 
-		if updateTimer > updateRate then
+		if tick%netUpdateRate == 0 then
+			dbg("updating from server")
 			if user_alive then
 				send_player_update(player, username)
 			end
-			updateTimer = updateTimer-updateRate
-		end
 
-		repeat
-			event = listen()
-			if event and event.type == "receive" then
-				print("receiving packet")
-				--ent, cmd, params = data:match("^(%w+)%p(%w+)%p(.*)")
-				payload = json.decode(event.data)
-				if payload.cmd == "ENTITYAT" then --need to add velocity here so we can interpolate movement on client
-					--print("debug: "..event.data)
-					assert(payload.x and payload.y and payload.entity_type)
-					x, y = tonumber(payload.x), tonumber(payload.y)
-					if world[payload.alias] == nil then
-						add_entity(payload.alias, payload.entity_type, {name = payload.alias, colour = payload.colour or nil})
-					else
-					--print("pload: " ..payload.alias .. " playa: " .. player.name)
-						if payload.alias ~= player.name then
-							world[payload.alias].x = round_to_nth_decimal(x, 2)
-							world[payload.alias].y = round_to_nth_decimal(y, 2)
+			repeat
+				event = listen()
+				if event and event.type == "receive" then
+					payload = json.decode(event.data)
+					dbg("receiving packet cmd: " ..payload.cmd)
+					if payload.cmd == "ENTITYAT" then --need to add velocity here so we can interpolate movement on client
+						dbg("rec: " ..event.data)
+						assert(payload.x and payload.y and payload.entity_type)
+						x, y = tonumber(payload.x), tonumber(payload.y)
+						if world[payload.alias] == nil then
+							add_entity(payload.alias, payload.entity_type, {name = payload.alias, colour = payload.colour or nil})
+						else
+							if payload.alias ~= player.name then
+								world[payload.alias].x = round_to_nth_decimal(x, 2)
+								world[payload.alias].y = round_to_nth_decimal(y, 2)
+							end
 						end
-
+					elseif payload.cmd == 'ENTITYDESTROY' then
+						remove_entity(payload.alias, payload.entity_type)
+					elseif payload.cmd == 'SERVERERROR' then
+						disconnect("Sever error. " ..payload.message)
+					elseif payload.cmd == 'JOINACCEPTED' then
+						tick = payload.server_tick
+						prepare_player(username, payload.colour)
+						prepare_camera()
+						confirm_join()
+					else
+						dbg(event.data)
+						dbg("unrecognised command:", payload.cmd)
 					end
-				elseif payload.cmd == 'ENTITYDESTROY' then
-					remove_entity(payload.alias, payload.entity_type)
-				elseif payload.cmd == 'SERVERERROR' then
-					print(payload.msg)
-				elseif payload.cmd == 'JOINACCEPTED' then
-					confirm_join()
-					print(data)
-					tick = payload.server_tick
-					prepare_player(username, payload.colour)
-					prepare_camera()
+				elseif event and event.type == "connect" then
+					dbg("connect msg received")
+					--error("Network error: " .. tostring(msg))
+				elseif event and event.type == "disconnect" then
+					disconnect("Server disconnected")
+					--dbg("disconnect msg received")
 				else
-					print(event.data)
-					print("unrecognised command:", payload.cmd)
+					--dbg("No packets waiting...")
 				end
-			elseif event and event.type == "connect" then
-				print("connect msg received")
-				--error("Network error: " .. tostring(msg))
-			elseif event and event.type == "disconnect" then
-				disconnect("Server disconnected")
-				--print("disconnect msg received")
-			else
-				--print("No packets waiting...")
-			end
-		until not event
+			until not event
+		end
 	end
 end
 

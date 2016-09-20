@@ -5,33 +5,32 @@ connected = false
 
 --local socket = require "socket"
 local address, port = "localhost", "12345"
-updateRate = 0.05 -- how long to wait, in seconds, before requesting an update
+netUpdateRate = 8 -- Every 8 ticks (64/4 = 16)
+updateTimer = 0 -- timer for network updates
 worldTime = 0 -- timer
 
 function net_initialise()
-	print("connecting")
+	dbg("connecting")
 	host = enet.host_create()
 	server = host:connect(address..':'..port)
-	--udp = socket.udp()
-	--udp:settimeout(0)
-	--udp:setpeername(address, port)
 	worldTime = 0
 end
 
-function listen()
-	print("rtt: " ..server:round_trip_time())
-	return host:service(100)
+function listen(timeout)
+	if timeout == nil then timeout = 0 end
+	--print("rtt: " ..server:round_trip_time())
+	return host:service(timeout)
 end
 
 function confirm_join()
-	print("WE JOINING")
+	print("my name is " .. username)
 	server:send(create_json_packet({client_version = client_version}, "JOIN", username))
 	connected = true
 end
 
 function disconnect(msg)
 	if not connected then return end
-	--server:send(create_json_packet({msg = msg}, "DISCONNECT", username))
+	if msg then print(msg) end
 	server:disconnect()
 	host:flush()
 end
