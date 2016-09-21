@@ -119,6 +119,10 @@ function love.draw()
 		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.05, camY - love.graphics.getHeight()*0.035, 0.1*love.graphics.getWidth(), 0.07*love.graphics.getHeight())
 		reset_colour()
 	end
+
+	if not connected then
+		love.graphics.print("Awaiting connection to server.", 0, 0)
+	end
 	if user_alive then camera:detach() end
 end
 

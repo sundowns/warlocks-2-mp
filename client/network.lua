@@ -33,6 +33,7 @@ function disconnect(msg)
 	if msg then print(msg) end
 	server:disconnect()
 	host:flush()
+	connected = false
 end
 
 function send_player_update(inPlayer, inName)
