@@ -50,12 +50,12 @@ end
 function remove_client(peer, msg)
 	if (msg) then print(msg) end
 
-	local entId = client_player_map[peer]
+	local entId = client_player_map[peer:connect_id()]
 	if world["players"][entId] ~= nil then
 		remove_entity(entId)
 	end
 
-	clientList[peer] = nil
+	clientList[peer:connect_id()] = nil
 	client_count = client_count - 1
 	peer:disconnect()
 end
@@ -141,7 +141,7 @@ while running do
 								remove_client(payload.alias, "Duplicate alias")
 							else
 								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = clientList[event.peer].colour }
-								client_player_map[event.peer] = payload.alias
+								client_player_map[event.peer:connect_id()] = payload.alias
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then
@@ -158,9 +158,11 @@ while running do
 					client_count = client_count + 1
 					print(event.peer:connect_id() .. ' connected.')
 					send_join_accept(event.peer, colour)
+					for k, v in pairs(event) do
+						print("k: " .. k .. " v: " .. tostring(v))
+					end
 			elseif event.type == "disconnect" then
-				remove_client(event.peer, payload.alias .. " disconnected. Closed by user")
-
+				remove_client(event.peer,  clientList[event.peer].name .." disconnected. Closed by user")
 				--error("Network error: " .. tostring(msg_or_ip))
 			end
 			event = host:service()
