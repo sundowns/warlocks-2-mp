@@ -5,7 +5,7 @@ function error:init()
 end
 
 function error:enter(previous, msg)
-  set_font_size(16)
+  set_font_size(32)
   love.graphics.setBackgroundColor(96, 96, 96)
   error_message = msg
 end
@@ -19,5 +19,5 @@ function error:update(dt)
 end
 
 function error:draw()
-  love.graphics.print(error_message, love.graphics.getWidth()/2 - 50, love.graphics.getHeight()/2)
+  love.graphics.print(error_message, love.graphics.getWidth()/2 - 100, love.graphics.getHeight()/2-50)
 end

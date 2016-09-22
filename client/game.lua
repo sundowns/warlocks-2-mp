@@ -14,7 +14,7 @@ function game:update(dt)
 	tick_timer = tick_timer + dt
 
 	if tick_timer > constants.TICKRATE then
-		dbg("tick: ".. tick)
+		--dbg("tick: ".. tick)
 		tick = tick + 1
 		tick_timer = tick_timer - constants.TICKRATE
 
@@ -26,9 +26,10 @@ function game:update(dt)
 	 	end
 
 	 	if user_alive then
-			process_input()
-			update_player_movement(dt)
+			process_input(dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
+			update_player_movement(dt)--/ KEEP THESE TWO ONE AFTER THE OTHER
 			update_camera()
+			cooldowns(dt)
 		end
 
 		update_entities(dt)

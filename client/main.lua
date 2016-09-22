@@ -1,11 +1,8 @@
 package.path = './?.lua;' .. './libs/?.lua;' .. package.path
-
 client_version = "0.0.1"
-
 user_alive = false
 tick = 0
 tick_timer = 0
-
 
 function love.load()
 	math.randomseed(os.time())
@@ -40,5 +37,9 @@ function love.keypressed(key, scancode, isrepeat)
 		settings.debug = not settings.debug
 	elseif key == "escape" then
 		love.event.quit()
+	elseif key == "f3" then
+		local a = ""
+		if player.dash.ready then a = " dash ready" end
+		print(player.state .. " | dash_ready: " .. a)
 	end
 end

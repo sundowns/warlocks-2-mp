@@ -69,7 +69,7 @@ function update_entities(dt)
 	end
 end
 
-function update_entity_movement(dt, entity, friction)
+function update_entity_movement(dt, entity, friction, isPlayer)
 	entity.x = round_to_nth_decimal((entity.x + (entity.x_vel * dt)),2)
 	entity.y = round_to_nth_decimal((entity.y + (entity.y_vel * dt)),2)
 
@@ -91,5 +91,8 @@ function update_entity_movement(dt, entity, friction)
 	if entity.x_vel < 1 and entity.x_vel > -1 and entity.y_vel < 1 and entity.y_vel > -1 then
 		entity.x_vel = 0
 		entity.y_vel = 0
+		if isPlayer then
+			update_player_state("STAND")
+		end
 	end
 end
