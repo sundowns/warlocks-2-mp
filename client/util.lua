@@ -51,6 +51,7 @@ function round_to_nth_decimal(num, n)
   return math.floor(num * mult + 0.5) / mult
 end
 
+--DONT USE JSON, USE SOME BINARY SERIALISATION OR SUMMIN. JSON IS SLOW
 function create_json_packet(payload, cmd, alias)
   if alias then payload.alias = alias end
   payload.cmd = cmd
@@ -58,5 +59,38 @@ function create_json_packet(payload, cmd, alias)
 end
 
 function dbg(msg)
-  if debug then print(msg) end
+  if settings.debug then print(msg) end
+end
+
+--Consider putting these camera functions somewhere else more appropriate..
+function prepare_camera()
+	camera = Camera(0, 0)
+	camera:zoom(1.25)
+end
+
+function update_camera()
+	local camX, camY = camera:position()
+	local newX, newY = camX, camY
+	if (player.x > camX + love.graphics.getWidth()*0.05) then
+		newX = player.x - love.graphics.getWidth()*0.05
+	end
+	if (player.x < camX - love.graphics.getWidth()*0.05) then
+		newX = player.x + love.graphics.getWidth()*0.05
+	end
+	if (player.y > camY + love.graphics.getHeight()*0.035) then
+		newY = player.y - love.graphics.getHeight()*0.035
+	end
+	if (player.y < camY - love.graphics.getHeight()*0.035) then
+		newY = player.y + love.graphics.getHeight()*0.035
+	end
+
+	--camera:lookAt(newX, newY)
+	camera:lockPosition(newX, newY, camera.smooth.damped(1))
+end
+
+function print_table(it, name)
+  if name then dbg("Printing table: " .. name) end
+  for k, v in pairs(it) do
+    dbg("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
+  end
 end

@@ -10,7 +10,6 @@ updateTimer = 0 -- timer for network updates
 worldTime = 0 -- timer
 
 function net_initialise()
-	dbg("connecting")
 	host = enet.host_create()
 	server = host:connect(address..':'..port)
 	worldTime = 0
@@ -18,22 +17,22 @@ end
 
 function listen(timeout)
 	if timeout == nil then timeout = 0 end
-	--print("rtt: " ..server:round_trip_time())
+	--dbg("rtt: " ..server:last_round_trip_time())
 	return host:service(timeout)
 end
 
 function confirm_join()
-	print("my name is " .. username)
-	server:send(create_json_packet({client_version = client_version}, "JOIN", username))
+	print("my name is " .. settings.username)
+	server:send(create_json_packet({client_version = client_version}, "JOIN", settings.username))
 	connected = true
 end
 
 function disconnect(msg)
-	if not connected then return end
-	if msg then print(msg) end
-	server:disconnect()
-	host:flush()
-	connected = false
+		if msg then print(msg) end
+		server:disconnect()
+		host:flush()
+		connected = false
+		GamestateManager.switch(error, msg)
 end
 
 function send_player_update(inPlayer, inName)

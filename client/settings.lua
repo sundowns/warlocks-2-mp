@@ -1,0 +1,4 @@
+return {
+  debug = false,
+  username = ""
+}

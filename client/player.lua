@@ -1,11 +1,11 @@
 player_state_buffer = {}
 
-function prepare_player(name, colour)
+function prepare_player(colour)
 	player = {
 			x = 0,
 			y = 0,
-	  	name = name,
-	  	entity_type = "PLAYER", 
+	  	name = settings.username,
+	  	entity_type = "PLAYER",
 	  	state ="STAND",
 	  	anim_states = {},
 	  	orientation = "RIGHT",
@@ -13,12 +13,11 @@ function prepare_player(name, colour)
 	  	y_vel = 0,
 	  	max_movement_velocity = 140,
 	  	acceleration = 35,
-	  	movement_friction = 200,
 	  	controls = {},
 	  	height = nil,
 	  	width = nil,
 	  	colour = colour
-  	}	
+  	}
 
 	player.anim_states["STAND"] = {
 		animation={},
@@ -58,13 +57,13 @@ function get_player_img(player)
 	return img
 end
 
-function process_input() 
-	if player.state == "STAND" or player.state == "RUN" then 
+function process_input()
+	if player.state == "STAND" or player.state == "RUN" then
 		if love.keyboard.isDown(player.controls['RIGHT'])  then
 			player.x_vel = math.min(player.x_vel + player.acceleration, player.max_movement_velocity)
-		end 
+		end
 		if love.keyboard.isDown(player.controls['LEFT']) then
-			player.x_vel = math.max(player.x_vel - player.acceleration, -1*player.max_movement_velocity) 
+			player.x_vel = math.max(player.x_vel - player.acceleration, -1*player.max_movement_velocity)
 		end
 		if love.keyboard.isDown(player.controls['UP']) then
 			player.y_vel = math.max(player.y_vel - player.acceleration, -1*player.max_movement_velocity)
@@ -82,42 +81,6 @@ function update_player_state(state)
 	player.width = player.anim_states[state].animation[1].left:getWidth()
 end
 
-function calculate_player_movement(dt)
-	player.x = round_to_nth_decimal((player.x + (player.x_vel * dt)),2)
-	player.y = round_to_nth_decimal((player.y + (player.y_vel * dt)),2)
-	
-	--Movement velocity - movement friction	
-	if player.x_vel > 1 then 
-		player.orientation = "RIGHT"
-		player.x_vel = math.max(0, player.x_vel - (player.movement_friction * dt))
-	elseif player.x_vel < -1 then
-		player.orientation = "LEFT"
-		player.x_vel = math.min(0, player.x_vel + (player.movement_friction * dt)) 
-	end
-
-	if player.y_vel > 1 then 
-		player.y_vel = math.max(0, player.y_vel - (player.movement_friction * dt)) 
-	elseif player.y_vel < -1 then
-		player.y_vel = math.min(0, player.y_vel + (player.movement_friction * dt)) 
-	end
-
-	if player.x_vel < 1 and player.x_vel > -1 and player.y_vel < 1 and player.y_vel > -1 then
-		player.x_vel = 0
-		player.y_vel = 0
-	end
-
-	--Impact velocity - impact friction
-	-- if player.x_impact_velocity > 0 then 	
-	-- 	player.x_impact_velocity = math.max(0, player.x_impact_velocity - (player.impact_friction * dt))
-	-- elseif player.x_impact_velocity < 0 then
-	-- 	player.x_impact_velocity = math.min(0, player.x_impact_velocity + (player.impact_friction * dt)) 
-	-- end
-
-	-- if player.y_impact_velocity > 0 then 
-	-- 	player.y_impact_velocity = math.max(0, player.y_impact_velocity - (player.impact_friction * dt)) 
-	-- elseif player.y_impact_velocity < 0 then
-	-- 	player.y_impact_velocity = math.min(0, player.y_impact_velocity + (player.impact_friction * dt)) 
-	-- end
-
-	
+function update_player_movement(dt)
+	update_entity_movement(dt, player, constants['PLAYER_FRICTION'])
 end
