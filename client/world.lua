@@ -33,29 +33,22 @@ function add_enemy(name, enemy)
 	}
 
 	enemy.states["STAND"] = {
-		animation={},
+		frames={},
 		currentFrame = 1
 	}
 
-	enemy.states["STAND"].animation[1] = {
-		right = love.graphics.newImage("assets/player/".. enemy.colour .."/stand-right.png"),
-		left = love.graphics.newImage("assets/player/".. enemy.colour .."/stand-left.png")
+	enemy.states["STAND"].frames = {
+		love.graphics.newImage("assets/player/".. enemy.colour .."/stand.png"),
 	}
 
-	enemy.height = enemy.states["STAND"].animation[1].left:getHeight()
-	enemy.width = enemy.states["STAND"].animation[1].left:getWidth()
+	enemy.height = enemy.states["STAND"].frames[1]:getHeight()
+	enemy.width = enemy.states["STAND"].frames[1]:getWidth()
 
 	world[name] = enemy
 end
 
-function get_enemy_img(enemy)
-	local img = nil
-	if enemy.orientation == "RIGHT" then
-		img = enemy.states[enemy.state].animation[enemy.states[enemy.state].currentFrame].right
-	elseif enemy.orientation == "LEFT" then
-		img = enemy.states[enemy.state].animation[enemy.states[enemy.state].currentFrame].left
-	end
-	return img
+function get_entity_image(ent)
+	return ent.states[ent.state].frames[ent.states[ent.state].currentFrame]
 end
 
 function update_entities(dt)

@@ -13,8 +13,16 @@ function game:update(dt)
 	worldTime = worldTime + dt
 	tick_timer = tick_timer + dt
 
-	if tick_timer > constants.TICKRATE then
-		--dbg("tick: ".. tick)
+	if user_alive then
+		process_input(dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
+		update_player_movement(dt)--/ KEEP THESE TWO ONE AFTER THE OTHER
+		update_camera()
+		cooldowns(dt)
+	end
+
+	update_entities(dt)
+
+	if tick_timer > constants.TICKRATE then -- THIS SHOULD BE USED FOR COMMUNCATION TO/FROM SERVER/KEEPING IN SYNC
 		tick = tick + 1
 		tick_timer = tick_timer - constants.TICKRATE
 
@@ -24,15 +32,6 @@ function game:update(dt)
 	   		local last = table.remove(player_state_buffer)
 	   	end
 	 	end
-
-	 	if user_alive then
-			process_input(dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
-			update_player_movement(dt)--/ KEEP THESE TWO ONE AFTER THE OTHER
-			update_camera()
-			cooldowns(dt)
-		end
-
-		update_entities(dt)
 
 		if tick%netUpdateRate == 0 then
 			if user_alive then
@@ -86,10 +85,16 @@ function game:draw()
 	reset_colour()
 	for k, entity in pairs(world) do
 		if entity.entity_type == "PLAYER" then
-			love.graphics.draw(get_player_img(player), entity.x, entity.y)
+			local img = get_entity_image(player)
+			if player.orientation == "LEFT" then
+				love.graphics.draw(img, entity.x, entity.y, 0, -1, 1)
+			elseif player.orientation == "RIGHT" then
+				love.graphics.draw(img, entity.x, entity.y, 0)
+			end
+
 		elseif entity.entity_type == "ENEMY" then
 			local enemy = world[k]
-			love.graphics.draw(get_enemy_img(enemy), enemy.x, enemy.y)
+			love.graphics.draw(get_entity_image(enemy), enemy.x, enemy.y)
 		end
 	end
 
@@ -99,6 +104,9 @@ function game:draw()
 		love.graphics.circle('fill', camX, camY, 2, 16)
 		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.05, camY - love.graphics.getHeight()*0.035, 0.1*love.graphics.getWidth(), 0.07*love.graphics.getHeight())
 		reset_colour()
+		set_font_size(12)
+		love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), camera:worldCoords(0,0))
+		reset_font()
 	end
 
 	if not connected then

@@ -1,3 +1,4 @@
+TITLE Warlocks MP Server
 lua.exe main.lua
 
 ::ECHO hey there bud

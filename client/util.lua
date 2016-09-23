@@ -85,7 +85,7 @@ function update_camera()
 	end
 
 	--camera:lookAt(newX, newY)
-	camera:lockPosition(newX, newY, camera.smooth.damped(1))
+	camera:lockPosition(newX, newY, camera.smooth.damped(3))
 end
 
 function print_table(it, name)
