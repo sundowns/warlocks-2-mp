@@ -1,5 +1,5 @@
-package.path = './?.lua;' .. './libs/?.lua;' .. package.path
-client_version = "0.0.1"
+package.path = './?.lua;' .. './libs/?.lua;' .. './assets/*;' .. package.path
+
 user_alive = false
 tick = 0
 tick_timer = 0

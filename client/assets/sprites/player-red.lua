@@ -1,26 +1,25 @@
---http://www.buildandgun.com/2014/07/animated-sprites-in-love2d.html
+local img_w = 400
+local img_h = 400
 
 return {
-  name = "player_red",
-  image = "assets/sprites/player-red.png"
-  frame_duration = 0.1, --  Temp
-  sprite_width = 20, -- Pixels
-  sprite_height = 20, -- Pixels
-  animations_names = {
-      "STAND",
-      "DASH",
-      "RUN"
-  },
-  animations = {
-    --love.graphics.newQuad( X, Y, Width, Height, Image_W, Image_H)
-    STAND = {
-      love.graphics.newQuad( 1, 1, 81, 64, image_w, image_h ),
+    serialization_version = "0.0.1",
+    name = "player_red",
+    image = "assets/sprites/player-red.png",
+    frame_duration = 0.1,
+    animations_names = {
+        "STAND",
+        "DASH",
+        "RUN"
     },
-    DASH = {
-
-    },
-    RUN = {
-
+    animations = {
+      STAND = {
+        love.graphics.newQuad( 0, 0, 20, 20, img_w, img_h )
+      },
+      DASH = {
+        love.graphics.newQuad( 0, 20, 20, 20, img_w, img_h )
+      },
+      RUN = {
+        love.graphics.newQuad( 0, 40, 20, 20, img_w, img_h )
+      }
     }
-  }
 }

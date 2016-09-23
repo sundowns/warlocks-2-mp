@@ -55,10 +55,8 @@ function update_entities(dt)
 	for name, entity in pairs(world) do
 		if entity.entity_type == "ENEMY" then
 				update_entity_movement(dt, entity, constants.PLAYER_FRICTION)
-		else
-			--swallow for now
-			--print("[ERROR] Non player entity being interpolated! type: " ..entity.entity_type)
 		end
+		update_sprite_instance(entity.instance, dt)
 	end
 end
 

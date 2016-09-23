@@ -7,7 +7,6 @@ function prepare_player(colour)
 	  	name = settings.username,
 	  	entity_type = "PLAYER",
 	  	state ="STAND",
-			states = {},
 	  	orientation = "RIGHT",
 	  	x_vel = 0,
 	  	y_vel = 0,
@@ -19,36 +18,14 @@ function prepare_player(colour)
 				duration = 0.4,
 				timer = 0.2
 			},
+			sprite_instance = {},
 	  	controls = {},
 	  	height = nil,
 	  	width = nil,
 	  	colour = colour
   	}
 
-	player.states["STAND"] = {
-		frames={},
-		currentFrame = 1
-	}
-
-	player.states["DASH"] = {
-		frames={},
-		currentFrame = 1
-	}
-
-	player.states["RUN"] = {
-		frames={},
-		currentFrame = 1
-	}
-
-	player.states["STAND"].frames = {
-		love.graphics.newImage("assets/player/" ..player.colour.."/stand.png")
-	}
-	player.states["DASH"].frames = {
-		love.graphics.newImage("assets/player/" ..player.colour.."/dash.png")
-	}
-	player.states["RUN"].frames = {
-		love.graphics.newImage("assets/player/" ..player.colour.."/run.png")
-	}
+	player.sprite_instance = get_sprite_instance("assets/sprites/player-red.lua")
 
 	player.controls['RIGHT'] = 'd'
 	player.controls['LEFT'] = 'a'
@@ -60,20 +37,13 @@ function prepare_player(colour)
 	player.controls['SPELL4'] = '4'
 	player.controls['SPELL5'] = '5'
 
-	player.height = player.states["STAND"].frames[1]:getHeight()
-	player.width = player.states["STAND"].frames[1]:getWidth()
+	player.height = player.sprite_instance.sprite["STAND"][1]:getHeight()
+	player.width = player.sprite_instance.sprite["STAND"][1]:getWidth()
 
 	add_entity(player.name, "PLAYER", player)
 
 	user_alive = true
 end
-
--- Made redundant by get_entity_image
--- function get_player_img(player)
--- 	local img = nil
--- 	img = player.states[player.state].frames[player.states[player.state].currentFrame]
--- 	return img
--- end
 
 function process_input(dt)
 	if player.state == "STAND" or player.state == "RUN" or player.state == "DASH" then
@@ -130,9 +100,8 @@ end
 
 function update_player_state(state)
 	if player.state ~= state then player.state = state end
-	--player.states[player.state].currentFrame = 1
-	player.height = player.states[state].frames[1]:getHeight()
-	player.width = player.states[state].frames[1]:getWidth()
+	player.height = player.sprite_instance[state].frames[1]:getHeight()
+	player.width = player.sprite_instance[state].frames[1]:getWidth()
 end
 
 function update_player_movement(dt)

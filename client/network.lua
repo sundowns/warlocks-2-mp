@@ -23,7 +23,7 @@ end
 
 function confirm_join()
 	print("my name is " .. settings.username)
-	server:send(create_json_packet({client_version = client_version}, "JOIN", settings.username))
+	server:send(create_json_packet({client_version = CLIENT_VERSION}, "JOIN", settings.username))
 	connected = true
 end
 

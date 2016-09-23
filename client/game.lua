@@ -1,10 +1,14 @@
 game = {} -- the game state
 
-function game:enter(previous)
+function game:init()
 	require("world")
 	require("player")
-  love.graphics.setBackgroundColor(0,0,0)
+	require("spritemanager")
 	net_initialise()
+end
+
+function game:enter(previous)
+  love.graphics.setBackgroundColor(0,0,0)
 	prepare_camera()
 end
 
@@ -85,15 +89,17 @@ function game:draw()
 	for k, entity in pairs(world) do
 		if entity.entity_type == "PLAYER" then
 			local img = get_entity_image(player)
+
 			if player.orientation == "LEFT" then
-				love.graphics.draw(img, entity.x, entity.y, 0, -1, 1)
+				draw_instance(entity.sprite_instance, entity.x, entity.y, true)
 			elseif player.orientation == "RIGHT" then
-				love.graphics.draw(img, entity.x, entity.y, 0)
+				draw_instance(entity.sprite_instance, entity.x, entity.y)
 			end
 
-		elseif entity.entity_type == "ENEMY" then
-			local enemy = world[k]
-			love.graphics.draw(get_entity_image(enemy), enemy.x, enemy.y)
+			-- ONCE WE GET ENEMIES GOING WITH SPRITE SHIT TOO
+		-- elseif entity.entity_type == "ENEMY" then
+		-- 	local enemy = world[k]
+		-- 	love.graphics.draw(get_entity_image(enemy), enemy.x, enemy.y)
 		end
 	end
 
