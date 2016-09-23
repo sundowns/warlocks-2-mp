@@ -1,6 +1,5 @@
 game = {} -- the game state
 
-
 function game:enter(previous)
 	require("world")
 	require("player")

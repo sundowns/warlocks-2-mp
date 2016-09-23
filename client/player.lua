@@ -99,7 +99,7 @@ function process_input(dt)
 		end
 		if love.keyboard.isDown(player.controls["DOWN"]) then
 			player.y_vel = math.min(player.y_vel + (player.acceleration+bonus)*dt, player.max_movement_velocity)
-			if player.y_vel < -40*player.dash.acceleration and player.state ~= "DASH" then
+			if player.y_vel > -1*player.dash.acceleration and player.state ~= "DASH" then
 				begin_dash("DOWN")
 			end
 		end
