@@ -4,12 +4,12 @@ image_bank = {}
 local manager_version = "0.0.1"
 
 function load_sprite(sprite_def)
-  local sprite_file = dofile(sprite_def)
-
-	if sprite_file == nil then
-        print("Attempt to load an invalid file (inexistent or syntax errors?): "
-                ..sprite_def)
-        return nil
+  local err, sprite_file
+  sprite_file, err = love.filesystem.load(sprite_def)
+  --ok, sprite_file = pcall( love.filesystem.load, sprite_def )
+  if not sprite_file then
+    print('[ERROR] The following error happend: ' .. tostring(err))
+    return nil
   end
 
   local old_sprite = sprite_bank[sprite_def]
@@ -43,13 +43,11 @@ function get_sprite_instance(sprite_def)
       if sprite_def == nil then return nil end
 
       if sprite_bank[sprite_def] == nil then
-          if load_sprite (sprite_def) == nil then return nil end
-          print("hey we loaded the sprite")
+          if load_sprite(sprite_def) == nil then return nil end
       end
-
       return {
           sprite = sprite_bank[sprite_def],
-          curr_anim = sprite_bank[sprite_def].animations[1],
+          curr_anim = sprite_bank[sprite_def].animations_names[1],
           curr_frame = 1,
           elapsed_time = 0,
           size_scale = 1,
@@ -70,19 +68,20 @@ function update_sprite_instance(instance, dt)
     end
 end
 
-function draw_instance (sprite, x, y, flip_x, flip_y)
-    local x_scale = spr.size_scale
-    local y_scale = spr.size_scale
+function draw_instance (instance, x, y, flip_x, flip_y)
+    local x_scale = instance.size_scale
+    local y_scale = instance.size_scale
 
     if flip_x then x_scale = -1*x_scale end
     if flip_y then y_scale = -1*y_scale end
 
+    dbg("curranim: " .. instance.curr_anim .. "currframe: " .. instance.curr_frame)
     love.graphics.draw (
-        image_bank[sprite.sprite.sprite_sheet],
-        sprite.sprite.animations[sprite.curr_anim][sprite.curr_frame],
+        image_bank[instance.sprite.image],
+        instance.sprite.animations[instance.curr_anim][instance.curr_frame],
         x,
         y,
-        sprite.rotation,
+        instance.rotation,
         x_scale,
         y_scale
     )

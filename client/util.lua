@@ -62,32 +62,6 @@ function dbg(msg)
   if settings.debug then print(msg) end
 end
 
---Consider putting these camera functions somewhere else more appropriate..
-function prepare_camera()
-	camera = Camera(0, 0)
-	camera:zoom(1.25)
-end
-
-function update_camera()
-	local camX, camY = camera:position()
-	local newX, newY = camX, camY
-	if (player.x > camX + love.graphics.getWidth()*0.05) then
-		newX = player.x - love.graphics.getWidth()*0.05
-	end
-	if (player.x < camX - love.graphics.getWidth()*0.05) then
-		newX = player.x + love.graphics.getWidth()*0.05
-	end
-	if (player.y > camY + love.graphics.getHeight()*0.035) then
-		newY = player.y - love.graphics.getHeight()*0.035
-	end
-	if (player.y < camY - love.graphics.getHeight()*0.035) then
-		newY = player.y + love.graphics.getHeight()*0.035
-	end
-
-	--camera:lookAt(newX, newY)
-	camera:lockPosition(newX, newY, camera.smooth.damped(3))
-end
-
 function print_table(it, name)
   if name then dbg("Printing table: " .. name) end
   for k, v in pairs(it) do

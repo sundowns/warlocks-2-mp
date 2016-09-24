@@ -3,9 +3,9 @@ local img_h = 440
 
 return {
     serialization_version = "0.0.1",
-    name = "player_red",
-    image = "assets/sprites/player-red.png",
-    frame_duration = 0.1,
+    name = "player_green",
+    image = "assets/sprites/player-green.png",
+    frame_duration = 0.025,
     animations_names = {
         "STAND",
         "DASH",
@@ -14,13 +14,13 @@ return {
     },
     animations = {
       STAND = {
-        love.graphics.newQuad( 1, 1, 20, 20, img_w, img_h )
+        love.graphics.newQuad( 1, 1, 20, 20, img_w, img_h)
       },
       DASH = {
-        love.graphics.newQuad( 1, 23, 20, 20, img_w, img_h )
+        love.graphics.newQuad( 1, 23, 20, 20, img_w, img_h)
       },
       RUN = {
-        love.graphics.newQuad( 1, 45, 20, 20, img_w, img_h )
+        love.graphics.newQuad( 1, 45, 20, 20, img_w, img_h)
       },
       TURN = {
         love.graphics.newQuad( 1, 67, 20, 20, img_w, img_h),

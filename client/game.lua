@@ -45,18 +45,14 @@ function game:update(dt)
 				event = listen()
 				if event and event.type == "receive" then
 					payload = json.decode(event.data)
-					dbg("receiving packet cmd: " ..payload.cmd)
-					if payload.cmd == "ENTITYAT" then
-						assert(payload.x and payload.y and payload.entity_type and payload.x_vel and payload.y_vel)
-						x, y, x_vel, y_vel = tonumber(payload.x), tonumber(payload.y), tonumber(payload.x_vel), tonumber(payload.y_vel)
+					if payload.cmd == "ENTITYUPDATE" then
+						assert(payload.alias)
 						if world[payload.alias] == nil then
-							add_entity(payload.alias, payload.entity_type, {name = payload.alias, colour = payload.colour or nil, x=x, y=y, x_vel=x_vel, y_vel=y_vel})
+							server_entity_create(payload)
 						else
-							if payload.alias ~= player.name then
-								world[payload.alias].x = round_to_nth_decimal(x, 2)
-								world[payload.alias].y = round_to_nth_decimal(y, 2)
-								world[payload.alias].x_vel = round_to_nth_decimal(x_vel, 2)
-								world[payload.alias].y_vel = round_to_nth_decimal(y_vel, 2)
+							if payload.alias ~= player.name then --were not updating ourself???
+								server_entity_update(payload.alias, payload)
+
 							end
 						end
 					elseif payload.cmd == 'ENTITYDESTROY' then
@@ -87,20 +83,11 @@ function game:draw()
 	love.graphics.circle( "fill", 0, 0, 150, 100 )
 	reset_colour()
 	for k, entity in pairs(world) do
-		if entity.entity_type == "PLAYER" then
-			local img = get_entity_image(player)
-
-			if player.orientation == "LEFT" then
-				draw_instance(entity.sprite_instance, entity.x, entity.y, true)
-			elseif player.orientation == "RIGHT" then
-				draw_instance(entity.sprite_instance, entity.x, entity.y)
+			if entity.orientation == "LEFT" then
+				draw_instance(entity.sprite_instance, entity.x+entity.width/2, entity.y-entity.height/2, true)
+			elseif entity.orientation == "RIGHT" then
+				draw_instance(entity.sprite_instance, entity.x-entity.width/2, entity.y-entity.height/2)
 			end
-
-			-- ONCE WE GET ENEMIES GOING WITH SPRITE SHIT TOO
-		-- elseif entity.entity_type == "ENEMY" then
-		-- 	local enemy = world[k]
-		-- 	love.graphics.draw(get_entity_image(enemy), enemy.x, enemy.y)
-		end
 	end
 
 	if settings.debug then
@@ -112,6 +99,9 @@ function game:draw()
 		set_font_size(12)
 		love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), camera:worldCoords(0,0))
 		reset_font()
+		love.graphics.setColor(0, 255, 255, 255)
+		love.graphics.circle('fill', player.x, player.y, 2, 16)
+		reset_colour()
 	end
 
 	if not connected then

@@ -23,7 +23,7 @@ end
 
 function confirm_join()
 	print("my name is " .. settings.username)
-	server:send(create_json_packet({client_version = CLIENT_VERSION}, "JOIN", settings.username))
+	server:send(create_json_packet({client_version = constants.CLIENT_VERSION}, "JOIN", settings.username))
 	connected = true
 end
 
@@ -37,5 +37,5 @@ end
 
 function send_player_update(inPlayer, inName)
 	if not connected then return end
-	server:send(create_json_packet(inPlayer, "MOVE", inName))
+	server:send(create_json_packet(inPlayer, "PLAYERUPDATE", inName))
 end

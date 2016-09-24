@@ -3,70 +3,26 @@ package.path = './?.lua;' .. package.path
 require "socket" -- to keep track of time
 json = require("json")
 constants = require("constants")
-local enet = require "enet"
-local host = enet.host_create("localhost:12345")
+enet = require "enet"
+host = enet.host_create("localhost:12345")
 --host:bandwidth_limit(1024000, 1024000)
 
 server_version = "0.0.1"
 require("util")
+require("network")
 
-local client_player_map = {} -- look up player alias' by client ip
-local world = {} -- the empty world-state
+world = {} -- the empty world-state
 world["players"] = {} -- player collection
-
-local deleted = {} -- buffer table of entity delete message to send to all clients
+deleted = {} -- buffer table of entity delete message to send to all clients
 local running = true
 local t = 0
 local prevTime = socket.gettime()
-local tick = 0
+tick = 0
 local tick_timer = 0
 
-local unused_colours = {"green", "purple", "red"}
-
-local client_count = 0
-local client_list = {}
+local unused_colours = {"purple","green","red" }
 
 
-function send_world_update()
-	for k, player in pairs(world["players"]) do
-		host:broadcast(create_json_packet(create_player_payload(player), "ENTITYAT", k))
-	end
-
-	for k, v in pairs(deleted) do
-		host:broadcast(create_json_packet(v, "ENTITYDESTROY", k))
-	end
-end
-
-function send_error_packet(peer, message)
-	local data = { message = message}
-	peer:send(create_json_packet(data, "SERVERERROR"))
-end
-
-function send_join_accept(peer, colour)
-	peer:send(create_json_packet({colour = colour , server_tick = tick}, "JOINACCEPTED"))
-end
-
-function remove_client(peer, msg)
-	if (msg) then print(msg) end
-
-	local entId = client_player_map[peer]
-	if entId then
-		remove_entity(entId)
-	end
-
-	client_list[peer] = nil
-	client_count = client_count - 1
-	peer:disconnect()
-end
-
-function update_client_timeout(dt)
-	for k, v in pairs(client_list) do
-		v.time_since_last_msg = v.time_since_last_msg + dt
-		if v.time_since_last_msg > constants.CLIENT_TIMEOUT then
-			remove_client(k, v.name.." user timed out")
-		end
-	end
-end
 
 function update_entity_positions(dt)
 	for id, ent in pairs(world) do
@@ -109,14 +65,16 @@ while running do
 						client_list[event.peer].time_since_last_msg = 0
 					end
 					assert(payload.cmd)
-					if payload.cmd == "MOVE" then
+					if payload.cmd == "PLAYERUPDATE" then
 						if client_list[event.peer] then
-							assert(payload.x_vel and payload.y_vel and payload.x and payload.y)
+							assert(payload.x_vel and payload.y_vel and payload.x and payload.y and payload.state)
 							local ent = world["players"][payload.alias]
+							--VERIFY POSITION COORDINATES
+							--VERIFY STATE CHANGE
 							if ent then
-								world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type}
+								world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
 							else
-								print("tried to MOVE non existing player. " .. payload.alias)
+								print("tried to UPDATE non existing player. " .. payload.alias)
 							end
 						end
 					elseif payload.cmd == 'JOIN' then
