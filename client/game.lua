@@ -27,6 +27,7 @@ function game:update(dt)
 
 	if tick_timer > constants.TICKRATE then -- THIS SHOULD BE USED FOR COMMUNCATION TO/FROM SERVER/KEEPING IN SYNC
 		tick = tick + 1
+		print("tick: " ..tick .. " tick_timer: " .. tick_timer)
 		tick_timer = tick_timer - constants.TICKRATE
 
 		if connected and user_alive and tick%4 == 0 then

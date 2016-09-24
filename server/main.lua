@@ -53,7 +53,8 @@ while running do
 
 	if tick_timer > constants.TICKRATE then
 		tick = tick + 1
-		tick_timer = 0
+		print("tick: " ..tick .. " tick_timer: " .. tick_timer)
+		tick_timer = tick_timer - constants.TICKRATE
 		local event = host:service()
 		while event ~= nil do
 			if event.type == "receive" then
