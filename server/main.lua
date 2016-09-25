@@ -22,8 +22,6 @@ local tick_timer = 0
 
 local unused_colours = {"purple","green","red" }
 
-
-
 function update_entity_positions(dt)
 	for id, ent in pairs(world) do
 		if ent.x_vel and ent.y_vel then
@@ -53,7 +51,6 @@ while running do
 
 	if tick_timer > constants.TICKRATE then
 		tick = tick + 1
-		print("tick: " ..tick .. " tick_timer: " .. tick_timer)
 		tick_timer = tick_timer - constants.TICKRATE
 		local event = host:service()
 		while event ~= nil do
@@ -68,6 +65,8 @@ while running do
 					assert(payload.cmd)
 					if payload.cmd == "PLAYERUPDATE" then
 						if client_list[event.peer] then
+							assert(payload.client_tick)
+							print("received a msg from ".. payload.alias .. " at client_tick: " .. payload.client_tick .. " curr_svr_tick: " .. tick)
 							assert(payload.x_vel and payload.y_vel and payload.x and payload.y and payload.state)
 							local ent = world["players"][payload.alias]
 							--VERIFY POSITION COORDINATES
@@ -89,8 +88,8 @@ while running do
 								send_error_packet(event.peer, "The alias " .. payload.alias .. " is already in use.")
 								remove_client(payload.alias, "Duplicate alias")
 							else
-								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = client_list[event.peer].colour }
 								client_player_map[event.peer] = payload.alias
+								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = client_list[event.peer].colour, state=payload.state }
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then

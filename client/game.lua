@@ -5,6 +5,9 @@ function game:init()
 	require("player")
 	require("spritemanager")
 	net_initialise()
+	print("setting tick to 0...")
+	tick = 0
+	tick_timer = 0
 end
 
 function game:enter(previous)
@@ -27,7 +30,6 @@ function game:update(dt)
 
 	if tick_timer > constants.TICKRATE then -- THIS SHOULD BE USED FOR COMMUNCATION TO/FROM SERVER/KEEPING IN SYNC
 		tick = tick + 1
-		print("tick: " ..tick .. " tick_timer: " .. tick_timer)
 		tick_timer = tick_timer - constants.TICKRATE
 
 		if connected and user_alive and tick%4 == 0 then
@@ -48,12 +50,13 @@ function game:update(dt)
 					payload = json.decode(event.data)
 					if payload.cmd == "ENTITYUPDATE" then
 						assert(payload.alias)
+						assert(payload.server_tick)
+						dbg("received a msg from server at server_tick: " .. payload.server_tick.. " curr_client_tick: " .. tick)
 						if world[payload.alias] == nil then
 							server_entity_create(payload)
 						else
 							if payload.alias ~= player.name then --were not updating ourself???
 								server_entity_update(payload.alias, payload)
-
 							end
 						end
 					elseif payload.cmd == 'ENTITYDESTROY' then
@@ -65,7 +68,6 @@ function game:update(dt)
 						prepare_player(payload.colour)
 						confirm_join()
 					else
-						dbg(event.data)
 						dbg("unrecognised command:", payload.cmd)
 					end
 				elseif event and event.type == "connect" then

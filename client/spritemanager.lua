@@ -75,7 +75,6 @@ function draw_instance (instance, x, y, flip_x, flip_y)
     if flip_x then x_scale = -1*x_scale end
     if flip_y then y_scale = -1*y_scale end
 
-    dbg("curranim: " .. instance.curr_anim .. "currframe: " .. instance.curr_frame)
     love.graphics.draw (
         image_bank[instance.sprite.image],
         instance.sprite.animations[instance.curr_anim][instance.curr_frame],

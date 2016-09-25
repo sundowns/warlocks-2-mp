@@ -51,13 +51,6 @@ function round_to_nth_decimal(num, n)
   return math.floor(num * mult + 0.5) / mult
 end
 
---DONT USE JSON, USE SOME BINARY SERIALISATION OR SUMMIN. JSON IS SLOW
-function create_json_packet(payload, cmd, alias)
-  if alias then payload.alias = alias end
-  payload.cmd = cmd
-  return json.encode(payload)
-end
-
 function dbg(msg)
   if settings.debug then print(msg) end
 end

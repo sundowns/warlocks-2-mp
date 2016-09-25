@@ -43,7 +43,7 @@ function prepare_player(colour)
 end
 
 function process_input(dt)
-	if player.state == "STAND" or player.state == "RUN" or player.state == "DASH" or player.state == "TURN" then
+	if player.state == "STAND" or player.state == "RUN" or player.state == "DASH" then --or player.state == "TURN"
 		local bonus = 0
 		if player.state == "DASH" then bonus = 50 end
 		if love.keyboard.isDown(settings.controls['RIGHT'])  then
@@ -51,9 +51,9 @@ function process_input(dt)
 			if (player.x_vel > -1*player.dash.acceleration and player.state == "STAND") or (player.state == "DASH" and player.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("RIGHT")
 			end
-			if player.x_vel < 0 and player.state == "RUN" then -- we were going left, lets turn
-				begin_turn("RIGHT")
-			end
+			-- if player.x_vel < 0 and player.state == "RUN" then -- we were going left, lets turn
+			-- 	begin_turn("RIGHT")
+			-- end
 
 		end
 		if love.keyboard.isDown(settings.controls["LEFT"]) then
@@ -61,9 +61,9 @@ function process_input(dt)
 			if (player.x_vel < player.dash.acceleration and player.state == "STAND") or (player.state == "DASH" and player.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("LEFT")
 			end
-			if player.x_vel > 0 and player.state == "RUN" then -- we were going left, lets turn
-				begin_turn("LEFT")
-			end
+			-- if player.x_vel > 0 and player.state == "RUN" then -- we were going right, lets turn
+			-- 	begin_turn("LEFT")
+			-- end
 			if player.state == "DASH" and player.orientation == "RIGHT" then
 				begin_dash("LEFT")
 			end
@@ -92,30 +92,29 @@ function cooldowns(dt)
 		end_dash()
 	end
 
-	if player.state == "TURN" then
-		player.turn.timer = player.turn.timer - dt
-	end
-
-	dbg("turn timer: " .. player.turn.timer .. " duration: " .. player.turn.duration)
-	if player.turn.timer < 0 then
-		end_turn()
-	end
+	-- if player.state == "TURN" then
+	-- 	player.turn.timer = player.turn.timer - dt
+	-- end
+	--
+	-- dbg("turn timer: " .. player.turn.timer .. " duration: " .. player.turn.duration)
+	-- if player.turn.timer < 0 then
+	-- 	end_turn()
+	-- end
 end
 
-function begin_turn(direction)
-	update_player_state("TURN")
-	player.acceleration =	round_to_nth_decimal(player.acceleration*0.3, 2)
-end
-
-function end_turn()
-	player.turn.timer = player.turn.duration
-	print("WE ENDING TURN")
-	update_player_state("STAND")
-	player.acceleration = round_to_nth_decimal(player.acceleration*(1/0.3), 2)
-end
+-- function begin_turn(direction)
+-- 	update_player_state("TURN")
+-- 	player.acceleration =	round_to_nth_decimal(player.acceleration*0.3, 2)
+-- end
+--
+-- function end_turn()
+-- 	player.turn.timer = player.turn.duration
+-- 	print("WE ENDING TURN")
+-- 	update_player_state("STAND")
+-- 	player.acceleration = round_to_nth_decimal(player.acceleration*(1/0.3), 2)
+-- end
 
 function begin_dash(direction)
-	print("WE BEGIN DASH")
 	update_player_state("DASH")
 	player.dash.timer = player.dash.duration
 	player.dash.direction = direction
@@ -129,7 +128,7 @@ function end_dash()
 end
 
 function update_player_state(state)
-	dbg("changing from " .. player.state .. " to " .. state)
+	--dbg("changing from " .. player.state .. " to " .. state)
 	update_entity_state(player, state)
 end
 

@@ -23,7 +23,7 @@ end
 
 function confirm_join()
 	print("my name is " .. settings.username)
-	server:send(create_json_packet({client_version = constants.CLIENT_VERSION}, "JOIN", settings.username))
+	server:send(create_json_packet({client_version = constants.CLIENT_VERSION}, "JOIN", tick, settings.username))
 	connected = true
 end
 
@@ -37,5 +37,13 @@ end
 
 function send_player_update(inPlayer, inName)
 	if not connected then return end
-	server:send(create_json_packet(inPlayer, "PLAYERUPDATE", inName))
+	server:send(create_json_packet(inPlayer, "PLAYERUPDATE", tick, inName))
+end
+
+--DONT USE JSON, USE SOME BINARY SERIALISATION OR SUMMIN. JSON IS SLOW
+function create_json_packet(payload, cmd, tick, alias)
+  if alias then payload.alias = alias end
+  payload.cmd = cmd
+	payload.client_tick = tick
+  return json.encode(payload)
 end

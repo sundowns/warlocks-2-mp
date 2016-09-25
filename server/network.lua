@@ -4,11 +4,11 @@ client_player_map = {} -- look up player alias' by client ip
 
 function send_world_update()
 	for k, player in pairs(world["players"]) do
-		host:broadcast(create_json_packet(create_player_payload(player), "ENTITYUPDATE", k))
+		host:broadcast(create_json_packet(create_player_payload(player), "ENTITYUPDATE", tick, k))
 	end
 
 	for k, v in pairs(deleted) do
-		host:broadcast(create_json_packet(v, "ENTITYDESTROY", k))
+		host:broadcast(create_json_packet(v, "ENTITYDESTROY", tick, k))
 	end
 end
 
@@ -18,11 +18,11 @@ end
 
 function send_error_packet(peer, message)
 	local data = { message = message}
-	peer:send(create_json_packet(data, "SERVERERROR"))
+	peer:send(create_json_packet(data, "SERVERERROR", tick))
 end
 
 function send_join_accept(peer, colour)
-	peer:send(create_json_packet({colour = colour , server_tick = tick}, "JOINACCEPTED"))
+	peer:send(create_json_packet({colour = colour}, "JOINACCEPTED", tick))
 end
 
 function remove_client(peer, msg)
@@ -48,8 +48,9 @@ function update_client_timeout(dt)
 end
 
 --DONT USE JSON ITS FKN SLOW NOOB. Use it to read settins file tho that's sexy
-function create_json_packet(payload, cmd, alias)
+function create_json_packet(payload, cmd, tick, alias)
   if alias then payload.alias = alias end
+	payload.server_tick = tick
   payload.cmd = cmd
   return json.encode(payload)
 end

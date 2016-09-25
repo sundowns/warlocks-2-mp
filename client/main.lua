@@ -1,8 +1,6 @@
 package.path = './?.lua;' .. './libs/?.lua;' .. './assets/sprites/?.lua;' .. package.path
 
 user_alive = false
-tick = 0
-tick_timer = 0
 
 function love.load()
 	math.randomseed(os.time())
