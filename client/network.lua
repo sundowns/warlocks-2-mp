@@ -5,7 +5,6 @@ connected = false
 
 --local socket = require "socket"
 local address, port = "localhost", "12345"
-netUpdateRate = 8 -- Every 8 ticks (64/4 = 16)
 updateTimer = 0 -- timer for network updates
 worldTime = 0 -- timer
 

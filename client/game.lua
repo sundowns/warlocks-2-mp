@@ -39,7 +39,7 @@ function game:update(dt)
 	   	end
 	 	end
 
-		if tick%netUpdateRate == 0 then
+		if tick%constants.NET_UPDATE_RATE == 0 then
 			if user_alive then
 				send_player_update(player, settings.username)
 			end
