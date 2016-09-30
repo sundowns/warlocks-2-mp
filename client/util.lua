@@ -55,9 +55,9 @@ function dbg(msg)
   if settings.debug then print(msg) end
 end
 
-function print_table(it, name)
+function print_table(table, name)
   if name then dbg("Printing table: " .. name) end
-  for k, v in pairs(it) do
+  for k, v in pairs(table) do
     dbg("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
   end
 end

@@ -59,7 +59,7 @@ function server_entity_create(entity)
 	assert(entity.x, "Invalid x coordinate value for entity creation")
 	assert(entity.y, "Invalid y coordinate value for entity creation")
 	assert(entity.entity_type, "Invalid entity_type value for entity creation")
-	assert(entity.state, "Invalid state value for entity creation")
+	--assert(entity.state, "Invalid state value for entity creation")
 	x, y, x_vel, y_vel = tonumber(entity.x), tonumber(entity.y), tonumber(entity.x_vel), tonumber(entity.y_vel)
 	add_entity(entity.alias, entity.entity_type, {name = entity.alias, colour = entity.colour or nil, x=x, y=y, x_vel=x_vel or 0, y_vel=y_vel or 0, state=entity.state})
 end

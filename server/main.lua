@@ -66,11 +66,13 @@ while running do
 					if payload.cmd == "PLAYERUPDATE" then
 						if client_list[event.peer] then
 							assert(payload.client_tick)
-							print("received a msg from ".. payload.alias .. " at client_tick: " .. payload.client_tick .. " curr_svr_tick: " .. tick)
+							--print("received a msg from ".. payload.alias .. " at client_tick: " .. payload.client_tick .. " curr_svr_tick: " .. tick)
 							assert(payload.x_vel and payload.y_vel and payload.x and payload.y and payload.state)
 							local ent = world["players"][payload.alias]
-							--VERIFY POSITION COORDINATES
-							--VERIFY STATE CHANGE
+
+							--TODO: VERIFY POSITION COORDINATES
+							--TODO: VERIFY STATE CHANGE
+							
 							if ent then
 								world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
 							else
@@ -83,7 +85,7 @@ while running do
 							remove_client(event.peer, event.peer .. " version " .. payload.client_version .. " conflicts with server version " .. server_version)
 						else
 							client_list[event.peer].name = payload.alias
-							send_world_update(event.peer, payload.alias)
+							--send_world_update(event.peer, payload.alias)
 							if world["players"][payload.alias] then
 								send_error_packet(event.peer, "The alias " .. payload.alias .. " is already in use.")
 								remove_client(payload.alias, "Duplicate alias")

@@ -21,3 +21,10 @@ function round_to_nth_decimal(num, n)
   local mult = 10^(n or 0)
   return math.floor(num * mult + 0.5) / mult
 end
+
+function print_table(table, name)
+  if name then print("Printing table: " .. name) end
+  for k, v in pairs(table) do
+    print("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
+  end
+end

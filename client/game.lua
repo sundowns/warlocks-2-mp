@@ -51,7 +51,7 @@ function game:update(dt)
 					if payload.cmd == "ENTITYUPDATE" then
 						assert(payload.alias)
 						assert(payload.server_tick)
-						dbg("received a msg from server at server_tick: " .. payload.server_tick.. " curr_client_tick: " .. tick)
+						--dbg("received a msg from server at server_tick: " .. payload.server_tick.. " curr_client_tick: " .. tick)
 						if world[payload.alias] == nil then
 							server_entity_create(payload)
 						else
@@ -102,9 +102,11 @@ function game:draw()
 		set_font_size(12)
 		love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), camera:worldCoords(0,0))
 		reset_font()
-		love.graphics.setColor(0, 255, 255, 255)
-		love.graphics.circle('fill', player.x, player.y, 2, 16)
-		reset_colour()
+		if user_alive then
+			love.graphics.setColor(0, 255, 255, 255)
+			love.graphics.circle('fill', player.x, player.y, 2, 16)
+			reset_colour()
+		end
 	end
 
 	if not connected then

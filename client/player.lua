@@ -15,9 +15,9 @@ function prepare_player(colour)
 			acceleration = 250,
 			dash = {
 				acceleration = 100,
-				duration = 1,
-				timer = 1,
-				cancellable_after = 0.7 --after timer is 0.7, so after 0.3seconds
+				duration = 0.3,
+				timer = 0.3,
+				cancellable_after = 0.1 --after timer is 0.7, so after 0.3seconds
 			},
 			turn = {
 				duration = 0.275,
@@ -64,9 +64,9 @@ function process_input(dt)
 			-- if player.x_vel > 0 and player.state == "RUN" then -- we were going right, lets turn
 			-- 	begin_turn("LEFT")
 			-- end
-			if player.state == "DASH" and player.orientation == "RIGHT" then
-				begin_dash("LEFT")
-			end
+			-- if player.state == "DASH" and player.orientation == "RIGHT" then
+			-- 	begin_dash("LEFT")
+			-- end
 		end
 		if love.keyboard.isDown(settings.controls["UP"]) then
 			player.y_vel = math.max(player.y_vel - (player.acceleration-bonus)*dt , -1*player.max_movement_velocity)
