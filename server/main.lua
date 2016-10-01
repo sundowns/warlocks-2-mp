@@ -20,7 +20,7 @@ local prevTime = socket.gettime()
 tick = 0
 local tick_timer = 0
 
-local unused_colours = {"purple","green","red" }
+local unused_colours = {"purple","green","red", "blue", "orange"}
 
 function update_entity_positions(dt)
 	for id, ent in pairs(world) do
@@ -72,7 +72,7 @@ while running do
 
 							--TODO: VERIFY POSITION COORDINATES
 							--TODO: VERIFY STATE CHANGE
-							
+
 							if ent then
 								world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
 							else
@@ -91,7 +91,7 @@ while running do
 								remove_client(payload.alias, "Duplicate alias")
 							else
 								client_player_map[event.peer] = payload.alias
-								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=0,y=0, entity_type = "PLAYER", colour = client_list[event.peer].colour, state=payload.state }
+								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=500,y=500, entity_type = "PLAYER", colour = client_list[event.peer].colour, state=payload.state }
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then

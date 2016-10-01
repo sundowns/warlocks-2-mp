@@ -3,8 +3,8 @@ local img_h = 440
 
 return {
     serialization_version = "0.0.1",
-    name = "player_green",
-    image = "assets/sprites/player-green.png",
+    name = "player_blue",
+    image = "assets/sprites/player-blue.png",
     frame_duration = 0.025,
     animations_names = {
         "STAND",

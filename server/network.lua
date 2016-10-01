@@ -4,7 +4,7 @@ client_player_map = {} -- look up player alias' by client ip
 
 function send_world_update()
 	for k, player in pairs(world["players"]) do
-		print_table(player, "printing out player: " .. k)
+		--print_table(player, "printing out player: " .. k)
 		host:broadcast(create_json_packet(create_player_payload(player), "ENTITYUPDATE", tick, k))
 	end
 

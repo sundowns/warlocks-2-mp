@@ -49,7 +49,7 @@ function server_entity_update(entity, update)
 
 	local ent = world[entity]
 	if not ent then return nil end
-	--ent = update_entity_state(ent, update.state) --COMMENTED UNTIL WE GET SERVER DATA CORRECTION
+	ent = update_entity_state(ent, update.state) --COMMENTED UNTIL WE GET SERVER DATA CORRECTION
 	ent = update_entity_position(ent, x, y, x_vel, y_vel)
 	world[entity] = ent
 end
@@ -121,7 +121,7 @@ end
 
 function prepare_camera()
 	camera = Camera(0, 0)
-	camera:zoom(1.5)
+	camera:zoom(2)
 end
 
 function update_camera()

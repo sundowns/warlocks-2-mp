@@ -3,14 +3,13 @@ local img_h = 440
 
 return {
     serialization_version = "0.0.1",
-    name = "player_red",
-    image = "assets/sprites/player-red.png",
+    name = "player_orange",
+    image = "assets/sprites/player-orange.png",
     frame_duration = 0.1,
     animations_names = {
         "STAND",
         "DASH",
-        "RUN",
-        "TURN"
+        "RUN"
     },
     animations = {
       STAND = {

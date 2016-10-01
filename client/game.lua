@@ -4,6 +4,7 @@ function game:init()
 	require("world")
 	require("player")
 	require("spritemanager")
+	require("stagemanager")
 	net_initialise()
 	print("setting tick to 0...")
 	tick = 0
@@ -13,6 +14,7 @@ end
 function game:enter(previous)
   love.graphics.setBackgroundColor(0,0,0)
 	prepare_camera()
+	load_stage("arena1.lua")
 end
 
 function game:update(dt)
@@ -24,6 +26,7 @@ function game:update(dt)
 		update_player_movement(dt)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
 		cooldowns(dt)
+		dbg("player x: " ..player.x .. " y: " .. player.y)
 	end
 
 	update_entities(dt)
@@ -82,8 +85,7 @@ end
 
 function game:draw()
 	if user_alive then camera:attach() end
-	love.graphics.setColor(255, 128, 128)
-	love.graphics.circle( "fill", 0, 0, 150, 100 )
+	draw_stage()
 	reset_colour()
 	for k, entity in pairs(world) do
 			if entity.orientation == "LEFT" then
