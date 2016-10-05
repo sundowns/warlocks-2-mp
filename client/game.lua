@@ -6,6 +6,7 @@ function game:init()
 	require("spritemanager")
 	require("stagemanager")
 	net_initialise()
+	load_stage("arena1.lua")
 	print("setting tick to 0...")
 	tick = 0
 	tick_timer = 0
@@ -14,7 +15,6 @@ end
 function game:enter(previous)
   love.graphics.setBackgroundColor(0,0,0)
 	prepare_camera()
-	load_stage("arena1.lua")
 end
 
 function game:update(dt)

@@ -19,14 +19,13 @@ function load_stage(filename)
   end
 end
 
-
 function draw_stage()
   if stage == nil then return end
   local x, y = 0, 0
   if user_alive then
-    x, y = camera:worldCoords(player.x, player.y)
+    x, y = camera:position()
   end
-  dbg("draw range tX: " .. x .. " tY: " .. y)
+  dbg("stage (tiles) width: " .. stage.width .. " height: " .. stage.height)
 	stage:setDrawRange(x-love.graphics.getWidth()/2, y-love.graphics.getHeight()/2, love.graphics.getWidth(), love.graphics.getHeight())
   stage:drawLayer(stage.layers["Ground"] )
   stage:drawLayer(stage.layers["Lava"] )

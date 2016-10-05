@@ -42,12 +42,12 @@ function prepare_player(colour)
 	user_alive = true
 end
 
-function process_input(dt)
+function process_input(dt) -- YOU NEED TO HAVE A SYSTEM FOR POLLING INPUTS, SO MOVEMENT IS CONSISTENT ACROSS ALL PLATFORMS
 	if player.state == "STAND" or player.state == "RUN" or player.state == "DASH" then --or player.state == "TURN"
-		local bonus = 0
-		if player.state == "DASH" then bonus = 50 end
+		local dash_multiplier = 1
+		if player.state == "DASH" then dash_multiplier = 1.5 end
 		if love.keyboard.isDown(settings.controls['RIGHT'])  then
-			player.x_vel = math.min(player.x_vel + (player.acceleration+bonus)*dt, player.max_movement_velocity)
+			player.x_vel = math.min(player.x_vel + (player.acceleration*dash_multiplier)*dt, player.max_movement_velocity)
 			if (player.x_vel > -1*player.dash.acceleration and player.state == "STAND") or (player.state == "DASH" and player.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("RIGHT")
 			end
@@ -57,7 +57,7 @@ function process_input(dt)
 
 		end
 		if love.keyboard.isDown(settings.controls["LEFT"]) then
-			player.x_vel = math.max(player.x_vel - (player.acceleration-bonus)*dt, -1*player.max_movement_velocity)
+			player.x_vel = math.max(player.x_vel - (player.acceleration*dash_multiplier)*dt, -1*player.max_movement_velocity)
 			if (player.x_vel < player.dash.acceleration and player.state == "STAND") or (player.state == "DASH" and player.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("LEFT")
 			end
@@ -69,13 +69,13 @@ function process_input(dt)
 			-- end
 		end
 		if love.keyboard.isDown(settings.controls["UP"]) then
-			player.y_vel = math.max(player.y_vel - (player.acceleration-bonus)*dt , -1*player.max_movement_velocity)
+			player.y_vel = math.max(player.y_vel - (player.acceleration*dash_multiplier)*dt , -1*player.max_movement_velocity)
 			if player.y_vel < player.dash.acceleration and player.state == "STAND" then
 				begin_dash("UP")
 			end
 		end
 		if love.keyboard.isDown(settings.controls["DOWN"]) then
-			player.y_vel = math.min(player.y_vel + (player.acceleration+bonus)*dt, player.max_movement_velocity)
+			player.y_vel = math.min(player.y_vel + (player.acceleration*dash_multiplier)*dt, player.max_movement_velocity)
 			if player.y_vel > -1*player.dash.acceleration and player.state == "STAND" then
 				begin_dash("DOWN")
 			end

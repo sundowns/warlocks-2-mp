@@ -121,7 +121,7 @@ end
 
 function prepare_camera()
 	camera = Camera(0, 0)
-	camera:zoom(2)
+	camera:zoom(1.5)
 end
 
 function update_camera()

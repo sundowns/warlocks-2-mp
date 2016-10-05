@@ -9,5 +9,5 @@ function love.conf(t)
 	t.window.icon = "assets/misc/logo.png"
 
 	t.console = true --for windows debugging
-	t.window.vsync = false
+	t.window.vsync = true
 end
