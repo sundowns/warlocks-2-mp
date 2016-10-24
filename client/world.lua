@@ -55,7 +55,6 @@ function server_entity_update(entity, update)
 end
 
 function server_entity_create(entity)
-	print_table(entity)
 	assert(entity.x, "Invalid x coordinate value for entity creation")
 	assert(entity.y, "Invalid y coordinate value for entity creation")
 	assert(entity.entity_type, "Invalid entity_type value for entity creation")

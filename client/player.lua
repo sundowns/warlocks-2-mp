@@ -1,4 +1,6 @@
 player_state_buffer = {}
+player_buffer_size = 0
+player_buffer_length = 256 --ticks in the past kept 
 
 function prepare_player(colour)
 	player = {
@@ -10,18 +12,14 @@ function prepare_player(colour)
 	  	orientation = "RIGHT",
 	  	x_vel = 0,
 	  	y_vel = 0,
-	  	max_movement_velocity = 140,
-	  	base_acceleration = 250,
-			acceleration = 250,
+	  	max_movement_velocity = 130,
+	  	base_acceleration = 320,
+			acceleration = 320,
 			dash = {
-				acceleration = 100,
+				acceleration = 180,
 				duration = 0.3,
 				timer = 0.3,
 				cancellable_after = 0.1 --after timer is 0.7, so after 0.3seconds
-			},
-			turn = {
-				duration = 0.275,
-				timer = 0.275
 			},
 			sprite_instance = {},
 	  	controls = {},
@@ -51,22 +49,12 @@ function process_input(dt) -- YOU NEED TO HAVE A SYSTEM FOR POLLING INPUTS, SO M
 			if (player.x_vel > -1*player.dash.acceleration and player.state == "STAND") or (player.state == "DASH" and player.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("RIGHT")
 			end
-			-- if player.x_vel < 0 and player.state == "RUN" then -- we were going left, lets turn
-			-- 	begin_turn("RIGHT")
-			-- end
-
 		end
 		if love.keyboard.isDown(settings.controls["LEFT"]) then
 			player.x_vel = math.max(player.x_vel - (player.acceleration*dash_multiplier)*dt, -1*player.max_movement_velocity)
 			if (player.x_vel < player.dash.acceleration and player.state == "STAND") or (player.state == "DASH" and player.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("LEFT")
 			end
-			-- if player.x_vel > 0 and player.state == "RUN" then -- we were going right, lets turn
-			-- 	begin_turn("LEFT")
-			-- end
-			-- if player.state == "DASH" and player.orientation == "RIGHT" then
-			-- 	begin_dash("LEFT")
-			-- end
 		end
 		if love.keyboard.isDown(settings.controls["UP"]) then
 			player.y_vel = math.max(player.y_vel - (player.acceleration*dash_multiplier)*dt , -1*player.max_movement_velocity)
@@ -91,28 +79,7 @@ function cooldowns(dt)
 	if player.dash.timer < 0 then
 		end_dash()
 	end
-
-	-- if player.state == "TURN" then
-	-- 	player.turn.timer = player.turn.timer - dt
-	-- end
-	--
-	-- dbg("turn timer: " .. player.turn.timer .. " duration: " .. player.turn.duration)
-	-- if player.turn.timer < 0 then
-	-- 	end_turn()
-	-- end
 end
-
--- function begin_turn(direction)
--- 	update_player_state("TURN")
--- 	player.acceleration =	round_to_nth_decimal(player.acceleration*0.3, 2)
--- end
---
--- function end_turn()
--- 	player.turn.timer = player.turn.duration
--- 	print("WE ENDING TURN")
--- 	update_player_state("STAND")
--- 	player.acceleration = round_to_nth_decimal(player.acceleration*(1/0.3), 2)
--- end
 
 function begin_dash(direction)
 	update_player_state("DASH")
@@ -133,5 +100,21 @@ function update_player_state(state)
 end
 
 function update_player_movement(dt)
-	update_entity_movement(dt, player, constants['PLAYER_FRICTION'], true)
+	local friction = constants['PLAYER_FRICTION']
+	if (not love.keyboard.isDown(settings.controls["UP"])
+	and not love.keyboard.isDown(settings.controls["DOWN"])
+	and not love.keyboard.isDown(settings.controls["LEFT"])
+	and not love.keyboard.isDown(settings.controls["RIGHT"])) then
+		friction = friction*3
+	end
+	update_entity_movement(dt, player, friction, true)
+end
+
+function get_input_snapshot()
+	return {
+		up = love.keyboard.isDown((settings.controls["UP"])),
+		right = love.keyboard.isDown((settings.controls["RIGHT"])),
+		left = love.keyboard.isDown((settings.controls["LEFT"])),
+		down = love.keyboard.isDown((settings.controls["DOWN"])),
+	}
 end

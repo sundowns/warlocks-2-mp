@@ -10,37 +10,17 @@ host = enet.host_create("localhost:12345")
 server_version = "0.0.1"
 require("util")
 require("network")
+require("world")
 
-world = {} -- the empty world-state
-world["players"] = {} -- player collection
-deleted = {} -- buffer table of entity delete message to send to all clients
 local running = true
 local t = 0
 local prevTime = socket.gettime()
 tick = 0
 local tick_timer = 0
+unused_colours = {"purple","green","red", "blue", "orange"}
 
-local unused_colours = {"purple","green","red", "blue", "orange"}
-
-function update_entity_positions(dt)
-	for id, ent in pairs(world) do
-		if ent.x_vel and ent.y_vel then
-			world[id].x = round_to_nth_decimal(ent.x + ent.x_vel*dt, 2)
-			world[id].y = round_to_nth_decimal(ent.y + ent.y_vel*dt, 2)
-		end
-	end
-end
-
-function remove_entity(entity)
-	if not world["players"][entity] then return end
-	local ent = world["players"][entity]
-	if ent.entity_type == "PLAYER" then
-		table.insert(unused_colours, ent.colour)
-		world["players"][entity] = nil
-	end
-	--table.insert(deleted, {entity_type = ent.entity_type})
-	deleted[entity] = {entity_type = ent.entity_type}
-end
+print("Initialising world...")
+load_stage()
 
 print("Beginning server loop.")
 while running do

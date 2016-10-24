@@ -25,6 +25,18 @@ end
 function print_table(table, name)
   if name then print("Printing table: " .. name) end
   for k, v in pairs(table) do
-    print("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
+    if type(v) == "table" then
+      print("[table]: " .. tostring(k))
+      for key, val in pairs(v) do
+        print(" *[key]: " .. tostring(key) .. " | [value]: " .. tostring(val))
+      end
+    else
+      print("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
+    end
   end
+end
+
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
 end

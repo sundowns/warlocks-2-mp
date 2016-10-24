@@ -26,7 +26,6 @@ function game:update(dt)
 		update_player_movement(dt)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
 		cooldowns(dt)
-		dbg("player x: " ..player.x .. " y: " .. player.y)
 	end
 
 	update_entities(dt)
@@ -35,10 +34,14 @@ function game:update(dt)
 		tick = tick + 1
 		tick_timer = tick_timer - constants.TICKRATE
 
-		if connected and user_alive and tick%4 == 0 then
-	   	table.insert(player_state_buffer, player)
-	   	if #player_state_buffer > 64 then
-	   		local last = table.remove(player_state_buffer)
+		if connected and user_alive then
+			local player_state = {player = player, input = get_input_snapshot(), tick = tick}
+			print_table(player_state)
+	   	player_state_buffer[tick] = player_state
+			player_buffer_size = player_buffer_size + 1
+			dbg("adding stuff to buffa. size: " .. player_buffer_size)
+	   	if player_buffer_size > player_buffer_length then
+	   		player_state_buffer[tick-player_buffer_length] = nil
 	   	end
 	 	end
 

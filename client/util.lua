@@ -58,6 +58,13 @@ end
 function print_table(table, name)
   if name then dbg("Printing table: " .. name) end
   for k, v in pairs(table) do
-    dbg("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
+    if type(v) == "table" then
+      dbg("[table]: " .. tostring(k))
+      for key, val in pairs(v) do
+        dbg(" *[key]: " .. tostring(key) .. " | [value]: " .. tostring(val))
+      end
+    else
+      dbg("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
+    end
   end
 end
