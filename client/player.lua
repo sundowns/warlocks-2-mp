@@ -1,6 +1,6 @@
 player_state_buffer = {}
 player_buffer_size = 0
-player_buffer_length = 256 --ticks in the past kept 
+ --ticks in the past kept
 
 function prepare_player(colour)
 	player = {
@@ -95,7 +95,6 @@ function end_dash()
 end
 
 function update_player_state(state)
-	--dbg("changing from " .. player.state .. " to " .. state)
 	update_entity_state(player, state)
 end
 
@@ -117,4 +116,60 @@ function get_input_snapshot()
 		left = love.keyboard.isDown((settings.controls["LEFT"])),
 		down = love.keyboard.isDown((settings.controls["DOWN"])),
 	}
+end
+
+function create_player_state_snapshot(x, y, x_vel, y_vel, state)
+	return {
+		x = x,
+		y = y,
+		x_vel = x_vel,
+		y_vel = y_vel,
+		state = state
+	}
+end
+
+function get_player_state_snapshot()
+	return {
+		x = player.x,
+		y = player.y,
+		x_vel = player.x_vel,
+		y_vel = player.y_vel,
+		state = player.state
+	}
+end
+
+function retroactive_player_state_calc(update)
+	--insert new player state into buffer
+	local updated_state = create_player_state_snapshot(update.x, update.y, update.x_vel, update.y_vel, update.state)
+	player_state_buffer[update.server_tick].player = updated_state
+
+	--delete all states older than update
+	local older = 0
+	local newer = 0
+	for k in pairs(player_state_buffer) do
+		if k < update.server_tick then
+			print("k: " .. k .. " svrTick: " ..update.server_tick)
+    	player_state_buffer[k] = nil
+			player_buffer_size = player_buffer_size - 1
+			older = older + 1
+		else newer = newer + 1
+		end
+	end
+	print("older: " .. older .. " newer: " .. newer .. " t: " .. update.server_tick)
+
+	local index = update.server_tick
+	local result_state = {}
+	for index=update.server_tick, tick do
+		--result_state = calc_new_player_state(old_state, input, dt) --(dt = 1 tick)
+		--update that state in the player_state_buffer
+		--player_state_buffer[index] = result_state
+		--calculate subsequent states
+	end
+
+	--update player with result state
+end
+
+function calc_new_player_state(old_state, input, dt)
+	--Apply input & dt to old state to calc new state.
+	--Return new state
 end

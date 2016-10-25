@@ -43,9 +43,29 @@ function add_enemy(name, enemy)
 	world[name] = enemy
 end
 
+function server_player_update(update)
+	assert(update.x and update.y, "Undefined x or y coordinates for player update")
+	assert(update.entity_type, "Undefined entity_type value for player update")
+	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for player update")
+	--assert(update.state, "Undefined state for player update")
+	local player_state = player_state_buffer[update.server_tick]
+	if player_state then
+		if not within_variance(player_state.player.x, update.x, 4) or
+		not within_variance(player_state.player.y, update.y, 4) or
+		not within_variance(player_state.player.x_vel, update.x_vel, 4) or
+		not within_variance(player_state.player.y_vel, update.y_vel, 4) then
+			--update value in buffer + rewind/replay inputs!
+			retroactive_player_state_calc(update)
+		end
+	else
+		print_table(player_state_buffer, "state_buffer")
+		--print("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "]")
+	end
+end
+
 function server_entity_update(entity, update)
 	assert(update.x and update.y and update.entity_type and update.x_vel and update.y_vel and update.state)
-	x, y, x_vel, y_vel = tonumber(payload.x), tonumber(payload.y), tonumber(payload.x_vel), tonumber(payload.y_vel)
+	x, y, x_vel, y_vel = tonumber(update.x), tonumber(update.y), tonumber(update.x_vel), tonumber(update.y_vel)
 
 	local ent = world[entity]
 	if not ent then return nil end
@@ -55,9 +75,9 @@ function server_entity_update(entity, update)
 end
 
 function server_entity_create(entity)
-	assert(entity.x, "Invalid x coordinate value for entity creation")
-	assert(entity.y, "Invalid y coordinate value for entity creation")
-	assert(entity.entity_type, "Invalid entity_type value for entity creation")
+	assert(entity.x, "Undefined x coordinate value for entity creation")
+	assert(entity.y, "Undefined y coordinate value for entity creation")
+	assert(entity.entity_type, "Undefined entity_type value for entity creation")
 	--assert(entity.state, "Invalid state value for entity creation")
 	x, y, x_vel, y_vel = tonumber(entity.x), tonumber(entity.y), tonumber(entity.x_vel), tonumber(entity.y_vel)
 	add_entity(entity.alias, entity.entity_type, {name = entity.alias, colour = entity.colour or nil, x=x, y=y, x_vel=x_vel or 0, y_vel=y_vel or 0, state=entity.state})

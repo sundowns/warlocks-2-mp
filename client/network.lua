@@ -20,6 +20,14 @@ function listen(timeout)
 	return host:service(timeout)
 end
 
+function sync_client(server_tick)
+	local rtt = server:last_round_trip_time()/1000
+	local offset = math.floor(rtt/constants.TICKRATE + 1)
+	--print("client tick offset is: "  .. offset .. " rtt: " .. rtt)
+	tick = server_tick + offset -- server tick + ticks per RTT + 1
+
+end
+
 function confirm_join()
 	print("my name is " .. settings.username)
 	server:send(create_json_packet({client_version = constants.CLIENT_VERSION}, "JOIN", tick, settings.username))

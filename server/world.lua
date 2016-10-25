@@ -18,7 +18,6 @@ function load_stage()
 end
 
 function update_entity_positions(dt)
-  --print("updating player positions")
 	for id, entity in pairs(world["players"]) do
 		if entity.x_vel and entity.y_vel then
 			entity.x = round_to_nth_decimal(entity.x + entity.x_vel*dt, 2)

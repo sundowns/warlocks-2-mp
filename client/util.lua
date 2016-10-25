@@ -68,3 +68,12 @@ function print_table(table, name)
     end
   end
 end
+
+function within_variance(val1, val2, variance)
+  local diff = math.abs(val1 - val2)
+  if diff < variance then
+    return true
+  else
+    return false
+  end
+end

@@ -7,7 +7,6 @@ function game:init()
 	require("stagemanager")
 	net_initialise()
 	load_stage("arena1.lua")
-	print("setting tick to 0...")
 	tick = 0
 	tick_timer = 0
 end
@@ -35,13 +34,13 @@ function game:update(dt)
 		tick_timer = tick_timer - constants.TICKRATE
 
 		if connected and user_alive then
-			local player_state = {player = player, input = get_input_snapshot(), tick = tick}
-			print_table(player_state)
+			local player_state = {player = get_player_state_snapshot(), input = get_input_snapshot(), tick = tick}
 	   	player_state_buffer[tick] = player_state
 			player_buffer_size = player_buffer_size + 1
-			dbg("adding stuff to buffa. size: " .. player_buffer_size)
-	   	if player_buffer_size > player_buffer_length then
-	   		player_state_buffer[tick-player_buffer_length] = nil
+	   	if player_buffer_size > constants.PLAYER_BUFFER_LENGTH then
+				--print("buffer size ("..player_buffer_size..") is greater than " .. constants.PLAYER_BUFFER_LENGTH .. ". Removing oldest item @ " .. tick-constants.PLAYER_BUFFER_LENGTH .. " (curr_tick: " .. tick..")")
+	   		player_state_buffer[tick-constants.PLAYER_BUFFER_LENGTH] = nil
+				player_buffer_size = player_buffer_size - 1
 	   	end
 	 	end
 
@@ -57,13 +56,16 @@ function game:update(dt)
 					if payload.cmd == "ENTITYUPDATE" then
 						assert(payload.alias)
 						assert(payload.server_tick)
+						sync_client(payload.server_tick)
 						--dbg("received a msg from server at server_tick: " .. payload.server_tick.. " curr_client_tick: " .. tick)
 						if world[payload.alias] == nil then
 							server_entity_create(payload)
 						else
 							if payload.alias ~= player.name then --were not updating ourself???
 								server_entity_update(payload.alias, payload)
-							end
+							else
+								server_player_update(payload)
+						 	end
 						end
 					elseif payload.cmd == 'ENTITYDESTROY' then
 						remove_entity(payload.alias, payload.entity_type)
