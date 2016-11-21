@@ -21,8 +21,9 @@ function game:update(dt)
 	tick_timer = tick_timer + dt
 
 	if user_alive then
-		process_input(dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
-		update_player_movement(dt)--/ KEEP THESE TWO ONE AFTER THE OTHER
+		local input = get_input_snapshot()
+		player = process_input(player, input, dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
+		update_player_movement(player, input, dt, false)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
 		cooldowns(dt)
 	end
@@ -38,13 +39,12 @@ function game:update(dt)
 	   	player_state_buffer[tick] = player_state
 			player_buffer_size = player_buffer_size + 1
 	   	if player_buffer_size > constants.PLAYER_BUFFER_LENGTH then
-				--print("buffer size ("..player_buffer_size..") is greater than " .. constants.PLAYER_BUFFER_LENGTH .. ". Removing oldest item @ " .. tick-constants.PLAYER_BUFFER_LENGTH .. " (curr_tick: " .. tick..")")
 	   		player_state_buffer[tick-constants.PLAYER_BUFFER_LENGTH] = nil
 				player_buffer_size = player_buffer_size - 1
 	   	end
 	 	end
 
-		if tick%constants.NET_UPDATE_RATE == 0 then
+		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
 			if user_alive then
 				send_player_update(player, settings.username)
 			end

@@ -47,18 +47,18 @@ function server_player_update(update)
 	assert(update.x and update.y, "Undefined x or y coordinates for player update")
 	assert(update.entity_type, "Undefined entity_type value for player update")
 	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for player update")
-	--assert(update.state, "Undefined state for player update")
 	local player_state = player_state_buffer[update.server_tick]
 	if player_state then
-		if not within_variance(player_state.player.x, update.x, 4) or
-		not within_variance(player_state.player.y, update.y, 4) or
-		not within_variance(player_state.player.x_vel, update.x_vel, 4) or
-		not within_variance(player_state.player.y_vel, update.y_vel, 4) then
-			--update value in buffer + rewind/replay inputs!
+		print_table(player_state)
+		if not within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) or
+		not within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
+		-- not within_variance(player_state.player.x_vel, update.x_vel, 40) or
+		-- not within_variance(player_state.player.y_vel, update.y_vel, 40) then
+
+		--USE PCALL/XPCALL HERE TO "TRY" RETROACTIVE UPDATE, IF FAIL -> APPLY UPDATE DIRECTLY??
 			retroactive_player_state_calc(update)
 		end
 	else
-		print_table(player_state_buffer, "state_buffer")
 		--print("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "]")
 	end
 end
@@ -86,7 +86,7 @@ end
 function update_entities(dt)
 	for name, entity in pairs(world) do
 		if entity.entity_type == "ENEMY" then
-				update_entity_movement(dt, entity, constants.PLAYER_FRICTION)
+				update_entity_movement(dt, entity, constants.PLAYER_FRICTION, false, false)
 		end
 		update_sprite_instance(entity.sprite_instance, dt)
 	end
@@ -111,7 +111,7 @@ function update_entity_state(entity, state)
 	 return entity
 end
 
-function update_entity_movement(dt, entity, friction, isPlayer)
+function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 	entity.x = round_to_nth_decimal((entity.x + (entity.x_vel * dt)),2)
 	entity.y = round_to_nth_decimal((entity.y + (entity.y_vel * dt)),2)
 
@@ -132,10 +132,16 @@ function update_entity_movement(dt, entity, friction, isPlayer)
 	if entity.x_vel < 1 and entity.x_vel > -1 and entity.y_vel < 1 and entity.y_vel > -1 then
 		entity.x_vel = 0
 		entity.y_vel = 0
-		if isPlayer and entity.state ~= "TURN" then
-			update_player_state("STAND")
+		if isPlayer then
+			if not isRetroactive then
+				update_player_state("STAND")
+			else
+				entity.state = "STAND"
+			end
 		end
 	end
+
+	return entity
 end
 
 function prepare_camera()
