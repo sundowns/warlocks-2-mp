@@ -49,11 +49,9 @@ function server_player_update(update)
 	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for player update")
 	local player_state = player_state_buffer[update.server_tick]
 	if player_state then
-		print_table(player_state)
+		--print_table(player_state)
 		if not within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) or
 		not within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
-		-- not within_variance(player_state.player.x_vel, update.x_vel, 40) or
-		-- not within_variance(player_state.player.y_vel, update.y_vel, 40) then
 
 		--USE PCALL/XPCALL HERE TO "TRY" RETROACTIVE UPDATE, IF FAIL -> APPLY UPDATE DIRECTLY??
 			retroactive_player_state_calc(update)

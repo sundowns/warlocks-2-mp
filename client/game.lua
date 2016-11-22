@@ -17,8 +17,8 @@ function game:enter(previous)
 end
 
 function game:update(dt)
-	worldTime = worldTime + dt
 	tick_timer = tick_timer + dt
+	update_connection(dt)
 
 	if user_alive then
 		local input = get_input_snapshot()
@@ -72,7 +72,6 @@ function game:update(dt)
 					elseif payload.cmd == 'SERVERERROR' then
 						disconnect("Connection closed. " ..payload.message)
 					elseif payload.cmd == 'JOINACCEPTED' then
-						tick = payload.server_tick
 						prepare_player(payload.colour)
 						confirm_join()
 					else
@@ -107,13 +106,14 @@ function game:draw()
 		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.05, camY - love.graphics.getHeight()*0.035, 0.1*love.graphics.getWidth(), 0.07*love.graphics.getHeight())
 		reset_colour()
 		set_font_size(12)
-		love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), camera:worldCoords(0,0))
+		love.graphics.print("FPS: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,0))
 		reset_font()
 		if user_alive then
 			love.graphics.setColor(0, 255, 255, 255)
 			love.graphics.circle('fill', player.x, player.y, 2, 16)
 			reset_colour()
 		end
+		display_net_info()
 	end
 
 	if not connected then

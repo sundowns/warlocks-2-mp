@@ -172,8 +172,8 @@ function retroactive_player_state_calc(update)
 	local index = update.server_tick
 	local result_state = {}
 	local updated = false
-	for index=update.server_tick, tick-2,2 do --Lets make sure we're not correcting events as they happen.
-		print("index: ".. index .. " update svrTick: " .. update.server_tick .. " client tick: " .. tick)
+	for index=update.server_tick, tick-last_offset,2 do --Lets make sure we're not correcting events as they happen.
+		--print("index: ".. index .. " update svrTick: " .. update.server_tick .. " client tick: " .. tick)
 		local input = player_state_buffer[index].input
 		result_state = calc_new_player_state(updated_state, input, constants.TICKRATE*2) --(dt = 2 ticks)
 		--update that state in the player_state_buffer

@@ -1,7 +1,9 @@
-package.path = './?.lua;' .. package.path
+package.path = '.\\?.lua;'.. '.\\libs\\?.lua;' .. package.path
+package.cpath = '.\\libs\\?.dll;' .. package.cpath
 
 require "socket" -- to keep track of time
 json = require("json")
+binser = require 'binser'
 constants = require("constants")
 enet = require "enet"
 host = enet.host_create("localhost:12345")
