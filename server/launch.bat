@@ -1,2 +1,2 @@
 TITLE Warlocks MP Server
-lua.exe main.lua > "log.txt" 2> "errors.txt"
+lua.exe main.lua > "log-sever.txt" 2> "log-errors.txt"
