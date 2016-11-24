@@ -32,6 +32,10 @@ function send_error_packet(peer, message)
 	peer:send(create_binary_packet(data, "SERVERERROR", tick))
 end
 
+function send_spawn_packet(peer, player)
+	peer:send(create_binary_packet(player, "SPAWN", tick))
+end
+
 function send_join_accept(peer, colour)
 	peer:send(create_binary_packet({colour = colour}, "JOINACCEPTED", tick))
 end
@@ -70,7 +74,7 @@ function packet_meta.__index(table, key)
 end
 
 function create_binary_packet(payload, cmd, tick, alias)
-	return binser.serialize(payload, tick, cmd, alias)
+	return binser.serialize(payload, tostring(tick), cmd, alias)
 end
 
 function verify_position_update(old, new)

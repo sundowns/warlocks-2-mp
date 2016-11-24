@@ -101,7 +101,7 @@ function packet_meta.__index(table, key)
 end
 
 function create_binary_packet(payload, cmd, tick, alias)
-	return binser.serialize(payload, tick, cmd, alias)
+	return binser.serialize(payload, tostring(tick), cmd, alias)
 end
 
 --DONT USE JSON, USE SOME BINARY SERIALISATION OR SUMMIN. JSON IS SLOW

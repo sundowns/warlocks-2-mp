@@ -2,6 +2,7 @@ package.path = './?.lua;' .. './libs/?.lua;' .. './assets/sprites/?.lua;' .. pac
 
 user_alive = false
 
+
 function love.load()
 	math.randomseed(os.time())
 	binser = require 'libs/binser'
@@ -16,7 +17,6 @@ function love.load()
 	require("game")
 
 	settings.username = random_string(8)
-	love.graphics.setNewFont("assets/misc/IndieFlower.ttf", defaultFontSize)
 	GamestateManager.registerEvents()
 	GamestateManager.switch(game)
 end

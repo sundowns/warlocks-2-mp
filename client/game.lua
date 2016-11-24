@@ -7,13 +7,14 @@ function game:init()
 	require("stagemanager")
 	net_initialise()
 	load_stage("arena1.lua")
+	prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
 	tick = 0
 	tick_timer = 0
 end
 
 function game:enter(previous)
   love.graphics.setBackgroundColor(0,0,0)
-	prepare_camera()
+	prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
 end
 
 function game:update(dt)
@@ -73,8 +74,10 @@ function game:update(dt)
 					elseif payload.cmd == 'SERVERERROR' then
 						disconnect("Connection closed. " ..payload.message)
 					elseif payload.cmd == 'JOINACCEPTED' then
-						prepare_player(payload.colour)
+						player_colour = payload.colour
 						confirm_join()
+					elseif payload.cmd == 'SPAWN' then
+						prepare_player(payload)
 					else
 						dbg("unrecognised command:", payload.cmd)
 					end
@@ -118,6 +121,14 @@ function game:draw()
 		set_font_size(12)
 		love.graphics.print("tick: "..tostring(tick), camera:worldCoords(3,40))
 		reset_font()
+
+		local stats = love.graphics.getStats()
+		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 80))
+		love.graphics.print("drawcalls: ".. stats.drawcalls, camera:worldCoords(3, 100))
+		love.graphics.print("canvasswitches: ".. stats.canvasswitches , camera:worldCoords(3, 120))
+		love.graphics.print("images loaded: ".. stats.images, camera:worldCoords(3, 140))
+		love.graphics.print("canvases loaded: ".. stats.canvases, camera:worldCoords(3, 160))
+		love.graphics.print("fonts loaded: ".. stats.fonts, camera:worldCoords(3, 180))
 	end
 
 	if not connected then

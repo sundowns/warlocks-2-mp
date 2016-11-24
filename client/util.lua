@@ -1,4 +1,7 @@
+fonts = {}
 defaultFontSize = 14
+fonts[defaultFontSize] = love.graphics.newFont("assets/misc/IndieFlower.ttf", defaultFontSize)
+love.graphics.setFont(fonts[defaultFontSize])
 
 function math.clamp(val, min, max)
     if min - val > 0 then
@@ -15,11 +18,16 @@ function reset_colour()
 end
 
 function reset_font()
-	love.graphics.setNewFont("assets/misc/IndieFlower.ttf", defaultFontSize)
+  print(love.graphics.setFont(fonts[defaultFontSize]))
+  love.graphics.setFont(fonts[defaultFontSize])
 end
 
 function set_font_size(size)
-	love.graphics.setNewFont("assets/misc/IndieFlower.ttf", size)
+  if fonts[size] then
+    love.graphics.setFont(fonts[size])
+  else
+    fonts[size] = love.graphics.newFont("assets/misc/IndieFlower.ttf", size)
+  end
 end
 
 function calculate_direction_with_two_points(x1, y1, x2, y2)
@@ -55,16 +63,18 @@ function dbg(msg)
   if settings.debug then print(msg) end
 end
 
-function print_table(table, name)
-  if name then dbg("Printing table: " .. name) end
+function print_table(table, force, name)
+  local printer = dbg
+  if force then printer = print end
+  if name then printer("Printing table: " .. name) end
   for k, v in pairs(table) do
     if type(v) == "table" then
-      dbg("[table]: " .. tostring(k))
+      printer("[table]: " .. tostring(k))
       for key, val in pairs(v) do
-        dbg(" *[key]: " .. tostring(key) .. " | [value]: " .. tostring(val))
+        printer(" *[key]: " .. tostring(key) .. " | [value]: " .. tostring(val))
       end
     else
-      dbg("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
+      printer("[key]: " .. tostring(k) .. " | [value]: " .. tostring(v))
     end
   end
 end
@@ -76,4 +86,18 @@ function within_variance(val1, val2, variance)
   else
     return false
   end
+end
+
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
+--rectangle origin is top left
+--UNTESTED!!!
+function point_is_in_rectangle(pointX, pointY, rectX, recY, width, height)
+  return pointX > rectX and
+         pointX < rectX + width and
+         pointY > rectY and
+         pointY < rectY + height
 end

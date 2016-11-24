@@ -1,42 +1,17 @@
 player_state_buffer = {}
 player_buffer_size = 0
+player_colour = nil
  --ticks in the past kept
 
-function prepare_player(colour)
-	player = {
-			x = 0,
-			y = 0,
-	  	name = settings.username,
-	  	entity_type = "PLAYER",
-	  	state ="STAND",
-	  	orientation = "RIGHT",
-	  	x_vel = 0,
-	  	y_vel = 0,
-	  	max_movement_velocity = 130,
-	  	base_acceleration = 320,
-			acceleration = 320,
-			dash = {
-				acceleration = 180,
-				duration = 0.3,
-				timer = 0.3,
-				cancellable_after = 0.1 --after timer is 0.7, so after 0.3seconds
-			},
-			sprite_instance = {},
-	  	controls = {},
-	  	height = nil,
-	  	width = nil,
-	  	colour = colour
-  	}
+function prepare_player(player_data)
+	player = player_data
+	player.dash.duration = tonumber(player.dash.duration)
+	player.dash.timer = tonumber(player.dash.timer)
+	player.dash.cancellable_after = tonumber(player.dash.cancellable_after)
+	
+	player.sprite_instance = get_sprite_instance("assets/sprites/player-" .. player.colour ..".lua")
 
-	player.sprite_instance = get_sprite_instance("assets/sprites/player-" .. colour ..".lua")
-
-	--FIGURE OUT HOW TO GET VIA SPIRTE SHEET
-	--player.height = player.sprite_instance.sprite.animations["STAND"][1]:getHeight()
-	--player.width = player.sprite_instance.sprite.animations["STAND"][1]:getWidth()
-	player.height = 20
-	player.width = 20
-
-	add_entity(player.name, "PLAYER", player)
+	add_entity(player.name, player.entity_type, player)
 	user_alive = true
 end
 

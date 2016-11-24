@@ -13,6 +13,7 @@ server_version = "0.0.1"
 require("util")
 require("network")
 require("world")
+require("player")
 
 local running = true
 local t = 0
@@ -58,6 +59,14 @@ while running do
 								if verify_position_update(ent, payload) then
 									world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
 								else
+
+									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
+									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
+									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
+									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
+									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
+
+
 									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
 								end
 							else
@@ -76,7 +85,7 @@ while running do
 								remove_client(payload.alias, "Duplicate alias")
 							else
 								client_player_map[event.peer] = payload.alias
-								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=500,y=500, entity_type = "PLAYER", colour = client_list[event.peer].colour, state="STAND" }
+								send_spawn_packet(event.peer, spawn_player(payload.alias, 250, 250, client_list[event.peer].colour))
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then

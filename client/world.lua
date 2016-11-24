@@ -35,8 +35,6 @@ function add_enemy(name, enemy)
 
 	enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
 
-	-- enemy.height = enemy.states["STAND"].frames[1]:getHeight()
-	-- enemy.width = enemy.states["STAND"].frames[1]:getWidth()
 	enemy.height = 20
 	enemy.width = 20
 
@@ -59,6 +57,9 @@ function server_player_update(update)
 
 		--USE PCALL/XPCALL HERE TO "TRY" RETROACTIVE UPDATE, IF FAIL -> APPLY UPDATE DIRECTLY??
 			retroactive_player_state_calc(update)
+		else
+			apply_retroactive_updates(update)
+			--force player update
 		end
 	else
 		--print("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "]")
@@ -149,12 +150,24 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 	return entity
 end
 
-function prepare_camera()
-	camera = Camera(0, 0)
-	camera:zoom(1.5)
+function prepare_camera(x, y, zoom)
+	camera = Camera(x, y)
+	camera:zoom(zoom)
 end
 
 function update_camera()
+	--TODO: MAXIUM BOUNDRIES SO CAMERA STAYS IN THE MAP!!!
+	--EX. LEFT BOUNDARY = 1/2 of screen width
+	--RIGHT BOUNDARY = STAGE WIDTH (PIXELS) - 1/2 screen width
+	-- TOP BOUNDARY = 1/2 of screen height
+	-- bottom = STAGE HEIGHT (PIXELS) - 1/2 screen height
+
+	--print_table(stage.layers["Lava"][0][0], true) <--- just uncommented this to make shiz run 4 commit
+
+	--local minCamX = origin + love.graphics.getWidth()/4
+
+	-- middle of stage - width of stage/2
+
 	local camX, camY = camera:position()
 	local newX, newY = camX, camY
 	if (player.x > camX + love.graphics.getWidth()*0.05) then
@@ -169,6 +182,8 @@ function update_camera()
 	if (player.y < camY - love.graphics.getHeight()*0.035) then
 		newY = player.y + love.graphics.getHeight()*0.035
 	end
+
+	newX = math.max(newX, 0)
 
 	--camera:lookAt(newX, newY)
 	camera:lockPosition(newX, newY, camera.smooth.damped(3))

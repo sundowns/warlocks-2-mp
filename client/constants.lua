@@ -2,7 +2,7 @@ local network_params = {
   LAN = {
     NET_UPDATE_RATE = 2, -- Every 2 ticks
     VARIANCE_POSITION = 6, -- 5 ideal for LAN?
-    STABILISATION_TIME = 4, -- Seconds before we can consider RTT accurate
+    STABILISATION_TIME = 3, -- Seconds before we can consider RTT accurate
     STABILISATION_RTT = 18
   }
 }
