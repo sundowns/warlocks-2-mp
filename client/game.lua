@@ -52,7 +52,8 @@ function game:update(dt)
 			repeat
 				event = listen()
 				if event and event.type == "receive" then
-					payload = json.decode(event.data)
+					payload = binser.deserialize(event.data)
+					setmetatable(payload, packet_meta)
 					if payload.cmd == "ENTITYUPDATE" then
 						assert(payload.alias)
 						assert(payload.server_tick)
@@ -61,7 +62,7 @@ function game:update(dt)
 						if world[payload.alias] == nil then
 							server_entity_create(payload)
 						else
-							if payload.alias ~= player.name then --were not updating ourself???
+							if payload.alias ~= player.name then
 								server_entity_update(payload.alias, payload)
 							else
 								server_player_update(payload)
@@ -114,6 +115,9 @@ function game:draw()
 			reset_colour()
 		end
 		display_net_info()
+		set_font_size(12)
+		love.graphics.print("tick: "..tostring(tick), camera:worldCoords(3,40))
+		reset_font()
 	end
 
 	if not connected then

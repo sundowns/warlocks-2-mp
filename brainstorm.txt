@@ -1,0 +1,7 @@
+tick: 8196 (FAILED)
+
+TWICE IN A ROW, FIRST FAILURE IS ON TICK 8196, which happens to be 1 update after 2^13 (8192)
+
+
+----
+Add some kind of "spawn player" event for the sever to drive the OG player spawn. (Currently client spawns one at 0,0, THEN gets an update on position)

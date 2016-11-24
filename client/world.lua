@@ -47,6 +47,10 @@ function server_player_update(update)
 	assert(update.x and update.y, "Undefined x or y coordinates for player update")
 	assert(update.entity_type, "Undefined entity_type value for player update")
 	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for player update")
+	update.x = tonumber(update.x)
+	update.y = tonumber(update.y)
+	update.x_vel = tonumber(update.x_vel)
+	update.y_vel = tonumber(update.y_vel)
 	local player_state = player_state_buffer[update.server_tick]
 	if player_state then
 		--print_table(player_state)
@@ -62,7 +66,10 @@ function server_player_update(update)
 end
 
 function server_entity_update(entity, update)
-	assert(update.x and update.y and update.entity_type and update.x_vel and update.y_vel and update.state)
+	assert(update.x and update.y, "Undefined x or y coordinates for entity update")
+	assert(update.entity_type, "Undefined entity_type value for entity update")
+	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for entity update")
+	assert(update.state, "Undefined state for entity update")
 	x, y, x_vel, y_vel = tonumber(update.x), tonumber(update.y), tonumber(update.x_vel), tonumber(update.y_vel)
 
 	local ent = world[entity]

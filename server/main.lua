@@ -2,7 +2,7 @@ package.path = '.\\?.lua;'.. '.\\libs\\?.lua;' .. package.path
 package.cpath = '.\\libs\\?.dll;' .. package.cpath
 
 require "socket" -- to keep track of time
-json = require("json")
+--json = require("json")
 binser = require 'binser'
 constants = require("constants")
 enet = require "enet"
@@ -37,8 +37,9 @@ while running do
 		local event = host:service()
 		while event ~= nil do
 			if event.type == "receive" then
-				if not xpcall(json.decode, event.data) then
-					payload = json.decode(event.data)
+				if not xpcall(binser.deserialize, event.data) then
+					payload = binser.deserialize(event.data)
+					setmetatable(payload, packet_meta)
 					if not assert(payload.alias) then print(tostring(payload)) end
 					assert(client_list[event.peer])
 					if client_list[event.peer] ~= nil then
@@ -48,17 +49,19 @@ while running do
 					if payload.cmd == "PLAYERUPDATE" then
 						if client_list[event.peer] then
 							assert(payload.client_tick)
-							--print("received a msg from ".. payload.alias .. " at client_tick: " .. payload.client_tick .. " curr_svr_tick: " .. tick)
 							assert(payload.x_vel and payload.y_vel and payload.x and payload.y and payload.state)
 							local ent = world["players"][payload.alias]
-
-							--TODO: VERIFY POSITION COORDINATES
-							--TODO: VERIFY STATE CHANGE
-
 							if ent then
-								world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
+
+								--TODO: VERIFY STATE CHANGE
+
+								if verify_position_update(ent, payload) then
+									world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
+								else
+									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
+								end
 							else
-								print("tried to UPDATE non existing player. " .. payload.alias)
+								print("[WARNING] tried to UPDATE non existing player. " .. payload.alias)
 							end
 						end
 					elseif payload.cmd == 'JOIN' then
@@ -73,7 +76,7 @@ while running do
 								remove_client(payload.alias, "Duplicate alias")
 							else
 								client_player_map[event.peer] = payload.alias
-								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=500,y=500, entity_type = "PLAYER", colour = client_list[event.peer].colour, state=payload.state }
+								world["players"][payload.alias] = {x_vel=0,y_vel=0,x=500,y=500, entity_type = "PLAYER", colour = client_list[event.peer].colour, state="STAND" }
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then
@@ -82,7 +85,7 @@ while running do
 						print("[WARNING] unrecognised command: " .. payload.cmd)
 					end
 				else
-					print("Failed to JSON decode packet: " .. tostring(event.data))
+					print("Failed to packet: " .. tostring(event.data))
 				end
 			elseif event.type == "connect" then
 				if client_count >= constants.MAX_CLIENTS then
@@ -103,7 +106,7 @@ while running do
 		end
 
 		update_entity_positions(dt)
-		if tick%constants.UPDATE_RATE == 0 then
+		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
 			send_world_update()
 			deleted = {}
 		end

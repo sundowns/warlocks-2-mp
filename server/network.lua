@@ -1,33 +1,43 @@
 client_count = 0
 client_list = {}
 client_player_map = {} -- look up player alias' by client ip
+packet_meta = {} -- meta table for decoding binary packets
 
 function send_world_update()
 	for k, player in pairs(world["players"]) do
-		host:broadcast(create_json_packet(create_player_payload(player), "ENTITYUPDATE", tick, k))
+		local payload = create_player_payload(player)
+		local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, k)
+		if ok then
+			host:broadcast(packet)
+		else
+			print("Error sending world update. Dumping data:")
+			print_table(payload)
+			print("tick: " .. tick)
+			print("key: " .. k)
+			print("----------")
+		end
 	end
 
 	for k, v in pairs(deleted) do
-		host:broadcast(create_json_packet(v, "ENTITYDESTROY", tick, k))
+		host:broadcast(create_binary_packet(v, "ENTITYDESTROY", tostring(tick), k))
 	end
 end
 
 function create_player_payload(player)
-	return {x = player.x, y = player.y, x_vel = player.x_vel, y_vel = player.y_vel, colour = player.colour, entity_type = "PLAYER", state = player.state}
+	return {x = tostring(player.x), y = tostring(player.y), x_vel = tostring(round_to_nth_decimal(player.x_vel,2)), y_vel = tostring(round_to_nth_decimal(player.y_vel,2)), colour = player.colour, entity_type = "PLAYER", state = tostring(player.state)}
 end
 
 function send_error_packet(peer, message)
-	local data = { message = message}
-	peer:send(create_json_packet(data, "SERVERERROR", tick))
+	local data = { message = message }
+	peer:send(create_binary_packet(data, "SERVERERROR", tick))
 end
 
 function send_join_accept(peer, colour)
-	peer:send(create_json_packet({colour = colour}, "JOINACCEPTED", tick))
+	peer:send(create_binary_packet({colour = colour}, "JOINACCEPTED", tick))
 end
 
 function remove_client(peer, msg)
 	if (msg) then print(msg) end
-
 	local entId = client_player_map[peer]
 	if entId then
 		remove_entity(entId)
@@ -47,10 +57,30 @@ function update_client_timeout(dt)
 	end
 end
 
---DONT USE JSON ITS FKN SLOW NOOB. Use it to read settins file tho that's sexy
-function create_json_packet(payload, cmd, tick, alias)
-  if alias then payload.alias = alias end
-	payload.server_tick = tick
-  payload.cmd = cmd
-  return json.encode(payload)
+function packet_meta.__index(table, key)
+  if key == 'alias' then
+    return table[4]
+  elseif key == 'cmd'then
+    return table[3]
+	elseif key == 'client_tick' or key == 'tick' then
+		return table[2]
+  else
+    return table[1][key]
+  end
+end
+
+function create_binary_packet(payload, cmd, tick, alias)
+	return binser.serialize(payload, tick, cmd, alias)
+end
+
+function verify_position_update(old, new)
+  local accept_update = true
+	if not within_variance(old.x, new.x, constants.NET_PARAMS.VARIANCE_POSITION) then
+		accept_update = false
+		print("ruh roh, x not within variance. old: " .. old.x .. " new: " .. new.x)
+	elseif not within_variance(old.y, new.y, constants.NET_PARAMS.VARIANCE_POSITION) then
+		accept_update = false
+		print("ruh roh, y not within variance. old: " .. old.y .. " new: " .. new.y)
+	end
+	return accept_update
 end

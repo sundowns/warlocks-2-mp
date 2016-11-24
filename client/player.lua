@@ -44,25 +44,25 @@ function process_input(player_obj, inputs, dt) -- YOU NEED TO HAVE A SYSTEM FOR 
 	if player_obj.state == "STAND" or player_obj.state == "RUN" or player_obj.state == "DASH" then --or player.state == "TURN"
 		local dash_multiplier = 1
 		if player_obj.state == "DASH" then dash_multiplier = 1.5 end
-		if inputs.right then
+		if inputs.right and not inputs.left then
 			player_obj.x_vel = math.min(player_obj.x_vel + (player_obj.acceleration*dash_multiplier)*dt, player_obj.max_movement_velocity)
 			if (player_obj.x_vel > -1*player_obj.dash.acceleration and player_obj.state == "STAND") or (player_obj.state == "DASH" and player_obj.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("RIGHT")
 			end
 		end
-		if inputs.left then
+		if inputs.left and not inputs.right then
 			player_obj.x_vel = math.max(player_obj.x_vel - (player_obj.acceleration*dash_multiplier)*dt, -1*player_obj.max_movement_velocity)
 			if (player_obj.x_vel < player_obj.dash.acceleration and player_obj.state == "STAND") or (player_obj.state == "DASH" and player_obj.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after) then
 				begin_dash("LEFT")
 			end
 		end
-		if inputs.up then
+		if inputs.up and not inputs.down then
 			player_obj.y_vel = math.max(player_obj.y_vel - (player_obj.acceleration*dash_multiplier)*dt , -1*player_obj.max_movement_velocity)
 			if player_obj.y_vel < player_obj.dash.acceleration and player_obj.state == "STAND" then
 				begin_dash("UP")
 			end
 		end
-		if inputs.down then
+		if inputs.down and not inputs.up then
 			player_obj.y_vel = math.min(player_obj.y_vel + (player_obj.acceleration*dash_multiplier)*dt, player_obj.max_movement_velocity)
 			if player_obj.y_vel > -1*player_obj.dash.acceleration and player_obj.state == "STAND" then
 				begin_dash("DOWN")

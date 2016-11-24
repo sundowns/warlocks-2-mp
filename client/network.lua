@@ -18,7 +18,6 @@ end
 
 function listen(timeout)
 	if timeout == nil then timeout = 0 end
-	--dbg("rtt: " ..server:last_round_trip_time())
 	return host:service(timeout)
 end
 
@@ -37,7 +36,7 @@ function confirm_join()
 	print("my name is " .. settings.username)
 	server:round_trip_time(10)
 	tick = payload.server_tick
-	server:send(create_json_packet({client_version = constants.CLIENT_VERSION}, "JOIN", tick, settings.username))
+	server:send(create_binary_packet({client_version = constants.CLIENT_VERSION}, "JOIN", tick, settings.username))
 	connected = true
 end
 
@@ -59,15 +58,7 @@ function send_player_update(inPlayer, inName)
 		x_vel = inPlayer.x_vel,
 		y_vel = inPlayer.y_vel
 	}
-	server:send(create_json_packet(playerVM, "PLAYERUPDATE", tick, inName))
-end
-
---DONT USE JSON, USE SOME BINARY SERIALISATION OR SUMMIN. JSON IS SLOW
-function create_json_packet(payload, cmd, tick, alias)
-  if alias then payload.alias = alias end
-  payload.cmd = cmd
-	payload.client_tick = tick
-  return json.encode(payload)
+	server:send(create_binary_packet(playerVM, "PLAYERUPDATE", tick, inName))
 end
 
 function display_net_info()
@@ -93,4 +84,30 @@ function update_connection(dt)
 			connection_is_new = false
 		end
 	end
+end
+
+packet_meta = {}
+function packet_meta.__index(table, key)
+  --print("im doing stuff")
+  if key == 'alias' then
+    return table[4]
+  elseif key == 'cmd'then
+    return table[3]
+	elseif key == 'server_tick' or key == 'tick' then
+		return table[2]
+  else
+    return table[1][key]
+  end
+end
+
+function create_binary_packet(payload, cmd, tick, alias)
+	return binser.serialize(payload, tick, cmd, alias)
+end
+
+--DONT USE JSON, USE SOME BINARY SERIALISATION OR SUMMIN. JSON IS SLOW
+function create_json_packet(payload, cmd, tick, alias)
+  if alias then payload.alias = alias end
+  payload.cmd = cmd
+	payload.client_tick = tick
+  return json.encode(payload)
 end

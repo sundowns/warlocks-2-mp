@@ -40,3 +40,12 @@ function file_exists(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
 end
+
+function within_variance(val1, val2, variance)
+  local diff = math.abs(val1 - val2)
+  if diff < variance then
+    return true
+  else
+    return false
+  end
+end
