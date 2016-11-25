@@ -62,6 +62,7 @@ function game:update(dt)
 						if world[payload.alias] == nil then
 							server_entity_create(payload)
 						else
+                            if payload.entity_type and payload.entity_type == "PROJECTILE" then print("we got a projectile") end
 							if payload.alias ~= player.name then
 								server_entity_update(payload.alias, payload)
 							else
@@ -77,6 +78,11 @@ function game:update(dt)
 						confirm_join()
 					elseif payload.cmd == 'SPAWN' then
 						prepare_player(payload)
+                    elseif payload.cmd == 'PLAYERCORRECTION' then
+                        local ok, update = verify_player_packet(payload)
+                        if ok then
+                            apply_retroactive_updates(update)
+                        end
 					else
 						dbg("unrecognised command:", payload.cmd)
 					end
@@ -95,11 +101,18 @@ function game:draw()
 	draw_stage()
 	reset_colour()
 	for k, entity in pairs(world) do
-			if entity.orientation == "LEFT" then
+        if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
+            if entity.orientation == "LEFT" then
 				draw_instance(entity.sprite_instance, entity.x+entity.width/2, entity.y-entity.height/2, true)
 			elseif entity.orientation == "RIGHT" then
 				draw_instance(entity.sprite_instance, entity.x-entity.width/2, entity.y-entity.height/2)
 			end
+        elseif entity.entity_type == "PROJECTILE" then
+            -- TODO: DRAW PROJECTILE
+            love.graphics.setColor(0, 0, 255, 255)
+            love.graphics.circle('fill', entity.x, entity.y, 4, 16)
+            print("drawing at " .. entity.x .. "," .. entity.y)
+        end
 	end
 
 	if settings.debug then
@@ -109,14 +122,14 @@ function game:draw()
 		love.graphics.rectangle('line', camX - love.graphics.getWidth()*cameraBoxWidth, camY - love.graphics.getHeight()*cameraBoxHeight, 2*cameraBoxWidth*love.graphics.getWidth(), 2*cameraBoxHeight*love.graphics.getHeight())
 		reset_colour()
 		set_font(12, 'debug')
-		love.graphics.print("fps: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,0))
+		love.graphics.print("fps: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,-15))
 		if user_alive then
 			love.graphics.setColor(0, 255, 255, 255)
 			love.graphics.circle('fill', player.x, player.y, 2, 16)
 			reset_colour()
 		end
 		display_net_info()
-		love.graphics.print("tick: "..tostring(tick), camera:worldCoords(3,40))
+		love.graphics.print("tick: "..tostring(tick), camera:worldCoords(3,15))
 
 		local stats = love.graphics.getStats()
 		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 80))

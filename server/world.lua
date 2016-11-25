@@ -1,5 +1,17 @@
 world = {} -- the empty world-state
+-- world_meta = {}
+--
+-- function world_meta.__index(table, key)
+--     if key == 'players' then
+--       return table[4]
+--     elseif key == 'players'
+--       return table[1][key]
+--     end
+-- end
+
 world["players"] = {} -- player collection
+world["entities"] = {} -- projectile collection
+
 deleted = {} -- buffer table of entity delete message to send to all clients
 selected_stage = "arena1"
 current_stage = {}
@@ -16,7 +28,7 @@ function load_stage()
       STAGE_HEIGHT_TILES = current_stage.height
       STAGE_WIDTH_TOTAL = STAGE_WIDTH_TILES * current_stage.tilewidth
       STAGE_HEIGHT_TOTAL = STAGE_HEIGHT_TILES * current_stage.tileheight
-      print("Loaded stage succesfully")
+      print("Loaded stage: '" .. selected_stage .. "' succesfully")
     else
       print("[ERROR] Failed to load stage. " .. selected_stage .. " File is incorrect format or corrupt")
     end
@@ -46,3 +58,23 @@ function remove_entity(entity)
 	end
 	deleted[entity] = {entity_type = ent.entity_type}
 end
+
+function spawn_projectile(x, y)
+    local new_projectile = {
+        x = x,
+        y = y,
+        x_vel = 0,
+        y_vel = 0,
+        entity_type = "PROJECTILE",
+        projectile_type = "FIREBALL"
+    }
+
+    table.insert(world["entities"], new_projectile)
+end
+--
+-- function update_projectile(projectile, dt)
+--     local delta = vector(0,0)
+--     delta.x = 1
+--     delta.y = 1
+--     delta:normalized()
+-- end

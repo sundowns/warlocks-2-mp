@@ -65,12 +65,12 @@ function display_net_info()
 	love.graphics.setColor(0, 255, 100)
 	set_font(12, 'debug')
 	if connected then
-		love.graphics.print("rtt: "..last_rtt, camera:worldCoords(3,20))
+		love.graphics.print("rtt: "..last_rtt, camera:worldCoords(3,0))
 		if connection_is_new then
-			love.graphics.print("stabilising...", camera:worldCoords(70,20))
+			love.graphics.print("stabilising...", camera:worldCoords(70,0))
 		end
 	else
-		love.graphics.print("Disconnected.", camera:worldCoords(3,20))
+		love.graphics.print("Disconnected.", camera:worldCoords(3,0))
 	end
 	reset_colour()
 end
@@ -102,10 +102,23 @@ function create_binary_packet(payload, cmd, tick, alias)
 	return binser.serialize(payload, tostring(tick), cmd, alias)
 end
 
---DONT USE JSON, USE SOME BINARY SERIALISATION OR SUMMIN. JSON IS SLOW
-function create_json_packet(payload, cmd, tick, alias)
-  if alias then payload.alias = alias end
-  payload.cmd = cmd
-	payload.client_tick = tick
-  return json.encode(payload)
+function verify_player_packet(payload)
+    local update = {
+        x = tonumber(payload.x),
+        y = tonumber(payload.y),
+        x_vel = tonumber(payload.x_vel),
+        y_vel = tonumber(payload.y_vel),
+        colour = payload.colour,
+        entity_type = payload.entity_type,
+        state = payload.state
+    }
+    local verified = true
+    if not assert(update.x) then verified = false print("Failed to verify x update for player") end
+    if not assert(update.y) then verified = false print("Failed to verify y update for player") end
+    if not assert(update.x_vel) then verified = false print("Failed to verify x_vel update for player") end
+    if not assert(update.y_vel) then verified = false print("Failed to verify y_vel update for player") end
+    if not assert(update.colour) then verified = false print("Failed to verify colour update for player") end
+    if not assert(update.entity_type) then verified = false print("Failed to verify entity_type update for player") end
+    if not assert(update.state) then verified = false print("Failed to verify state update for player") end
+    return verified, update
 end

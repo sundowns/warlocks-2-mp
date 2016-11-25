@@ -7,6 +7,7 @@ binser = require 'binser'
 constants = require("constants")
 enet = require "enet"
 host = enet.host_create("localhost:12345")
+vector = require "vector" -- hump.vector
 --host:bandwidth_limit(1024000, 1024000)
 
 server_version = "0.0.1"
@@ -59,7 +60,7 @@ while running do
 								if verify_position_update(ent, payload) then
 									world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
 								else
-
+                                    send_client_correction_packet(event.peer, payload.alias)
 									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
 									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
 									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
@@ -80,6 +81,14 @@ while running do
 						else
 							client_list[event.peer].name = payload.alias
 							--send_world_update(event.peer, payload.alias)
+
+
+
+                            spawn_projectile(50, 50)
+
+
+
+                            --
 							if world["players"][payload.alias] then
 								send_error_packet(event.peer, "The alias " .. payload.alias .. " is already in use.")
 								remove_client(payload.alias, "Duplicate alias")

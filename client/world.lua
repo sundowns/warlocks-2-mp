@@ -1,10 +1,23 @@
 world = {}
+world["projectiles"] = {}
 local minCamX = 0
 local minCamY = 0
 local maxCamX = 2000
 local maxCamY = 2000
 cameraBoxHeight = 0.035
 cameraBoxWidth = 0.05
+
+world_meta = {}
+--causes mem error coz loop
+-- function world_meta.__index(table, key)
+--     if type(key) == 'number' then
+--         return table["projectiles"][key]
+--     else
+--         return table[key]
+--     end
+-- end
+
+setmetatable(world, world_meta)
 
 function update_camera_boundaries()
 	minCamX = 0 + love.graphics.getWidth()/camera.scale/2
@@ -20,6 +33,9 @@ function add_entity(name, entity_type, ent)
 		else
 			add_enemy(name, ent)
 		end
+    elseif entity_type == "PROJECTILE" then
+        print("adding a projecitle")
+        world[name] = ent
 	end
 end
 
@@ -83,12 +99,16 @@ function server_entity_update(entity, update)
 	assert(update.x and update.y, "Undefined x or y coordinates for entity update")
 	assert(update.entity_type, "Undefined entity_type value for entity update")
 	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for entity update")
-	assert(update.state, "Undefined state for entity update")
+    if update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
+        assert(update.state, "Undefined state for entity update")
+    end
 	x, y, x_vel, y_vel = tonumber(update.x), tonumber(update.y), tonumber(update.x_vel), tonumber(update.y_vel)
 
 	local ent = world[entity]
 	if not ent then return nil end
-	ent = update_entity_state(ent, update.state) --COMMENTED UNTIL WE GET SERVER DATA CORRECTION
+    if update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
+    	ent = update_entity_state(ent, update.state)
+    end
 	ent = update_entity_position(ent, x, y, x_vel, y_vel)
 	world[entity] = ent
 end
@@ -104,10 +124,14 @@ end
 
 function update_entities(dt)
 	for name, entity in pairs(world) do
-		if entity.entity_type == "ENEMY" then
-				update_entity_movement(dt, entity, constants.PLAYER_FRICTION, false, false)
-		end
-		update_sprite_instance(entity.sprite_instance, dt)
+        if entity.entity_type == "PLAYER" then
+            update_sprite_instance(entity.sprite_instance, dt)
+        elseif entity.entity_type == "ENEMY" then
+            update_sprite_instance(entity.sprite_instance, dt)
+			update_entity_movement(dt, entity, constants.PLAYER_FRICTION, false, false)
+        elseif entity.entity_type == "PROJECTILE" then
+            print("updating projectile")
+        end
 	end
 end
 

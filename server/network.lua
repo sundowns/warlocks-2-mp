@@ -10,13 +10,23 @@ function send_world_update()
 		if ok then
 			host:broadcast(packet)
 		else
-			print("Error sending world update. Dumping data:")
+			print("Error sending player " .. k .. " world update. Dumping data:")
 			print_table(payload)
-			print("tick: " .. tick)
-			print("key: " .. k)
 			print("----------")
 		end
 	end
+
+    for i, projectile in ipairs(world["entities"]) do
+        local payload = create_projectile_payload(projectile)
+        local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, i)
+		if ok then
+			host:broadcast(packet)
+		else
+			print("Error sending projectile " .. i .. " during world update. Dumping data:")
+			print_table(payload)
+			print("----------")
+		end
+    end
 
 	for k, v in pairs(deleted) do
 		host:broadcast(create_binary_packet(v, "ENTITYDESTROY", tostring(tick), k))
@@ -24,7 +34,20 @@ function send_world_update()
 end
 
 function create_player_payload(player)
-	return {x = tostring(player.x), y = tostring(player.y), x_vel = tostring(round_to_nth_decimal(player.x_vel,2)), y_vel = tostring(round_to_nth_decimal(player.y_vel,2)), colour = player.colour, entity_type = "PLAYER", state = tostring(player.state)}
+	return {x = tostring(player.x), y = tostring(player.y),
+        x_vel = tostring(round_to_nth_decimal(player.x_vel,2)),
+        y_vel = tostring(round_to_nth_decimal(player.y_vel,2)),
+        colour = player.colour, entity_type = "PLAYER",
+        state = tostring(player.state)}
+end
+
+function create_projectile_payload(projectile)
+    return {x = tostring(projectile.x), y = tostring(projectile.y),
+        x_vel = tostring(round_to_nth_decimal(projectile.x_vel,2)),
+        y_vel = tostring(round_to_nth_decimal(projectile.y_vel,2)),
+        entity_type = "PROJECTILE",
+        projectile_type = projectile.projectile_type
+    }
 end
 
 function send_error_packet(peer, message)
@@ -33,11 +56,20 @@ function send_error_packet(peer, message)
 end
 
 function send_spawn_packet(peer, player)
+    print(player.name .. " spawned.")
 	peer:send(create_binary_packet(player, "SPAWN", tick))
 end
 
 function send_join_accept(peer, colour)
 	peer:send(create_binary_packet({colour = colour}, "JOINACCEPTED", tick))
+end
+
+function send_client_correction_packet(peer, alias)
+    if world["players"][alias] then
+        peer:send(create_binary_packet(create_player_payload(world["players"][payload.alias]), "PLAYERCORRECTION", tick))
+    else
+        print("[ERROR] Attempted to send correction packet to non-existent player: " .. payload.alias)
+    end
 end
 
 function remove_client(peer, msg)
