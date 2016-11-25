@@ -1,7 +1,10 @@
 fonts = {}
-defaultFontSize = 14
-fonts[defaultFontSize] = love.graphics.newFont("assets/misc/IndieFlower.ttf", defaultFontSize)
-love.graphics.setFont(fonts[defaultFontSize])
+local defaultFontSize = 14
+local font_families = {
+  game = "IndieFlower",
+  debug = "BalooBhaina-Regular"
+}
+fonts['game'] = {}
 
 function math.clamp(val, min, max)
     if min - val > 0 then
@@ -18,17 +21,27 @@ function reset_colour()
 end
 
 function reset_font()
-  print(love.graphics.setFont(fonts[defaultFontSize]))
-  love.graphics.setFont(fonts[defaultFontSize])
+  set_font(defaultFontSize, 'game')
 end
 
-function set_font_size(size)
-  if fonts[size] then
-    love.graphics.setFont(fonts[size])
+function set_font(size, family)
+  local font = font_families[family]
+
+  if fonts[family] and fonts[family][size] then
+    love.graphics.setFont(fonts[family][size])
   else
-    fonts[size] = love.graphics.newFont("assets/misc/IndieFlower.ttf", size)
+    if not fonts[family] then
+      fonts[family] = {}
+    end
+    if fonts[family][size] then
+      love.graphics.setFont(fonts[family][size])
+    else
+      fonts[family][size] = love.graphics.newFont("assets/misc/".. font ..".ttf", size)
+      love.graphics.setFont(fonts[family][size])
+    end
   end
 end
+set_font(defaultFontSize, 'game')
 
 function calculate_direction_with_two_points(x1, y1, x2, y2)
     local slope = (y2-y1)/(x2-x1)
@@ -93,11 +106,9 @@ function file_exists(name)
    if f~=nil then io.close(f) return true else return false end
 end
 
---rectangle origin is top left
---UNTESTED!!!
-function point_is_in_rectangle(pointX, pointY, rectX, recY, width, height)
-  return pointX > rectX and
-         pointX < rectX + width and
-         pointY > rectY and
-         pointY < rectY + height
+function point_is_in_rectangle(pointX, pointY, rectX, rectY, width, height)
+  return pointX >= rectX and
+         pointX <= rectX + width and
+         pointY >= rectY and
+         pointY <= rectY + height
 end

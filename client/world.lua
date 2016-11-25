@@ -1,4 +1,17 @@
 world = {}
+local minCamX = 0
+local minCamY = 0
+local maxCamX = 2000
+local maxCamY = 2000
+cameraBoxHeight = 0.035
+cameraBoxWidth = 0.05
+
+function update_camera_boundaries()
+	minCamX = 0 + love.graphics.getWidth()/camera.scale/2
+	minCamY = 0 + love.graphics.getHeight()/camera.scale/2
+	maxCamX = stage.width*stage.tilewidth - love.graphics.getWidth()/camera.scale/2
+	maxCamY = stage.height*stage.tileheight -love.graphics.getHeight()/camera.scale/2
+end
 
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
@@ -152,39 +165,38 @@ end
 
 function prepare_camera(x, y, zoom)
 	camera = Camera(x, y)
-	camera:zoom(zoom)
+	camera:zoomTo(zoom)
 end
 
 function update_camera()
-	--TODO: MAXIUM BOUNDRIES SO CAMERA STAYS IN THE MAP!!!
-	--EX. LEFT BOUNDARY = 1/2 of screen width
-	--RIGHT BOUNDARY = STAGE WIDTH (PIXELS) - 1/2 screen width
-	-- TOP BOUNDARY = 1/2 of screen height
-	-- bottom = STAGE HEIGHT (PIXELS) - 1/2 screen height
-
-	--print_table(stage.layers["Lava"][0][0], true) <--- just uncommented this to make shiz run 4 commit
-
-	--local minCamX = origin + love.graphics.getWidth()/4
-
-	-- middle of stage - width of stage/2
-
 	local camX, camY = camera:position()
 	local newX, newY = camX, camY
-	if (player.x > camX + love.graphics.getWidth()*0.05) then
-		newX = player.x - love.graphics.getWidth()*0.05
-	end
-	if (player.x < camX - love.graphics.getWidth()*0.05) then
-		newX = player.x + love.graphics.getWidth()*0.05
-	end
-	if (player.y > camY + love.graphics.getHeight()*0.035) then
-		newY = player.y - love.graphics.getHeight()*0.035
-	end
-	if (player.y < camY - love.graphics.getHeight()*0.035) then
-		newY = player.y + love.graphics.getHeight()*0.035
-	end
 
-	newX = math.max(newX, 0)
+	if point_is_in_rectangle(player.x, player.y,
+	  round_to_nth_decimal(camX - love.graphics.getWidth()*cameraBoxWidth - 1, 2), round_to_nth_decimal(camY - love.graphics.getHeight()*cameraBoxHeight - 1,2),
+	  round_to_nth_decimal(love.graphics.getWidth()*cameraBoxWidth*2 + 2,2),  round_to_nth_decimal(love.graphics.getHeight()*cameraBoxHeight*2 + 2), 2) then
+		if not within_variance(player.x, camX, 3) and
+		 	 not within_variance(player.y, camY, 3) then
+			newX = math.clamp(player.x, minCamX, maxCamX)
+			newY = math.clamp(player.y, minCamY, maxCamY)
+			camera:lockPosition(newX, newY, camera.smooth.damped(0.6))
+		end
+	else
+		if (player.x > camX + love.graphics.getWidth()*cameraBoxWidth) then
+			newX = player.x - love.graphics.getWidth()*cameraBoxWidth
+		end
+		if (player.x < camX - love.graphics.getWidth()*cameraBoxWidth) then
+			newX = player.x + love.graphics.getWidth()*cameraBoxWidth
+		end
+		if (player.y > camY + love.graphics.getHeight()*cameraBoxHeight) then
+			newY = player.y - love.graphics.getHeight()*cameraBoxHeight
+		end
+		if (player.y < camY - love.graphics.getHeight()*cameraBoxHeight) then
+			newY = player.y + love.graphics.getHeight()*cameraBoxHeight
+		end
 
-	--camera:lookAt(newX, newY)
-	camera:lockPosition(newX, newY, camera.smooth.damped(3))
+		newX = math.clamp(newX, minCamX,maxCamX)
+		newY = math.clamp(newY, minCamY,maxCamY)
+		camera:lockPosition(newX, newY, camera.smooth.damped(10))
+	end
 end

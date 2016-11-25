@@ -63,18 +63,16 @@ end
 
 function display_net_info()
 	love.graphics.setColor(0, 255, 100)
-	set_font_size(12)
+	set_font(12, 'debug')
 	if connected then
-		love.graphics.print("RTT: "..last_rtt, camera:worldCoords(3,20))
+		love.graphics.print("rtt: "..last_rtt, camera:worldCoords(3,20))
 		if connection_is_new then
-			set_font_size(10)
-			love.graphics.print("stabilising...", camera:worldCoords(3,35))
+			love.graphics.print("stabilising...", camera:worldCoords(70,20))
 		end
 	else
 		love.graphics.print("Disconnected.", camera:worldCoords(3,20))
 	end
 	reset_colour()
-	reset_font()
 end
 
 function update_connection(dt)

@@ -7,7 +7,6 @@ function game:init()
 	require("stagemanager")
 	net_initialise()
 	load_stage("arena1.lua")
-	prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
 	tick = 0
 	tick_timer = 0
 end
@@ -15,6 +14,7 @@ end
 function game:enter(previous)
   love.graphics.setBackgroundColor(0,0,0)
 	prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
+	update_camera_boundaries()
 end
 
 function game:update(dt)
@@ -59,7 +59,6 @@ function game:update(dt)
 						assert(payload.alias)
 						assert(payload.server_tick)
 						sync_client(payload.server_tick)
-						--dbg("received a msg from server at server_tick: " .. payload.server_tick.. " curr_client_tick: " .. tick)
 						if world[payload.alias] == nil then
 							server_entity_create(payload)
 						else
@@ -107,20 +106,17 @@ function game:draw()
 		local camX, camY = camera:position()
 		love.graphics.setColor(255, 0, 0, 255)
 		love.graphics.circle('fill', camX, camY, 2, 16)
-		love.graphics.rectangle('line', camX - love.graphics.getWidth()*0.05, camY - love.graphics.getHeight()*0.035, 0.1*love.graphics.getWidth(), 0.07*love.graphics.getHeight())
+		love.graphics.rectangle('line', camX - love.graphics.getWidth()*cameraBoxWidth, camY - love.graphics.getHeight()*cameraBoxHeight, 2*cameraBoxWidth*love.graphics.getWidth(), 2*cameraBoxHeight*love.graphics.getHeight())
 		reset_colour()
-		set_font_size(12)
-		love.graphics.print("FPS: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,0))
-		reset_font()
+		set_font(12, 'debug')
+		love.graphics.print("fps: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,0))
 		if user_alive then
 			love.graphics.setColor(0, 255, 255, 255)
 			love.graphics.circle('fill', player.x, player.y, 2, 16)
 			reset_colour()
 		end
 		display_net_info()
-		set_font_size(12)
 		love.graphics.print("tick: "..tostring(tick), camera:worldCoords(3,40))
-		reset_font()
 
 		local stats = love.graphics.getStats()
 		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 80))
@@ -129,6 +125,7 @@ function game:draw()
 		love.graphics.print("images loaded: ".. stats.images, camera:worldCoords(3, 140))
 		love.graphics.print("canvases loaded: ".. stats.canvases, camera:worldCoords(3, 160))
 		love.graphics.print("fonts loaded: ".. stats.fonts, camera:worldCoords(3, 180))
+		reset_font()
 	end
 
 	if not connected then

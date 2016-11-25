@@ -20,10 +20,10 @@ function error:update(dt)
 end
 
 function error:draw()
-  set_font_size(32)
+  set_font(32, 'debug')
   love.graphics.print(error_line1, love.graphics.getWidth()/2 - 100, love.graphics.getHeight()/2-50)
   if error_line2 then
-    set_font_size(16)
+    set_font(16, 'debug')
     love.graphics.print(error_line2, love.graphics.getWidth()/2 - 100, love.graphics.getHeight()/2)
   end
 end
