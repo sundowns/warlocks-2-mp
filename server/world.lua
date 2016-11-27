@@ -37,6 +37,15 @@ end
 
 function update_entity_positions(dt)
 	update_player_positions(dt)
+
+    for i,entity in ipairs(world["entities"]) do
+        if entity.entity_type == 'PROJECTILE' then
+            entity.position = entity.position + entity.velocity:normalized() * entity.acceleration * dt
+            --print(entity.vector:angleTo())
+
+            print(entity.position.x .. "," .. entity.position.y)
+        end
+    end
 end
 
 function update_player_positions(dt)
@@ -59,22 +68,14 @@ function remove_entity(entity)
 	deleted[entity] = {entity_type = ent.entity_type}
 end
 
-function spawn_projectile(x, y)
+function spawn_projectile(x, y, x_vel, y_vel)
     local new_projectile = {
-        x = x,
-        y = y,
-        x_vel = 0,
-        y_vel = 0,
+        position = vector(x,y),
+        velocity = vector(x_vel,y_vel),
+        acceleration = 300,
         entity_type = "PROJECTILE",
         projectile_type = "FIREBALL"
     }
 
     table.insert(world["entities"], new_projectile)
 end
---
--- function update_projectile(projectile, dt)
---     local delta = vector(0,0)
---     delta.x = 1
---     delta.y = 1
---     delta:normalized()
--- end

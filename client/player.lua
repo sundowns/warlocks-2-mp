@@ -8,7 +8,7 @@ function prepare_player(player_data)
 	player.dash.duration = tonumber(player.dash.duration)
 	player.dash.timer = tonumber(player.dash.timer)
 	player.dash.cancellable_after = tonumber(player.dash.cancellable_after)
-	
+
 	player.sprite_instance = get_sprite_instance("assets/sprites/player-" .. player.colour ..".lua")
 
 	add_entity(player.name, player.entity_type, player)
@@ -91,6 +91,11 @@ function get_input_snapshot()
 		right = love.keyboard.isDown((settings.controls["RIGHT"])),
 		left = love.keyboard.isDown((settings.controls["LEFT"])),
 		down = love.keyboard.isDown((settings.controls["DOWN"])),
+        spell1 = love.keyboard.isDown((settings.controls["SPELL1"])),
+        spell2 = love.keyboard.isDown((settings.controls["SPELL2"])),
+        spell3 = love.keyboard.isDown((settings.controls["SPELL3"])),
+        spell4 = love.keyboard.isDown((settings.controls["SPELL4"])),
+        spell5 = love.keyboard.isDown((settings.controls["SPELL5"]))
 	}
 end
 
@@ -176,8 +181,5 @@ function apply_retroactive_updates(result)
 	player.y = result.y
 	player.x_vel = result.x_vel
 	player.y_vel = result.y_vel
-	player.acceleration = result.acceleration
-	player.max_movement_velocity = result.max_movement_velocity
-	player.dash = result.dash
 	update_player_state(result.state)
 end

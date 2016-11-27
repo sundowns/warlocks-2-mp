@@ -7,17 +7,17 @@ local maxCamY = 2000
 cameraBoxHeight = 0.035
 cameraBoxWidth = 0.05
 
-world_meta = {}
---causes mem error coz loop
--- function world_meta.__index(table, key)
---     if type(key) == 'number' then
---         return table["projectiles"][key]
---     else
---         return table[key]
---     end
--- end
-
-setmetatable(world, world_meta)
+-- world_meta = {}
+-- --causes mem error coz loop
+-- -- function world_meta.__index(table, key)
+-- --     if type(key) == 'number' then
+-- --         return table["projectiles"][key]
+-- --     else
+-- --         return table[key]
+-- --     end
+-- -- end
+--
+-- setmetatable(world, world_meta)
 
 function update_camera_boundaries()
 	minCamX = 0 + love.graphics.getWidth()/camera.scale/2
@@ -34,8 +34,7 @@ function add_entity(name, entity_type, ent)
 			add_enemy(name, ent)
 		end
     elseif entity_type == "PROJECTILE" then
-        print("adding a projecitle")
-        world[name] = ent
+        add_projectile(ent)
 	end
 end
 
@@ -70,6 +69,23 @@ function add_enemy(name, enemy)
 	world[name] = enemy
 end
 
+function add_projectile(ent)
+    local projectile = {
+        name = ent.name,
+        x = ent.x,
+        y = ent.y,
+        x_vel = ent.x_vel,
+        y_vel = ent.y_vel,
+        entity_type = "PROJECTILE",
+        projectile_type = ent.projectile_type,
+        sprite_instance = {}
+    }
+
+    projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
+
+    world['projectiles'][projectile.name] = projectile
+end
+
 function server_player_update(update)
 	assert(update.x and update.y, "Undefined x or y coordinates for player update")
 	assert(update.entity_type, "Undefined entity_type value for player update")
@@ -80,15 +96,12 @@ function server_player_update(update)
 	update.y_vel = tonumber(update.y_vel)
 	local player_state = player_state_buffer[update.server_tick]
 	if player_state then
-		--print_table(player_state)
 		if not within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) or
 		not within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
-
 		--USE PCALL/XPCALL HERE TO "TRY" RETROACTIVE UPDATE, IF FAIL -> APPLY UPDATE DIRECTLY??
 			retroactive_player_state_calc(update)
 		else
 			apply_retroactive_updates(update)
-			--force player update
 		end
 	else
 		--print("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "]")
@@ -119,7 +132,13 @@ function server_entity_create(entity)
 	assert(entity.entity_type, "Undefined entity_type value for entity creation")
 	--assert(entity.state, "Invalid state value for entity creation")
 	x, y, x_vel, y_vel = tonumber(entity.x), tonumber(entity.y), tonumber(entity.x_vel), tonumber(entity.y_vel)
-	add_entity(entity.alias, entity.entity_type, {name = entity.alias, colour = entity.colour or nil, x=x, y=y, x_vel=x_vel or 0, y_vel=y_vel or 0, state=entity.state})
+	add_entity(entity.alias, entity.entity_type, {
+        name = entity.alias,
+        colour = entity.colour or nil,
+        x=x, y=y, x_vel=x_vel or 0,
+        y_vel=y_vel or 0, state=entity.state,
+        projectile_type = entity.projectile_type or nil
+    })
 end
 
 function update_entities(dt)
@@ -130,7 +149,7 @@ function update_entities(dt)
             update_sprite_instance(entity.sprite_instance, dt)
 			update_entity_movement(dt, entity, constants.PLAYER_FRICTION, false, false)
         elseif entity.entity_type == "PROJECTILE" then
-            print("updating projectile")
+            --print("updating projectile")
         end
 	end
 end

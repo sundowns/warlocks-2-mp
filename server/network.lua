@@ -16,8 +16,8 @@ function send_world_update()
 		end
 	end
 
-    for i, projectile in ipairs(world["entities"]) do
-        local payload = create_projectile_payload(projectile)
+    for i, entity in ipairs(world["entities"]) do
+        local payload = create_entity_payload(entity)
         local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, i)
 		if ok then
 			host:broadcast(packet)
@@ -41,12 +41,12 @@ function create_player_payload(player)
         state = tostring(player.state)}
 end
 
-function create_projectile_payload(projectile)
-    return {x = tostring(projectile.x), y = tostring(projectile.y),
-        x_vel = tostring(round_to_nth_decimal(projectile.x_vel,2)),
-        y_vel = tostring(round_to_nth_decimal(projectile.y_vel,2)),
-        entity_type = "PROJECTILE",
-        projectile_type = projectile.projectile_type
+function create_entity_payload(entity)
+    return {x = tostring(round_to_nth_decimal(entity.position.x,2)), y = tostring(round_to_nth_decimal(entity.position.y)),
+        x_vel = tostring(round_to_nth_decimal(entity.velocity.x,2)),
+        y_vel = tostring(round_to_nth_decimal(entity.velocity.y,2)),
+        entity_type = entity.entity_type,
+        projectile_type = entity.projectile_type or nil
     }
 end
 

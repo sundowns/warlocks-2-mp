@@ -37,12 +37,12 @@ function game:update(dt)
 
 		if connected and user_alive then
 			local player_state = {player = get_player_state_snapshot(), input = get_input_snapshot(), tick = tick}
-	   	player_state_buffer[tick] = player_state
+	   	    player_state_buffer[tick] = player_state
 			player_buffer_size = player_buffer_size + 1
-	   	if player_buffer_size > constants.PLAYER_BUFFER_LENGTH then
-	   		player_state_buffer[tick-constants.PLAYER_BUFFER_LENGTH] = nil
+   	        if player_buffer_size > constants.PLAYER_BUFFER_LENGTH then
+	            player_state_buffer[tick-constants.PLAYER_BUFFER_LENGTH] = nil
 				player_buffer_size = player_buffer_size - 1
-	   	end
+   	        end
 	 	end
 
 		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
@@ -62,7 +62,7 @@ function game:update(dt)
 						if world[payload.alias] == nil then
 							server_entity_create(payload)
 						else
-                            if payload.entity_type and payload.entity_type == "PROJECTILE" then print("we got a projectile") end
+                            --if payload.entity_type and payload.entity_type == "PROJECTILE" then print("we got a projectile") end
 							if payload.alias ~= player.name then
 								server_entity_update(payload.alias, payload)
 							else
@@ -77,9 +77,12 @@ function game:update(dt)
 						player_colour = payload.colour
 						confirm_join()
 					elseif payload.cmd == 'SPAWN' then
-						prepare_player(payload)
+                        local ok, update = verify_spawn_packet(payload)
+                        if ok then
+                            prepare_player(update)
+                        end
                     elseif payload.cmd == 'PLAYERCORRECTION' then
-                        local ok, update = verify_player_packet(payload)
+                        local ok, update = verify_player_correction_packet(payload)
                         if ok then
                             apply_retroactive_updates(update)
                         end
@@ -100,6 +103,8 @@ function game:draw()
 	if user_alive then camera:attach() end
 	draw_stage()
 	reset_colour()
+
+    --draw players
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
             if entity.orientation == "LEFT" then
@@ -107,13 +112,17 @@ function game:draw()
 			elseif entity.orientation == "RIGHT" then
 				draw_instance(entity.sprite_instance, entity.x-entity.width/2, entity.y-entity.height/2)
 			end
-        elseif entity.entity_type == "PROJECTILE" then
-            -- TODO: DRAW PROJECTILE
-            love.graphics.setColor(0, 0, 255, 255)
-            love.graphics.circle('fill', entity.x, entity.y, 4, 16)
-            print("drawing at " .. entity.x .. "," .. entity.y)
         end
 	end
+
+    --draw projectiles
+    for k, projectile in pairs(world['projectiles']) do
+        -- TODO: DRAW PROJECTILE (with spritemanager)
+        draw_instance(projectile.sprite_instance, projectile.x, projectile.y)
+        -- love.graphics.setColor(0, 0, 255, 255)
+        -- love.graphics.circle('fill', projectile.x, projectile.y, 4, 16)
+        -- reset_colour()
+    end
 
 	if settings.debug then
 		local camX, camY = camera:position()

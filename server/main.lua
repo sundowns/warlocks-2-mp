@@ -61,13 +61,6 @@ while running do
 									world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
 								else
                                     send_client_correction_packet(event.peer, payload.alias)
-									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
-									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
-									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
-									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
-									-- TODO send a message back to FORCE CLIENT TO LAST VERIFIED POSITION
-
-
 									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
 								end
 							else
@@ -80,11 +73,10 @@ while running do
 							remove_client(event.peer, event.peer .. " version " .. payload.client_version .. " conflicts with server version " .. server_version)
 						else
 							client_list[event.peer].name = payload.alias
-							--send_world_update(event.peer, payload.alias)
 
 
 
-                            spawn_projectile(50, 50)
+                            spawn_projectile(300, 300, 1, 0)
 
 
 

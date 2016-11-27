@@ -102,23 +102,61 @@ function create_binary_packet(payload, cmd, tick, alias)
 	return binser.serialize(payload, tostring(tick), cmd, alias)
 end
 
-function verify_player_packet(payload)
+function verify_player_correction_packet(payload)
     local update = {
         x = tonumber(payload.x),
         y = tonumber(payload.y),
         x_vel = tonumber(payload.x_vel),
         y_vel = tonumber(payload.y_vel),
-        colour = payload.colour,
-        entity_type = payload.entity_type,
-        state = payload.state
+        state = payload.state,
+        colour = payload.colour
     }
     local verified = true
     if not assert(update.x) then verified = false print("Failed to verify x update for player") end
     if not assert(update.y) then verified = false print("Failed to verify y update for player") end
     if not assert(update.x_vel) then verified = false print("Failed to verify x_vel update for player") end
     if not assert(update.y_vel) then verified = false print("Failed to verify y_vel update for player") end
-    if not assert(update.colour) then verified = false print("Failed to verify colour update for player") end
-    if not assert(update.entity_type) then verified = false print("Failed to verify entity_type update for player") end
-    if not assert(update.state) then verified = false print("Failed to verify state update for player") end
+    if not assert(update.state) or not type(update.state) == 'string' then verified = false print("Failed to verify state update for player") end
+    if not assert(update.colour) or not type(update.colour) == 'string' then verified = false print("Failed to verify colour update for player") end
+    return verified, update
+end
+
+function verify_spawn_packet(payload)
+    local update = {
+        x = tonumber(payload.x),
+        y = tonumber(payload.y),
+        x_vel = tonumber(payload.x_vel),
+        y_vel = tonumber(payload.y_vel),
+        entity_type = payload.entity_type,
+        state = payload.state,
+        dash = payload.dash,
+        colour = payload.colour,
+        orientation = payload.orientation,
+        name = payload.name,
+        width = tonumber(payload.width),
+        height = tonumber(payload.height),
+        max_movement_velocity = tonumber(payload.max_movement_velocity),
+        acceleration = tonumber(payload.acceleration),
+        movement_friction = tonumber(payload.movement_friction),
+        base_acceleration = tonumber(payload.base_acceleration)
+    }
+
+    local verified = true
+    if not assert(update.x) then verified = false print("Failed to verify x for player spawn packet") end
+    if not assert(update.y) then verified = false print("Failed to verify y for player spawn packet") end
+    if not assert(update.x_vel) then verified = false print("Failed to verify x_vel for player spawn packet") end
+    if not assert(update.y_vel) then verified = false print("Failed to verify y_vel for player spawn packet") end
+    if not assert(update.entity_type  == 'PLAYER') or not type(update.entity_type) == 'string' then verified = false print("Failed to verify entity_type for player spawn packet") end
+    if not assert(update.state) or not type(update.state) == 'string' then verified = false print("Failed to verify state for player spawn packet") end
+    if not assert(update.colour) or not type(update.colour) == 'string' then verified = false print("Failed to verify colour for player spawn packet") end
+    if not assert(update.orientation) or not type(update.orientation) == 'string' then verified = false print("Failed to verify orientation for player spawn packet") end
+    if not assert(update.name) or not type(update.name) == 'string' then verified = false print("Failed to verify name for player spawn packet") end
+    if not assert(update.width) then verified = false print("Failed to verify width for player spawn packet") end
+    if not assert(update.height) then verified = false print("Failed to verify height for player spawn packet") end
+    if not assert(update.dash) or not type(update.name) == 'table' then verified = false print("Failed to verify dash for player spawn packet") end
+    if not assert(update.max_movement_velocity) then verified = false print("Failed to verify max_movement_velocity for player spawn packet") end
+    if not assert(update.acceleration) then verified = false print("Failed to verify acceleration for player spawn packet") end
+    if not assert(update.movement_friction) then verified = false print("Failed to verify movement_friction for player spawn packet") end
+    if not assert(update.base_acceleration) then verified = false print("Failed to verify base_acceleration for player spawn packet") end
     return verified, update
 end

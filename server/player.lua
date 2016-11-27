@@ -9,7 +9,6 @@ function spawn_player(name, x, y, colour)
 	  	x_vel = 0,
 	  	y_vel = 0,
 	  	max_movement_velocity = 130,
-	  	acceleration = 35,
 	  	movement_friction = 200,
 		base_acceleration = 320,
 		acceleration = 320,
@@ -23,7 +22,6 @@ function spawn_player(name, x, y, colour)
 	  	width = 20,
 	  	colour = colour
   	}
-
-		world["players"][payload.alias] = new_player
-		return new_player
+	world["players"][payload.alias] = new_player
+	return new_player
 end
