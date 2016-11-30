@@ -59,10 +59,9 @@ function game:update(dt)
 						assert(payload.alias)
 						assert(payload.server_tick)
 						sync_client(payload.server_tick)
-						if world[payload.alias] == nil then
+						if world[payload.alias] == nil and world['projectiles'][payload.alias] == nil then
 							server_entity_create(payload)
 						else
-                            --if payload.entity_type and payload.entity_type == "PROJECTILE" then print("we got a projectile") end
 							if payload.alias ~= player.name then
 								server_entity_update(payload.alias, payload)
 							else
@@ -115,9 +114,7 @@ function game:draw()
         end
 	end
 
-    --draw projectiles
     for k, projectile in pairs(world['projectiles']) do
-        -- TODO: DRAW PROJECTILE (with spritemanager)
         draw_instance(projectile.sprite_instance, projectile.x, projectile.y)
         -- love.graphics.setColor(0, 0, 255, 255)
         -- love.graphics.circle('fill', projectile.x, projectile.y, 4, 16)

@@ -42,8 +42,6 @@ function update_entity_positions(dt)
         if entity.entity_type == 'PROJECTILE' then
             entity.position = entity.position + entity.velocity:normalized() * entity.acceleration * dt
             --print(entity.vector:angleTo())
-
-            print(entity.position.x .. "," .. entity.position.y)
         end
     end
 end

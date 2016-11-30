@@ -6,7 +6,8 @@ user_alive = false
 function love.load()
 	math.randomseed(os.time())
 	binser = require 'libs/binser'
-	json = require("json")
+	--json = require("json")
+    vector = require "libs/vector"
 	Camera = require 'libs/camera'
 	GamestateManager = require "libs/gamestate"
 	settings = require("settings")

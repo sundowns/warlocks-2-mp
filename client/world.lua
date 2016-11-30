@@ -19,13 +19,6 @@ cameraBoxWidth = 0.05
 --
 -- setmetatable(world, world_meta)
 
-function update_camera_boundaries()
-	minCamX = 0 + love.graphics.getWidth()/camera.scale/2
-	minCamY = 0 + love.graphics.getHeight()/camera.scale/2
-	maxCamX = stage.width*stage.tilewidth - love.graphics.getWidth()/camera.scale/2
-	maxCamY = stage.height*stage.tileheight -love.graphics.getHeight()/camera.scale/2
-end
-
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
 		if name == settings.username then
@@ -61,6 +54,7 @@ function add_enemy(name, enemy)
 			width = nil
 	}
 
+    print("wtf add_enemy")
 	enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
 
 	enemy.height = 20
@@ -78,9 +72,11 @@ function add_projectile(ent)
         y_vel = ent.y_vel,
         entity_type = "PROJECTILE",
         projectile_type = ent.projectile_type,
-        sprite_instance = {}
+        sprite_instance = {},
+        velocity = vector(ent.x_vel, ent.y_vel)
     }
 
+    print("wtf add_projectile")
     projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
 
     world['projectiles'][projectile.name] = projectile
@@ -117,13 +113,18 @@ function server_entity_update(entity, update)
     end
 	x, y, x_vel, y_vel = tonumber(update.x), tonumber(update.y), tonumber(update.x_vel), tonumber(update.y_vel)
 
-	local ent = world[entity]
-	if not ent then return nil end
     if update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
+        local ent = world[entity]
+    	if not ent then return nil end
     	ent = update_entity_state(ent, update.state)
+        ent = update_entity(ent, x, y, x_vel, y_vel)
+        world[entity] = ent
+    elseif update.entity_type == "PROJECTILE" then
+        local ent = world['projectiles'][entity]
+    	if not ent then return nil end
+        ent = update_entity(ent, x, y, x_vel, y_vel)
+        world['projectiles'][entity] = ent
     end
-	ent = update_entity_position(ent, x, y, x_vel, y_vel)
-	world[entity] = ent
 end
 
 function server_entity_create(entity)
@@ -132,11 +133,12 @@ function server_entity_create(entity)
 	assert(entity.entity_type, "Undefined entity_type value for entity creation")
 	--assert(entity.state, "Invalid state value for entity creation")
 	x, y, x_vel, y_vel = tonumber(entity.x), tonumber(entity.y), tonumber(entity.x_vel), tonumber(entity.y_vel)
+
 	add_entity(entity.alias, entity.entity_type, {
         name = entity.alias,
         colour = entity.colour or nil,
         x=x, y=y, x_vel=x_vel or 0,
-        y_vel=y_vel or 0, state=entity.state,
+        y_vel=y_vel or 0, state=entity.state or nil,
         projectile_type = entity.projectile_type or nil
     })
 end
@@ -146,15 +148,28 @@ function update_entities(dt)
         if entity.entity_type == "PLAYER" then
             update_sprite_instance(entity.sprite_instance, dt)
         elseif entity.entity_type == "ENEMY" then
-            update_sprite_instance(entity.sprite_instance, dt)
 			update_entity_movement(dt, entity, constants.PLAYER_FRICTION, false, false)
-        elseif entity.entity_type == "PROJECTILE" then
-            --print("updating projectile")
+            update_sprite_instance(entity.sprite_instance, dt)
         end
 	end
+    for id, projectile in pairs(world["projectiles"]) do
+        if projectile.entity_type == "PROJECTILE" then
+            local vel = projectile.velocity:angleTo(vector(0,-1))
+            dbg("proj vel x:" ..projectile.velocity.x .. " y: " .. projectile.velocity.y .. " angle: " .. vel)
+            update_sprite_instance(projectile.sprite_instance, dt, vel)
+            --print("updating projectile")
+        end
+    end
 end
 
-function update_entity_position(entity, x, y, x_vel, y_vel)
+function update_entity(entity, x, y, x_vel, y_vel)
+    if entity.entity_type == "PROJECTILE" then
+        entity.velocity.x = x_vel
+        entity.velocity.y = y_vel
+    elseif entity.entity_type == "ENEMY" then
+        --nothing special 4 now
+    end
+
 	entity.x = round_to_nth_decimal(x, 2)
 	entity.y = round_to_nth_decimal(y, 2)
 	entity.x_vel = round_to_nth_decimal(x_vel, 2)
@@ -242,4 +257,11 @@ function update_camera()
 		newY = math.clamp(newY, minCamY,maxCamY)
 		camera:lockPosition(newX, newY, camera.smooth.damped(10))
 	end
+end
+
+function update_camera_boundaries()
+	minCamX = 0 + love.graphics.getWidth()/camera.scale/2
+	minCamY = 0 + love.graphics.getHeight()/camera.scale/2
+	maxCamX = stage.width*stage.tilewidth - love.graphics.getWidth()/camera.scale/2
+	maxCamY = stage.height*stage.tileheight -love.graphics.getHeight()/camera.scale/2
 end

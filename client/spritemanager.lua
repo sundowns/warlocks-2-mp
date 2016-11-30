@@ -56,7 +56,8 @@ function get_sprite_instance(sprite_def)
       }
 end
 
-function update_sprite_instance(instance, dt)
+function update_sprite_instance(instance, dt, rotation)
+    if rotation then instance.rotation = rotation end
     instance.elapsed_time = instance.elapsed_time + dt
     if instance.elapsed_time > instance.sprite.frame_duration * instance.time_scale then
         if instance.curr_frame < #instance.sprite.animations[instance.curr_anim] then

@@ -74,11 +74,7 @@ while running do
 						else
 							client_list[event.peer].name = payload.alias
 
-
-
-                            spawn_projectile(300, 300, 1, 0)
-
-
+                            spawn_projectile(300, 300, math.random(-10,10), math.random(-10,10))
 
                             --
 							if world["players"][payload.alias] then
