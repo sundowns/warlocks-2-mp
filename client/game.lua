@@ -23,7 +23,9 @@ function game:update(dt)
 
 	if user_alive then
 		local input = get_input_snapshot()
-		player = process_input(player, input, dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
+		player = process_movement_input(player, input, dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
+        -- PROCESS SPELLS ETC!!
+
 		update_player_movement(player, input, dt, false)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
 		cooldowns(dt)
@@ -151,4 +153,16 @@ function game:draw()
 		love.graphics.print("Awaiting connection to server.", camera:worldCoords(0, 0))
 	end
 	if user_alive then camera:detach() end
+end
+
+function game:keyreleased(key, code)
+    if key == settings.controls['SPELL1'] then
+        if not user_alive then return end
+        if not player.spellbook['SPELL1'] then end
+
+        local x, y = love.mouse.getPosition()
+        x,y = camera:worldCoords(x,y)
+        send_action_packet("CASTSPELL", {x=x, y=y, spell_type=player.spellbook['SPELL1']})
+        print("Fire ballin @ " .. x..","..y)
+    end
 end

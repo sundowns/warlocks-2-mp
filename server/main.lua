@@ -87,6 +87,14 @@ while running do
 						end
 					elseif payload.cmd == 'UPDATE' then
 						print('[WARNING] Explicitly requested world update received. Potential security risk.')
+                    elseif payload.cmd == 'CASTSPELL' then
+                        assert(payload.spell_type)
+                        if payload.spell_type == "FIREBALL" then
+                            --verify cast packet
+                            player_cast_fireball(payload.alias, payload.x, payload.y)
+                            spawn_projectile(300, 300, math.random(-10,10), math.random(-10,10))
+                        end
+
 					else
 						print("[WARNING] unrecognised command: " .. payload.cmd)
 					end

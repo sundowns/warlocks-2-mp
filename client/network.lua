@@ -61,6 +61,11 @@ function send_player_update(inPlayer, inName)
 	server:send(create_binary_packet(playerVM, "PLAYERUPDATE", tick, inName))
 end
 
+function send_action_packet(action, data)
+    if not connected then return end
+    server:send(create_binary_packet(data, action, tick, settings.username))
+end
+
 function display_net_info()
 	love.graphics.setColor(0, 255, 100)
 	set_font(12, 'debug')

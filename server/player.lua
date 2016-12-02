@@ -25,3 +25,7 @@ function spawn_player(name, x, y, colour)
 	world["players"][payload.alias] = new_player
 	return new_player
 end
+
+
+function player_cast_fireball(alias, atX, atY)
+end

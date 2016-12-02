@@ -54,7 +54,6 @@ function add_enemy(name, enemy)
 			width = nil
 	}
 
-    print("wtf add_enemy")
 	enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
 
 	enemy.height = 20
@@ -76,7 +75,6 @@ function add_projectile(ent)
         velocity = vector(ent.x_vel, ent.y_vel)
     }
 
-    print("wtf add_projectile")
     projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
 
     world['projectiles'][projectile.name] = projectile

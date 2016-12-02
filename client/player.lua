@@ -11,11 +11,14 @@ function prepare_player(player_data)
 
 	player.sprite_instance = get_sprite_instance("assets/sprites/player-" .. player.colour ..".lua")
 
+    player.spellbook = {}
+    player.spellbook['SPELL1'] = "FIREBALL"
+
 	add_entity(player.name, player.entity_type, player)
 	user_alive = true
 end
 
-function process_input(player_obj, inputs, dt) -- YOU NEED TO HAVE A SYSTEM FOR POLLING INPUTS, SO MOVEMENT IS CONSISTENT ACROSS ALL PLATFORMS
+function process_movement_input(player_obj, inputs, dt) -- YOU NEED TO HAVE A SYSTEM FOR POLLING INPUTS, SO MOVEMENT IS CONSISTENT ACROSS ALL PLATFORMS
 	if player_obj.state == "STAND" or player_obj.state == "RUN" or player_obj.state == "DASH" then --or player.state == "TURN"
 		local dash_multiplier = 1
 		if player_obj.state == "DASH" then dash_multiplier = 1.5 end
@@ -170,7 +173,7 @@ end
 
 function calc_new_player_state(previous_state, input, dt)
 	--Apply input & dt to old state to calc new state.
-	local resultant = process_input(previous_state, input, dt)
+	local resultant = process_movement_input(previous_state, input, dt)
 	resultant = update_player_movement(resultant, input, dt, true)
 	return resultant
 end
