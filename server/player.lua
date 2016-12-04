@@ -27,5 +27,16 @@ function spawn_player(name, x, y, colour)
 end
 
 
-function player_cast_fireball(alias, atX, atY)
+function player_cast_fireball(player_x, player_y, at_X, at_Y, alias)
+    --print(player.name .. " cast fireball at x: " .. atX .. "," .. atY)
+    local vector = calc_vector_from_points(player_x, player_y, at_X, at_Y)
+    spawn_projectile(player_x, player_y, vector, alias)
+
+
+    --vector from points:
+    -- From X to Y calculated by y-x
+end
+
+function calc_vector_from_points(fromX, fromY, toX, toY)
+    return vector(toX-fromX, toY-fromY)
 end

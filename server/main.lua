@@ -74,7 +74,7 @@ while running do
 						else
 							client_list[event.peer].name = payload.alias
 
-                            spawn_projectile(300, 300, math.random(-10,10), math.random(-10,10))
+                            --spawn_projectile(300, 300, math.random(-10,10), math.random(-10,10))
 
                             --
 							if world["players"][payload.alias] then
@@ -91,10 +91,12 @@ while running do
                         assert(payload.spell_type)
                         if payload.spell_type == "FIREBALL" then
                             --verify cast packet
-                            player_cast_fireball(payload.alias, payload.x, payload.y)
-                            spawn_projectile(300, 300, math.random(-10,10), math.random(-10,10))
+                            if world["players"][payload.alias] then
+                                player_cast_fireball(payload.player_x, payload.player_y, payload.at_X, payload.at_Y, payload.alias)
+                            else
+                                print("[WARNING] Non-existant player: " .. payload.alias .. " attempted to cast fierball")
+                            end
                         end
-
 					else
 						print("[WARNING] unrecognised command: " .. payload.cmd)
 					end

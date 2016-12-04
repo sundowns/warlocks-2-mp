@@ -32,9 +32,16 @@ function add_entity(name, entity_type, ent)
 end
 
 function remove_entity(name, entity_type)
-	if world[name] then
-		world[name] = nil
-	end
+    if entity_type == "PLAYER" then
+        if world[name] then
+    		world[name] = nil
+    	end
+    elseif entity_type == "PROJECTILE" then
+        if world['projectiles'][name] then
+            table.remove(world['projectiles'], name)
+            --world['projectiles'][name] = nil
+        end
+    end
 end
 
 function add_enemy(name, enemy)
@@ -77,7 +84,9 @@ function add_projectile(ent)
 
     projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
 
-    world['projectiles'][projectile.name] = projectile
+    -- change to table.insert /remove?
+    table.insert(world['projectiles'], projectile)
+    --world['projectiles'][projectile.name] = projectile
 end
 
 function server_player_update(update)
@@ -150,10 +159,9 @@ function update_entities(dt)
             update_sprite_instance(entity.sprite_instance, dt)
         end
 	end
-    for id, projectile in pairs(world["projectiles"]) do
+    for id, projectile in ipairs(world["projectiles"]) do
         if projectile.entity_type == "PROJECTILE" then
             local vel = projectile.velocity:angleTo(vector(0,-1))
-            dbg("proj vel x:" ..projectile.velocity.x .. " y: " .. projectile.velocity.y .. " angle: " .. vel)
             update_sprite_instance(projectile.sprite_instance, dt, vel)
             --print("updating projectile")
         end

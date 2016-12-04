@@ -139,6 +139,11 @@ function game:draw()
 		display_net_info()
 		love.graphics.print("tick: "..tostring(tick), camera:worldCoords(3,15))
 
+        for i, projectile in ipairs(world["projectiles"]) do
+            love.graphics.setColor(0, 255, 0, 255)
+            love.graphics.circle('fill', projectile.x, projectile.y, 1, 16)
+            reset_colour()
+        end
 		local stats = love.graphics.getStats()
 		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 80))
 		love.graphics.print("drawcalls: ".. stats.drawcalls, camera:worldCoords(3, 100))
@@ -162,7 +167,7 @@ function game:keyreleased(key, code)
 
         local x, y = love.mouse.getPosition()
         x,y = camera:worldCoords(x,y)
-        send_action_packet("CASTSPELL", {x=x, y=y, spell_type=player.spellbook['SPELL1']})
+        send_action_packet("CASTSPELL", {at_X=x, at_Y=y, player_x = player.x + player.width/2, player_y = player.y + player.height/2, spell_type=player.spellbook['SPELL1']})
         print("Fire ballin @ " .. x..","..y)
     end
 end

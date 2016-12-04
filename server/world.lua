@@ -42,6 +42,10 @@ function update_entity_positions(dt)
         if entity.entity_type == 'PROJECTILE' then
             entity.position = entity.position + entity.velocity:normalized() * entity.acceleration * dt
             --print(entity.vector:angleTo())
+            if entity.position.x < 0 or entity.position.x > STAGE_WIDTH_TOTAL or
+                entity.position.y < 0 or entity.position.y > STAGE_HEIGHT_TOTAL then
+                remove_entity(entity, i)
+            end
         end
     end
 end
@@ -56,23 +60,32 @@ function update_player_positions(dt)
 	end
 end
 
-function remove_entity(entity)
+function remove_player(entity)
 	if not world["players"][entity] then return end
 	local ent = world["players"][entity]
 	if ent.entity_type == "PLAYER" then
 		table.insert(unused_colours, ent.colour)
 		world["players"][entity] = nil
 	end
-	deleted[entity] = {entity_type = ent.entity_type}
+	--deleted[entity] = {entity_type = ent.entity_type}
+    table.insert(deleted, {id = entity, entity_type = ent.entity_type})
 end
 
-function spawn_projectile(x, y, x_vel, y_vel)
+function remove_entity(entity, index)
+    --if not world["entities"][id] then return end
+	--deleted[id] = {entity_type = entity.entity_type}
+    table.insert(deleted, {id = index, entity_type = entity.entity_type})
+    table.remove(world["entities"], index)
+end
+
+function spawn_projectile(x, y, velocity_vector, owner)
     local new_projectile = {
         position = vector(x,y),
-        velocity = vector(x_vel,y_vel),
+        velocity = velocity_vector,
         acceleration = 300,
         entity_type = "PROJECTILE",
-        projectile_type = "FIREBALL"
+        projectile_type = "FIREBALL",
+        owner = owner
     }
 
     table.insert(world["entities"], new_projectile)

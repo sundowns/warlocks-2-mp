@@ -28,8 +28,8 @@ function send_world_update()
 		end
     end
 
-	for k, v in pairs(deleted) do
-		host:broadcast(create_binary_packet(v, "ENTITYDESTROY", tostring(tick), k))
+	for i, v in ipairs(deleted) do
+		host:broadcast(create_binary_packet(v, "ENTITYDESTROY", tostring(tick), v.id))
 	end
 end
 
@@ -76,7 +76,7 @@ function remove_client(peer, msg)
 	if (msg) then print(msg) end
 	local entId = client_player_map[peer]
 	if entId then
-		remove_entity(entId)
+		remove_player(entId)
 	end
 
 	client_list[peer] = nil
