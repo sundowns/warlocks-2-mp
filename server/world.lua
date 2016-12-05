@@ -52,9 +52,10 @@ end
 
 function update_player_positions(dt)
   for id, entity in pairs(world["players"]) do
-		if entity.x_vel and entity.y_vel then
-			entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.x_vel*dt, 2), 0, STAGE_WIDTH_TOTAL)
-			entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.y_vel*dt, 2), 0, STAGE_HEIGHT_TOTAL)
+		if entity.velocity.x and entity.velocity.y then
+            print("vel: " .. entity.velocity.x .. ", " .. entity.velocity.y)
+			entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL)
+			entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL)
 		end
     world[id] = entity
 	end

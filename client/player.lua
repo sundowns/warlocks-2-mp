@@ -14,38 +14,59 @@ function prepare_player(player_data)
     player.spellbook = {}
     player.spellbook['SPELL1'] = "FIREBALL"
 
+    function player:centre() -- PUT THESE INTO AN ENTITY SUPERCLASS
+        if self.orientation == "LEFT" then
+            return self.x + self.width/2, self.y - self.height/2
+        elseif self.orientation == "RIGHT" then
+            return self.x - self.width/2, self.y - self.height/2
+        end
+    end
+
 	add_entity(player.name, player.entity_type, player)
 	user_alive = true
 end
 
-function process_movement_input(player_obj, inputs, dt) -- YOU NEED TO HAVE A SYSTEM FOR POLLING INPUTS, SO MOVEMENT IS CONSISTENT ACROSS ALL PLATFORMS
+function process_movement_input(player_obj, inputs, dt)
+    -- TODO: POLLING SYSTEM
+    -- PLAN:
+    -- have an input polling function seperate of normal game tick (possible????????) that puts inputs in a buffer as they come
+    -- then on every tick, empty the buffer and calculate the average direction vector of the inputs.
+    -- Normalise this (necessary?) and use as the input for that tick (and thus one to save in buffer)
+    local resultant_input = vector(0,0)
 	if player_obj.state == "STAND" or player_obj.state == "RUN" or player_obj.state == "DASH" then --or player.state == "TURN"
 		local dash_multiplier = 1
 		if player_obj.state == "DASH" then dash_multiplier = 1.5 end
 		if inputs.right and not inputs.left then
-			player_obj.x_vel = math.min(player_obj.x_vel + (player_obj.acceleration*dash_multiplier)*dt, player_obj.max_movement_velocity)
-			if (player_obj.x_vel > -1*player_obj.dash.acceleration and player_obj.state == "STAND") or (player_obj.state == "DASH" and player_obj.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after) then
+			--player_obj.x_vel = math.min(player_obj.x_vel + (player_obj.acceleration*dash_multiplier)*dt, player_obj.max_movement_velocity)
+            resultant_input.x = resultant_input.x + 1
+			if (player_obj.velocity.x > -1*player_obj.dash.acceleration and player_obj.state == "STAND") then --or (player_obj.state == "DASH" and player_obj.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after)
 				begin_dash("RIGHT")
 			end
 		end
 		if inputs.left and not inputs.right then
-			player_obj.x_vel = math.max(player_obj.x_vel - (player_obj.acceleration*dash_multiplier)*dt, -1*player_obj.max_movement_velocity)
-			if (player_obj.x_vel < player_obj.dash.acceleration and player_obj.state == "STAND") or (player_obj.state == "DASH" and player_obj.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after) then
+            resultant_input.x = resultant_input.x - 1
+			--player_obj.x_vel = math.max(player_obj.x_vel - (player_obj.acceleration*dash_multiplier)*dt, -1*player_obj.max_movement_velocity)
+			if (player_obj.velocity.x < player_obj.dash.acceleration and player_obj.state == "STAND") then --or (player_obj.state == "DASH" and player_obj.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after)
 				begin_dash("LEFT")
 			end
 		end
 		if inputs.up and not inputs.down then
-			player_obj.y_vel = math.max(player_obj.y_vel - (player_obj.acceleration*dash_multiplier)*dt , -1*player_obj.max_movement_velocity)
-			if player_obj.y_vel < player_obj.dash.acceleration and player_obj.state == "STAND" then
+            resultant_input.y = resultant_input.y - 1
+			--player_obj.y_vel = math.max(player_obj.y_vel - (player_obj.acceleration*dash_multiplier)*dt , -1*player_obj.max_movement_velocity)
+			if player_obj.velocity.y < player_obj.dash.acceleration and player_obj.state == "STAND" then
 				begin_dash("UP")
 			end
 		end
 		if inputs.down and not inputs.up then
-			player_obj.y_vel = math.min(player_obj.y_vel + (player_obj.acceleration*dash_multiplier)*dt, player_obj.max_movement_velocity)
-			if player_obj.y_vel > -1*player_obj.dash.acceleration and player_obj.state == "STAND" then
+            resultant_input.y = resultant_input.y + 1
+			--player_obj.y_vel = math.min(player_obj.y_vel + (player_obj.acceleration*dash_multiplier)*dt, player_obj.max_movement_velocity)
+			if player_obj.velocity.y > -1*player_obj.dash.acceleration and player_obj.state == "STAND" then
 				begin_dash("DOWN")
 			end
 		end
+        print("input vector: " .. resultant_input.x .. ", " .. resultant_input.y)
+
+        player_obj.velocity = player.obj_velocity * math.clamp_vector(player_obj.velocity + resultant_input:normalizeInplace()*player_obj.acceleration*dash_multiplier*dt, -1*player_obj.max_movement_velocity, player_obj.max_movement_velocity)
 	end
 
 	return player_obj

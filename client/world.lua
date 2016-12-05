@@ -24,6 +24,7 @@ function add_entity(name, entity_type, ent)
 		if name == settings.username then
 			world[name] = ent
 		else
+            print_table(ent, name)
 			add_enemy(name, ent)
 		end
     elseif entity_type == "PROJECTILE" then
@@ -60,6 +61,14 @@ function add_enemy(name, enemy)
  			height = nil,
 			width = nil
 	}
+
+    function enemy:centre() -- PUT THESE INTO AN ENTITY SUPERCLASS
+        if self.orientation == "LEFT" then
+            return self.x + self.width/2, self.y - self.height/2
+        elseif self.orientation == "RIGHT" then
+            return self.x - self.width/2, self.y - self.height/2
+        end
+    end
 
 	enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
 

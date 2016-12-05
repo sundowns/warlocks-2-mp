@@ -16,6 +16,24 @@ function math.clamp(val, min, max)
     return val
 end
 
+function math.clamp_vector(val, x_min, x_max, y_min, y_max)
+    local result = val
+    if x_min - val > 0 then
+        result.x = x_min
+    end
+    if x_max - val < 0 then
+        result.x = x_max
+    end
+    if y_min - val > 0 then
+        result.y = y_min
+    end
+    if y_max - val < 0 then
+        result.y = y_max
+    end
+    return val
+end
+
+
 function reset_colour()
 	love.graphics.setColor(255, 255, 255, 255)
 end

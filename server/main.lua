@@ -58,7 +58,7 @@ while running do
 								--TODO: VERIFY STATE CHANGE
 
 								if verify_position_update(ent, payload) then
-									world["players"][payload.alias] = {x_vel = payload.x_vel, y_vel = payload.y_vel, x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
+									world["players"][payload.alias] = {velocity = vector(round_to_nth_decimal(payload.x_vel, 2), round_to_nth_decimal(payload.y_vel,2)), x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
 								else
                                     send_client_correction_packet(event.peer, payload.alias)
 									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
@@ -73,10 +73,6 @@ while running do
 							remove_client(event.peer, event.peer .. " version " .. payload.client_version .. " conflicts with server version " .. server_version)
 						else
 							client_list[event.peer].name = payload.alias
-
-                            --spawn_projectile(300, 300, math.random(-10,10), math.random(-10,10))
-
-                            --
 							if world["players"][payload.alias] then
 								send_error_packet(event.peer, "The alias " .. payload.alias .. " is already in use.")
 								remove_client(payload.alias, "Duplicate alias")

@@ -108,19 +108,18 @@ function game:draw()
     --draw players
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
+            local ent_x, ent_y = entity:centre()
             if entity.orientation == "LEFT" then
-				draw_instance(entity.sprite_instance, entity.x+entity.width/2, entity.y-entity.height/2, true)
+				draw_instance(entity.sprite_instance, ent_x, ent_y, true) --+entity.width/2 -entity.height/2
 			elseif entity.orientation == "RIGHT" then
-				draw_instance(entity.sprite_instance, entity.x-entity.width/2, entity.y-entity.height/2)
+				draw_instance(entity.sprite_instance, ent_x, ent_y) ---+entity.width/2 -entity.height/2
 			end
         end
 	end
 
     for k, projectile in pairs(world['projectiles']) do
+        -- get maths from warlocks mk 1 for centre-point of front-facing edge of projectiles
         draw_instance(projectile.sprite_instance, projectile.x, projectile.y)
-        -- love.graphics.setColor(0, 0, 255, 255)
-        -- love.graphics.circle('fill', projectile.x, projectile.y, 4, 16)
-        -- reset_colour()
     end
 
 	if settings.debug then
@@ -132,7 +131,7 @@ function game:draw()
 		set_font(12, 'debug')
 		love.graphics.print("fps: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,-15))
 		if user_alive then
-			love.graphics.setColor(0, 255, 255, 255)
+			love.graphics.setColor(255, 255, 255, 255)
 			love.graphics.circle('fill', player.x, player.y, 2, 16)
 			reset_colour()
 		end
@@ -167,7 +166,7 @@ function game:keyreleased(key, code)
 
         local x, y = love.mouse.getPosition()
         x,y = camera:worldCoords(x,y)
-        send_action_packet("CASTSPELL", {at_X=x, at_Y=y, player_x = player.x + player.width/2, player_y = player.y + player.height/2, spell_type=player.spellbook['SPELL1']})
-        print("Fire ballin @ " .. x..","..y)
+        local player_x, player_y = player:centre()
+        send_action_packet("CASTSPELL", {at_X=x, at_Y=y, player_x = player.x, player_y = player.y, spell_type=player.spellbook['SPELL1']})
     end
 end

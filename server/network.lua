@@ -35,10 +35,13 @@ end
 
 function create_player_payload(player)
 	return {x = tostring(player.x), y = tostring(player.y),
-        x_vel = tostring(round_to_nth_decimal(player.x_vel,2)),
-        y_vel = tostring(round_to_nth_decimal(player.y_vel,2)),
+        x_vel = tostring(round_to_nth_decimal(player.velocity.x,2)),
+        y_vel = tostring(round_to_nth_decimal(player.velocity.y,2)),
         colour = player.colour, entity_type = "PLAYER",
-        state = tostring(player.state)}
+        state = player.state,
+        width = tostring(player.width),
+        height = tostring(player.height)
+    }
 end
 
 function create_entity_payload(entity)
@@ -73,6 +76,7 @@ function send_client_correction_packet(peer, alias)
 end
 
 function remove_client(peer, msg)
+    if peer == nil then return end
 	if (msg) then print(msg) end
 	local entId = client_player_map[peer]
 	if entId then
