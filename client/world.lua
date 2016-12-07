@@ -52,8 +52,7 @@ function add_enemy(name, enemy)
 			entity_type = "ENEMY",
 			x = enemy.x,
  			y = enemy.y,
-			x_vel = enemy.x_vel,
-			y_vel = enemy.y_vel,
+			velocity = vector(enemy.x_vel, enemy.y_vel),
  			orientation = "RIGHT",
  			state ="STAND",
  			states = {},
@@ -204,26 +203,23 @@ function update_entity_state(entity, state)
 end
 
 function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
-	entity.x = round_to_nth_decimal((entity.x + (entity.x_vel * dt)),2)
-	entity.y = round_to_nth_decimal((entity.y + (entity.y_vel * dt)),2)
+	entity.x = round_to_nth_decimal((entity.x + (entity.velocity.x * dt)),2)
+	entity.y = round_to_nth_decimal((entity.y + (entity.velocity.y * dt)),2)
 
-	if entity.x_vel > 1 then
-		entity.orientation = "RIGHT"
-		entity.x_vel = math.max(0, entity.x_vel - (friction * dt))
-	elseif entity.x_vel < -1 then
-		entity.orientation = "LEFT"
-		entity.x_vel = math.min(0, entity.x_vel + (friction * dt))
-	end
+    local friction_vector = entity.velocity*-1
+    friction_vector:normalizeInplace()
+	
+	-- if entity.velocity.y > 1 then
+	-- 	entity.velocity.y = math.max(0, entity.velocity.y - (friction * dt))
+	-- elseif entity.velocity.y < -1 then
+	-- 	entity.velocity.y = math.min(0, entity.velocity.y + (friction * dt))
+	-- end
 
-	if entity.y_vel > 1 then
-		entity.y_vel = math.max(0, entity.y_vel - (friction * dt))
-	elseif entity.y_vel < -1 then
-		entity.y_vel = math.min(0, entity.y_vel + (friction * dt))
-	end
 
-	if entity.x_vel < 1 and entity.x_vel > -1 and entity.y_vel < 1 and entity.y_vel > -1 then
-		entity.x_vel = 0
-		entity.y_vel = 0
+
+    --possibly bring back when friction is a vector'?
+	if entity.velocity:len() < 1 then
+		entity.velocity = vector(0, 0)
 		if isPlayer then
 			if not isRetroactive then
 				update_player_state("STAND")
@@ -231,6 +227,9 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 				entity.state = "STAND"
 			end
 		end
+    else
+        -- apply friction
+        entity.velocity = entity.velocity + friction_vector * friction * dt
 	end
 
 	return entity
