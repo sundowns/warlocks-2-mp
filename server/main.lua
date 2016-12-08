@@ -2,12 +2,13 @@ package.path = '.\\?.lua;'.. '.\\libs\\?.lua;' .. package.path
 package.cpath = '.\\libs\\?.dll;' .. package.cpath
 
 require "socket" -- to keep track of time
---json = require("json")
 binser = require 'binser'
 constants = require("constants")
 enet = require "enet"
 host = enet.host_create("localhost:12345")
-vector = require "vector" -- hump.vector
+vector = require "vector"
+Timer = require "timer"
+
 --host:bandwidth_limit(1024000, 1024000)
 
 server_version = "0.0.1"

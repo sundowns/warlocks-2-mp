@@ -91,7 +91,7 @@ function add_projectile(ent)
     }
 
     projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
-
+    projectile.sprite_instance.rotation = 
     -- change to table.insert /remove?
     table.insert(world['projectiles'], projectile)
     --world['projectiles'][projectile.name] = projectile
@@ -169,8 +169,8 @@ function update_entities(dt)
 	end
     for id, projectile in ipairs(world["projectiles"]) do
         if projectile.entity_type == "PROJECTILE" then
-            local vel = projectile.velocity:angleTo(vector(0,-1))
-            update_sprite_instance(projectile.sprite_instance, dt, vel)
+            local rotation = projectile.velocity:angleTo(vector(0,-1))
+            update_sprite_instance(projectile.sprite_instance, dt, rotation)
             --print("updating projectile")
         end
     end
@@ -197,8 +197,7 @@ function update_entity_state(entity, state)
 		 entity.sprite_instance.curr_anim = state
 		 entity.sprite_instance.curr_frame = 1
 	 end
-	 --ent.height = ent.sprite_instance.sprite.animations[state][1]:getHeight()
-	 --ent.width = ent.sprite_instance.sprite.animations[state][1]:getWidth()
+     --recalc entity height/width?
 	 return entity
 end
 
@@ -208,17 +207,8 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 
     local friction_vector = entity.velocity*-1
     friction_vector:normalizeInplace()
-	
-	-- if entity.velocity.y > 1 then
-	-- 	entity.velocity.y = math.max(0, entity.velocity.y - (friction * dt))
-	-- elseif entity.velocity.y < -1 then
-	-- 	entity.velocity.y = math.min(0, entity.velocity.y + (friction * dt))
-	-- end
 
-
-
-    --possibly bring back when friction is a vector'?
-	if entity.velocity:len() < 1 then
+	if entity.velocity:len2() < 1 then
 		entity.velocity = vector(0, 0)
 		if isPlayer then
 			if not isRetroactive then
@@ -236,6 +226,9 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 end
 
 function prepare_camera(x, y, zoom)
+    if love.window.getFullscreen() then
+        zoom = zoom * 2
+    end
 	camera = Camera(x, y)
 	camera:zoomTo(zoom)
 end
