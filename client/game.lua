@@ -6,15 +6,20 @@ function game:init()
 	require("spritemanager")
 	require("stagemanager")
 	net_initialise()
-	load_stage("arena1.lua")
+    -- wait and request this from server if its not loaded
+	load_stage("arena2.lua")
 	tick = 0
 	tick_timer = 0
 end
 
 function game:enter(previous)
   love.graphics.setBackgroundColor(0,0,0)
-	prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
-	update_camera_boundaries()
+  if stage ~= nil then
+      prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
+  else
+      prepare_camera(0,0,0)
+  end
+  update_camera_boundaries()
 end
 
 function game:update(dt)

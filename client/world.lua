@@ -91,7 +91,7 @@ function add_projectile(ent)
     }
 
     projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
-    projectile.sprite_instance.rotation = 
+    projectile.sprite_instance.rotation =
     -- change to table.insert /remove?
     table.insert(world['projectiles'], projectile)
     --world['projectiles'][projectile.name] = projectile
@@ -269,6 +269,12 @@ end
 function update_camera_boundaries()
 	minCamX = 0 + love.graphics.getWidth()/camera.scale/2
 	minCamY = 0 + love.graphics.getHeight()/camera.scale/2
-	maxCamX = stage.width*stage.tilewidth - love.graphics.getWidth()/camera.scale/2
-	maxCamY = stage.height*stage.tileheight -love.graphics.getHeight()/camera.scale/2
+    if stage ~= nil then
+        maxCamX = stage.width*stage.tilewidth - love.graphics.getWidth()/camera.scale/2
+    	maxCamY = stage.height*stage.tileheight -love.graphics.getHeight()/camera.scale/2
+    else
+        maxCamX = 100 - love.graphics.getWidth()/camera.scale/2
+        maxCamY = 100 - love.graphics.getHeight()/camera.scale/2
+    end
+
 end

@@ -13,7 +13,7 @@ world["players"] = {} -- player collection
 world["entities"] = {} -- projectile collection
 
 deleted = {} -- buffer table of entity delete message to send to all clients
-selected_stage = "arena1"
+
 current_stage = {}
 local STAGE_WIDTH_TILES = nil
 local STAGE_HEIGHT_TILES = nil
@@ -21,16 +21,16 @@ local STAGE_WIDTH_TOTAL = nil
 local STAGE_HEIGHT_TOTAL = nil
 
 function load_stage()
-  if not file_exists("stages/"..selected_stage) then
-    if pcall(dofile, "stages/"..selected_stage..".lua") then
-      current_stage = dofile("stages/"..selected_stage..".lua")
+  if not file_exists("stages/"..config.STAGE) then
+    if pcall(dofile, "stages/"..config.STAGE..".lua") then
+      current_stage = dofile("stages/"..config.STAGE..".lua")
       STAGE_WIDTH_TILES = current_stage.width
       STAGE_HEIGHT_TILES = current_stage.height
       STAGE_WIDTH_TOTAL = STAGE_WIDTH_TILES * current_stage.tilewidth
       STAGE_HEIGHT_TOTAL = STAGE_HEIGHT_TILES * current_stage.tileheight
-      print("Loaded stage: '" .. selected_stage .. "' succesfully")
+      print("Loaded stage: '" .. config.STAGE .. "' succesfully")
     else
-      print("[ERROR] Failed to load stage. " .. selected_stage .. " File is incorrect format or corrupt")
+      print("[ERROR] Failed to load stage. " .. config.STAGE .. " File is incorrect format or corrupt")
     end
   end
 end
@@ -54,8 +54,12 @@ function update_player_positions(dt)
   for id, entity in pairs(world["players"]) do
 		if entity.velocity.x and entity.velocity.y then
             print("vel: " .. entity.velocity.x .. ", " .. entity.velocity.y)
-			entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL)
-			entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL)
+            if stage ~= nil then
+                local width = 100
+                local height = 100
+            end
+            entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
+			entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
 		end
     world[id] = entity
 	end

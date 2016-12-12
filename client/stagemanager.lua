@@ -23,8 +23,11 @@ function draw_stage()
     x, y = camera:position()
   end
   stage:setDrawRange(x-love.graphics.getWidth()/2, y-love.graphics.getHeight()/2, love.graphics.getWidth(), love.graphics.getHeight())
-  stage:drawLayer(stage.layers["Ground"] )
   stage:drawLayer(stage.layers["Lava"] )
+  stage:drawLayer(stage.layers["Ground 1"] )
+  if stage.layers["Ground 2"] ~= nil then
+      stage:drawLayer(stage.layers["Ground 2"] )
+  end
   if stage.layers["Objects"] ~= nil then
     stage:drawLayer(stage.layers["Objects"] )
   end

@@ -8,7 +8,7 @@ enet = require "enet"
 host = enet.host_create("localhost:12345")
 vector = require "vector"
 Timer = require "timer"
-
+config = require "config"
 --host:bandwidth_limit(1024000, 1024000)
 
 server_version = "0.0.1"

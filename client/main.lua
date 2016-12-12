@@ -1,14 +1,11 @@
 package.path = './?.lua;' .. './libs/?.lua;' .. './assets/sprites/?.lua;' .. package.path
 
-user_alive = false
-
-
 function love.load()
 	math.randomseed(os.time())
 	binser = require 'libs/binser'
-	--json = require("json")
     vector = require "libs/vector"
 	Camera = require 'libs/camera'
+    Timer = require "libs/timer"
 	GamestateManager = require "libs/gamestate"
 	settings = require("settings")
 	constants = require("constants")
@@ -17,6 +14,7 @@ function love.load()
 	require("network")
 	require("game")
 
+    user_alive = false
 	settings.username = random_string(8)
 	GamestateManager.registerEvents()
 	GamestateManager.switch(game)
