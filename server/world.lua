@@ -53,11 +53,6 @@ end
 function update_player_positions(dt)
   for id, entity in pairs(world["players"]) do
 		if entity.velocity.x and entity.velocity.y then
-            print("vel: " .. entity.velocity.x .. ", " .. entity.velocity.y)
-            if stage ~= nil then
-                local width = 100
-                local height = 100
-            end
             entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
 			entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
 		end

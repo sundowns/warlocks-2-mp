@@ -7,13 +7,10 @@ connected = false
 connection_is_new = true
 connected_time = 0
 
---local socket = require "socket"
-local address, port = "localhost", "12345"
-updateTimer = 0 -- timer for network updates
-
 function net_initialise()
 	host = enet.host_create()
-	server = host:connect(address..':'..port)
+	server = host:connect(settings.IP..':'..settings.port)
+    print("connecting to " .. settings.IP .. ":" .. settings.port .."...")
 end
 
 function listen(timeout)
@@ -32,12 +29,17 @@ function sync_client(server_tick)
 	last_offset = offset
 end
 
-function confirm_join()
-	print("my name is " .. settings.username)
+function confirm_join(server_stage, assigned_colour)
+    --check if stage exists, if not then download the stage or error
+    --otherwise (or after the file download), send join accept packet
+    load_stage(server_stage..".lua")
+    player_colour = assigned_colour
+	--print("my name is " .. settings.username)
 	server:round_trip_time(10)
 	tick = payload.server_tick
 	server:send(create_binary_packet({client_version = constants.CLIENT_VERSION}, "JOIN", tick, settings.username))
 	connected = true
+    GamestateManager.switch(game)
 end
 
 function disconnect(msg)
@@ -45,7 +47,7 @@ function disconnect(msg)
 		server:disconnect()
 		host:flush()
 		connected = false
-		GamestateManager.switch(error, msg)
+		GamestateManager.switch(error_screen, msg)
 end
 
 function send_player_update(inPlayer, inName)
@@ -164,4 +166,87 @@ function verify_spawn_packet(payload)
     if not assert(update.movement_friction) then verified = false print("Failed to verify movement_friction for player spawn packet") end
     if not assert(update.base_acceleration) then verified = false print("Failed to verify base_acceleration for player spawn packet") end
     return verified, update
+end
+
+
+function network_run()
+    if connected then
+        network_gamerunning()
+    else
+        network_loading()
+    end
+end
+
+function network_loading()
+    repeat
+        event = listen()
+        if event and event.type == "receive" then
+            payload = binser.deserialize(event.data)
+            setmetatable(payload, packet_meta)
+            if payload.cmd == 'SERVERERROR' then
+                disconnect("Connection closed. " ..payload.message)
+            elseif payload.cmd == 'JOINACCEPTED' then
+                confirm_join(payload.stage_name, payload.colour)
+            elseif payload.cmd == 'SPAWN' then
+                local ok, update = verify_spawn_packet(payload)
+                if ok then
+                    prepare_player(update)
+                end
+            end
+        elseif event and event.type == "connect" then
+            dbg("[WARNING] connect message received")
+        elseif event and event.type == "disconnect" then
+            disconnect("Server closed")
+        end
+    until not event
+end
+
+function network_gamerunning()
+    if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
+        if user_alive then
+            send_player_update(player, settings.username)
+        end
+
+        repeat
+            event = listen()
+            if event and event.type == "receive" then
+                payload = binser.deserialize(event.data)
+                setmetatable(payload, packet_meta)
+                if payload.cmd == "ENTITYUPDATE" then
+                    assert(payload.alias)
+                    assert(payload.server_tick)
+                    sync_client(payload.server_tick)
+                    if world[payload.alias] == nil and world['projectiles'][payload.alias] == nil then
+                        server_entity_create(payload)
+                    else
+                        if payload.alias ~= settings.username then
+                            server_entity_update(payload.alias, payload)
+                        else
+                            server_player_update(payload)
+                        end
+                    end
+                elseif payload.cmd == 'ENTITYDESTROY' then
+                    remove_entity(payload.alias, payload.entity_type)
+                elseif payload.cmd == 'SERVERERROR' then
+                    disconnect("Connection closed. " ..payload.message)
+                elseif payload.cmd == 'SPAWN' then
+                    local ok, update = verify_spawn_packet(payload)
+                    if ok then
+                        prepare_player(update)
+                    end
+                elseif payload.cmd == 'PLAYERCORRECTION' then
+                    local ok, update = verify_player_correction_packet(payload)
+                    if ok then
+                        apply_retroactive_updates(update)
+                    end
+                else
+                    dbg("unrecognised command:", payload.cmd)
+                end
+            elseif event and event.type == "connect" then
+                dbg("connect msg received")
+            elseif event and event.type == "disconnect" then
+                disconnect("Server closed")
+            end
+        until not event
+    end
 end

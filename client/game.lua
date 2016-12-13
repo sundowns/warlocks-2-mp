@@ -4,22 +4,26 @@ function game:init()
 	require("world")
 	require("player")
 	require("spritemanager")
-	require("stagemanager")
-	net_initialise()
+
+    --net_initialise()
     -- wait and request this from server if its not loaded
-	load_stage("arena2.lua")
-	tick = 0
-	tick_timer = 0
+    --stage_file = "arena2.lua"
+    if stage_file then
+        load_stage(stage_file)
+    end
+
 end
 
 function game:enter(previous)
-  love.graphics.setBackgroundColor(0,0,0)
-  if stage ~= nil then
-      prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
-  else
-      prepare_camera(0,0,0)
-  end
-  update_camera_boundaries()
+    tick = 0
+    tick_timer = 0
+    love.graphics.setBackgroundColor(0,0,0)
+    if stage ~= nil then
+        prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
+    else
+        prepare_camera(0,0,0)
+    end
+    update_camera_boundaries()
 end
 
 function game:update(dt)
@@ -52,56 +56,7 @@ function game:update(dt)
    	        end
 	 	end
 
-		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
-			if user_alive then
-				send_player_update(player, settings.username)
-			end
-
-			repeat
-				event = listen()
-				if event and event.type == "receive" then
-					payload = binser.deserialize(event.data)
-					setmetatable(payload, packet_meta)
-					if payload.cmd == "ENTITYUPDATE" then
-						assert(payload.alias)
-						assert(payload.server_tick)
-						sync_client(payload.server_tick)
-						if world[payload.alias] == nil and world['projectiles'][payload.alias] == nil then
-							server_entity_create(payload)
-						else
-							if payload.alias ~= player.name then
-								server_entity_update(payload.alias, payload)
-							else
-								server_player_update(payload)
-						 	end
-						end
-					elseif payload.cmd == 'ENTITYDESTROY' then
-						remove_entity(payload.alias, payload.entity_type)
-					elseif payload.cmd == 'SERVERERROR' then
-						disconnect("Connection closed. " ..payload.message)
-					elseif payload.cmd == 'JOINACCEPTED' then
-						player_colour = payload.colour
-						confirm_join()
-					elseif payload.cmd == 'SPAWN' then
-                        local ok, update = verify_spawn_packet(payload)
-                        if ok then
-                            prepare_player(update)
-                        end
-                    elseif payload.cmd == 'PLAYERCORRECTION' then
-                        local ok, update = verify_player_correction_packet(payload)
-                        if ok then
-                            apply_retroactive_updates(update)
-                        end
-					else
-						dbg("unrecognised command:", payload.cmd)
-					end
-				elseif event and event.type == "connect" then
-					dbg("connect msg received")
-				elseif event and event.type == "disconnect" then
-					disconnect("Server closed")
-				end
-			until not event
-		end
+		network_run()
 	end
 end
 
@@ -114,6 +69,7 @@ function game:draw()
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
             local ent_x, ent_y = entity:centre()
+            --print("k: " .. k .. " orientation: " .. entity.orientation .. " type: " .. entity.entity_type)
             if entity.orientation == "LEFT" then
 				draw_instance(entity.sprite_instance, ent_x, ent_y, true) --+entity.width/2 -entity.height/2
 			elseif entity.orientation == "RIGHT" then

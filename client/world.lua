@@ -7,24 +7,12 @@ local maxCamY = 2000
 cameraBoxHeight = 0.035
 cameraBoxWidth = 0.05
 
--- world_meta = {}
--- --causes mem error coz loop
--- -- function world_meta.__index(table, key)
--- --     if type(key) == 'number' then
--- --         return table["projectiles"][key]
--- --     else
--- --         return table[key]
--- --     end
--- -- end
---
--- setmetatable(world, world_meta)
-
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
-		if name == settings.username then
+		if ent.name == settings.username then
 			world[name] = ent
 		else
-            print_table(ent, name)
+            print("adding enemy")
 			add_enemy(name, ent)
 		end
     elseif entity_type == "PROJECTILE" then
@@ -132,7 +120,7 @@ function server_entity_update(entity, update)
         local ent = world[entity]
     	if not ent then return nil end
     	ent = update_entity_state(ent, update.state)
-        ent = update_entity(ent, x, y, x_vel, y_vel)
+        ent = update_entity(ent, x, y, x_vel, y_vel, update.orientation or nil)
         world[entity] = ent
     elseif update.entity_type == "PROJECTILE" then
         local ent = world['projectiles'][entity]
@@ -176,12 +164,12 @@ function update_entities(dt)
     end
 end
 
-function update_entity(entity, x, y, x_vel, y_vel)
+function update_entity(entity, x, y, x_vel, y_vel, orientation)
     if entity.entity_type == "PROJECTILE" then
         entity.velocity.x = x_vel
         entity.velocity.y = y_vel
     elseif entity.entity_type == "ENEMY" then
-        --nothing special 4 now
+        if orientation then entity.orientation = orientation end
     end
 
 	entity.x = round_to_nth_decimal(x, 2)

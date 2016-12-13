@@ -1,6 +1,7 @@
 player_state_buffer = {}
 player_buffer_size = 0
 player_colour = nil
+player = {}
  --ticks in the past kept
 
 function prepare_player(player_data)

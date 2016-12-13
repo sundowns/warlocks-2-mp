@@ -8,7 +8,7 @@ local network_params = {
 }
 
 return {
-  TICKRATE = 0.015625,  --64 tick
+  TICKRATE = 0.0078125,  --64tick :0.015625 ||| 128tick: 0.0078125
   PLAYER_FRICTION = 150,
   CLIENT_VERSION = "0.0.1",
   PLAYER_BUFFER_LENGTH = 256, -- maintain states for the last x amount of ticks

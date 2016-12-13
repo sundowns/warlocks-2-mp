@@ -5,7 +5,7 @@ require "socket" -- to keep track of time
 binser = require 'binser'
 constants = require("constants")
 enet = require "enet"
-host = enet.host_create("localhost:12345")
+host = enet.host_create("*:12345")
 vector = require "vector"
 Timer = require "timer"
 config = require "config"
@@ -59,7 +59,13 @@ while running do
 								--TODO: VERIFY STATE CHANGE
 
 								if verify_position_update(ent, payload) then
-									world["players"][payload.alias] = {velocity = vector(round_to_nth_decimal(payload.x_vel, 2), round_to_nth_decimal(payload.y_vel,2)), x=round_to_nth_decimal(payload.x,2), y=round_to_nth_decimal(payload.y,2), colour = ent.colour, entity_type = ent.entity_type, state = payload.state}
+									world["players"][payload.alias] = {
+                                        velocity = vector(round_to_nth_decimal(payload.x_vel, 2), round_to_nth_decimal(payload.y_vel,2)),
+                                        x=round_to_nth_decimal(payload.x,2),
+                                        y=round_to_nth_decimal(payload.y,2),
+                                        colour = ent.colour, entity_type = ent.entity_type,
+                                        state = payload.state, orientation = ent.orientation
+                                    }
 								else
                                     send_client_correction_packet(event.peer, payload.alias)
 									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
