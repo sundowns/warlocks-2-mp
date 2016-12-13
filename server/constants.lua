@@ -6,7 +6,7 @@ local network_params = {
 }
 
 return {
-  TICKRATE = 0.015625, -- 64 tick
+  TICKRATE = 0.0078125, -- 64 tick: 0.015625 ||| 128tick: 0.0078125
   MAX_CLIENTS = 5,
   CLIENT_TIMEOUT = 10, -- seconds
   NET_PARAMS = network_params.LAN

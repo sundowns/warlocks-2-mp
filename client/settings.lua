@@ -11,5 +11,7 @@ return {
   	SPELL3 = '3',
   	SPELL4 = '4',
   	SPELL5 = '5'
-  }
+    },
+  IP = "localhost",
+  port = "12345"
 }

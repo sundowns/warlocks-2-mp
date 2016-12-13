@@ -40,7 +40,8 @@ function create_player_payload(player)
         colour = player.colour, entity_type = "PLAYER",
         state = player.state,
         width = tostring(player.width),
-        height = tostring(player.height)
+        height = tostring(player.height),
+        orientation = tostring(player.orientation)
     }
 end
 
@@ -64,7 +65,7 @@ function send_spawn_packet(peer, player)
 end
 
 function send_join_accept(peer, colour)
-	peer:send(create_binary_packet({colour = colour}, "JOINACCEPTED", tick))
+	peer:send(create_binary_packet({colour = colour, stage_name = config.STAGE}, "JOINACCEPTED", tick))
 end
 
 function send_client_correction_packet(peer, alias)
@@ -85,7 +86,8 @@ function remove_client(peer, msg)
 
 	client_list[peer] = nil
 	client_count = client_count - 1
-	peer:disconnect()
+    pcall(peer.disconnect)
+	--peer:disconnect()
 end
 
 function update_client_timeout(dt)
