@@ -19,6 +19,7 @@ local ip = {text=settings.IP}
 local port = {text=settings.port}
 local username = {text=settings.username}
 local form_errors = {}
+local total_form_errors = 0
 function menu:update(dt)
     set_font(16, 'debug')
     suit.layout:reset(100,100)
@@ -37,37 +38,48 @@ function menu:update(dt)
         suit.Input(username, suit.layout:col(160,35))
         suit.Label("Player Name", {align = "left"}, suit.layout:col(140))
     suit.layout:pop()
+    if total_form_errors > 0 then
+      --http://suit.readthedocs.io/en/latest/gettingstarted.html#gui-instances
+      --read above link on gui instances to learn how to make error labels separate
+      --suit.theme.color.normal.fg = {255,0,0}
+        for k, v in pairs(form_errors) do
+          suit.Label(v.msg, {align = "left"}, suit.layout:row(300, 15))
+        end
+      --suit.theme.color.normal.fg = {188,188,188}
+    end
 
-    suit.layout:row(100, 250)
+    suit.layout:row(100, 200 - total_form_errors*15)
     suit.layout:push(suit.layout:row(100,50))
         suit.layout:padding(5, 0)
         if suit.Button("Close", suit.layout:col(160, 40)).hit then
            love.event.quit()
         end
         if suit.Button("Connect", suit.layout:col(160, 40)).hit then
-            validate_field(ip.text, "Please enter an address")
-            validate_field(port.text, "Please enter a port")
-            validate_field(username.text, "Please enter a player name")
-            print("form error count: " .. #form_errors)
-            if #form_errors == 0 then
+            validate_field(ip.text, "Address", "Please enter an address")
+            validate_field(port.text, "Port", "Please enter a port")
+            validate_field(username.text, "Username", "Please enter a player name")
+            print("form error count: " .. total_form_errors)
+            if total_form_errors == 0 then
                 print("username: " ..username.text)
                 GamestateManager.switch(loading, "JOIN_GAME", {ip = ip.text, port = port.text, username = username.text})
-            else
-                print("fix ur biddies")
             end
 
         end
     suit.layout:pop()
 end
 
-function validate_field(field, invalid_msg)
-    print("field: *" .. field .. "* type: " .. type(field))
-    --PRINT OUT THE VALIDATION ERRORS ON THE FRONT END!!!!
-
-    if not field or field == "" or field == " " then
-        table.insert(form_errors, invalid_msg)
-        suit.Label(invalid_msg, suit.layout:row(160,35))
-    end
+function validate_field(value, fieldname, invalid_msg)
+    if not value or value == "" or value == " " then
+        if form_errors[fieldname] == nil then --already errored
+          total_form_errors = total_form_errors + 1;
+        end
+        form_errors[fieldname] = { val = value, msg = invalid_msg}
+      else
+        if form_errors[fieldname] ~= nil then
+          form_errors[fieldname] = nil
+          total_form_errors = total_form_errors - 1;
+        end
+      end
 end
 
 function menu:draw()
