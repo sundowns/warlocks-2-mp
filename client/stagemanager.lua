@@ -1,4 +1,4 @@
-STI = require 'libs/sti'
+STI = require 'libs.sti'
 local stage_file = nil
 stage = nil
 

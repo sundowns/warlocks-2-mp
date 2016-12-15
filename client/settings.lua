@@ -1,6 +1,6 @@
 return {
   debug = false,
-  username = "",
+  username = "skiblo",
   controls = {
     RIGHT= 'd',
   	LEFT = 'a',

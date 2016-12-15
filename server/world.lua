@@ -67,13 +67,10 @@ function remove_player(entity)
 		table.insert(unused_colours, ent.colour)
 		world["players"][entity] = nil
 	end
-	--deleted[entity] = {entity_type = ent.entity_type}
     table.insert(deleted, {id = entity, entity_type = ent.entity_type})
 end
 
 function remove_entity(entity, index)
-    --if not world["entities"][id] then return end
-	--deleted[id] = {entity_type = entity.entity_type}
     table.insert(deleted, {id = index, entity_type = entity.entity_type})
     table.remove(world["entities"], index)
 end
@@ -89,4 +86,13 @@ function spawn_projectile(x, y, velocity_vector, owner)
     }
 
     table.insert(world["entities"], new_projectile)
+end
+
+function process_collisions(dt)
+    for alias, player in pairs(world["players"]) do
+        for shape, delta in pairs(HC.collisions(player.hitbox)) do
+            print("Colliding. Separating vector = (" .. delta.x .. ",".. delta.y)
+        end
+    end
+
 end

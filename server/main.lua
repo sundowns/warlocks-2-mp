@@ -1,4 +1,4 @@
-package.path = '.\\?.lua;'.. '.\\libs\\?.lua;' .. package.path
+package.path = '.\\?.lua;'.. '.\\libs\\?.lua;' .. '.\\libs\\?\\init.lua;' .. package.path
 package.cpath = '.\\libs\\?.dll;' .. package.cpath
 
 require "socket" -- to keep track of time
@@ -8,6 +8,7 @@ enet = require "enet"
 host = enet.host_create("*:12345")
 vector = require "vector"
 Timer = require "timer"
+HC = require "HC"
 config = require "config"
 --host:bandwidth_limit(1024000, 1024000)
 
@@ -129,9 +130,10 @@ while running do
 			send_world_update()
 			deleted = {}
 		end
-	end
 
-	update_client_timeout(dt)
+        update_client_timeout(dt)
+        process_collisions(dt)
+	end
 end
 
 host:disconnect()

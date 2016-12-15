@@ -45,6 +45,27 @@ function create_player_payload(player)
     }
 end
 
+function create_spawn_player_payload(player)
+    return {
+		x = player.x,
+		y = player.y,
+	  	name = player.name,
+	  	entity_type = "PLAYER",
+	  	state = "STAND",
+		orientation = "RIGHT",
+        x_vel = player.x_vel,
+        y_vel = player.y_vel,
+	  	max_movement_velocity = player.max_movement_velocity,
+	  	movement_friction = player.movement_friction,
+		base_acceleration = player.base_acceleration,
+		acceleration = player.acceleration,
+		dash = player.dash,
+        width = player.width,
+	  	height = player.height,
+	  	colour = player.colour
+  	}
+end
+
 function create_entity_payload(entity)
     return {x = tostring(round_to_nth_decimal(entity.position.x,2)), y = tostring(round_to_nth_decimal(entity.position.y)),
         x_vel = tostring(round_to_nth_decimal(entity.velocity.x,2)),
@@ -61,7 +82,7 @@ end
 
 function send_spawn_packet(peer, player)
     print(player.name .. " spawned.")
-	peer:send(create_binary_packet(player, "SPAWN", tick))
+	peer:send(create_binary_packet(create_spawn_player_payload(player), "SPAWN", tick))
 end
 
 function send_join_accept(peer, colour)

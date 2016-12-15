@@ -1,11 +1,13 @@
 function love.load()
 	math.randomseed(os.time())
-	binser = require 'libs.binser'
+	binser = require "libs.binser"
     vector = require "libs.vector"
-	Camera = require 'libs.camera'
+	Camera = require "libs.camera"
     Timer = require "libs.timer"
 	GamestateManager = require "libs.gamestate"
-	settings = require("settings")
+    Class = require "libs.class"
+    HC = require "libs.HC"
+    settings = require("settings")
 	constants = require("constants")
 	require("util")
 	require("error_screen")
@@ -15,7 +17,6 @@ function love.load()
     require("menu")
 
     user_alive = false
-	settings.username = random_string(8)
 	GamestateManager.registerEvents()
     GamestateManager.switch(menu)
 	--GamestateManager.switch(loading, "JOIN_GAME")

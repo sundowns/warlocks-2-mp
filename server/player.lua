@@ -23,8 +23,10 @@ function spawn_player(name, x, y, colour)
 	  	height = 22,
 	  	colour = colour
   	}
+
 	world["players"][payload.alias] = new_player
     world["players"][payload.alias].velocity = vector(0,0)
+    world["players"][payload.alias].hitbox = HC.rectangle(new_player.x,new_player.y,new_player.width,new_player.height)
 	return new_player
 end
 

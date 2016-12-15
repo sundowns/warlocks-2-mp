@@ -3,6 +3,15 @@ local menu_image = nil
 suit = require 'libs.suit'
 
 function menu:init()
+    validation_errors = suit.new()
+    validation_errors.theme = Class.clone(suit.theme)
+
+    function validation_errors.theme.Label(text, opt, x, y, w, h)
+        love.graphics.setColor(255, 0, 0)
+        love.graphics.print(text, x, y)
+        love.graphics.setColor(255, 255, 255)
+    end
+
     menu_image = love.graphics.newImage("assets/misc/logo.png")
 end
 
@@ -23,6 +32,7 @@ local total_form_errors = 0
 function menu:update(dt)
     set_font(16, 'debug')
     suit.layout:reset(100,100)
+    validation_errors.layout:reset(100,250)
     suit.layout:push(suit.layout:row(100, 45)) -- address
         suit.layout:padding(3)
         suit.Input(ip, suit.layout:col(160,35))
@@ -42,13 +52,14 @@ function menu:update(dt)
       --http://suit.readthedocs.io/en/latest/gettingstarted.html#gui-instances
       --read above link on gui instances to learn how to make error labels separate
       --suit.theme.color.normal.fg = {255,0,0}
+
         for k, v in pairs(form_errors) do
-          suit.Label(v.msg, {align = "left"}, suit.layout:row(300, 15))
+          validation_errors:Label(v.msg, {align = "left"}, validation_errors.layout:row(300, 15))
         end
       --suit.theme.color.normal.fg = {188,188,188}
     end
 
-    suit.layout:row(100, 200 - total_form_errors*15)
+    suit.layout:row(100, 200)
     suit.layout:push(suit.layout:row(100,50))
         suit.layout:padding(5, 0)
         if suit.Button("Close", suit.layout:col(160, 40)).hit then
@@ -63,7 +74,6 @@ function menu:update(dt)
                 print("username: " ..username.text)
                 GamestateManager.switch(loading, "JOIN_GAME", {ip = ip.text, port = port.text, username = username.text})
             end
-
         end
     suit.layout:pop()
 end
@@ -84,7 +94,7 @@ end
 
 function menu:draw()
     suit.draw()
-    reset_font()
+    validation_errors:draw()
     set_font(32, 'game')
     love.graphics.print("Timbo's Warlox", love.graphics.getWidth()/5, love.graphics.getHeight()/14)
     love.graphics.draw(menu_image, love.graphics.getWidth()*0.75, love.graphics.getHeight()/10, 0, 1.5, 1.5)
