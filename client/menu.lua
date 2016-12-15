@@ -48,6 +48,7 @@ function menu:update(dt)
             validate_field(ip.text, "Please enter an address")
             validate_field(port.text, "Please enter a port")
             validate_field(username.text, "Please enter a player name")
+            print("form error count: " .. #form_errors)
             if #form_errors == 0 then
                 print("username: " ..username.text)
                 GamestateManager.switch(loading, "JOIN_GAME", {ip = ip.text, port = port.text, username = username.text})
@@ -60,8 +61,10 @@ function menu:update(dt)
 end
 
 function validate_field(field, invalid_msg)
-    print("field: " .. field)
-    if not field and not field == '' and not field == ' ' then
+    print("field: *" .. field .. "* type: " .. type(field))
+    --PRINT OUT THE VALIDATION ERRORS ON THE FRONT END!!!!
+
+    if not field or field == "" or field == " " then
         table.insert(form_errors, invalid_msg)
         suit.Label(invalid_msg, suit.layout:row(160,35))
     end
