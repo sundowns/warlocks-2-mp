@@ -28,6 +28,7 @@ unused_colours = {"purple","green","red", "blue", "orange"}
 print("Initialising world...")
 load_stage()
 
+
 print("Beginning server loop.")
 while running do
 	time = socket.gettime()
@@ -60,13 +61,13 @@ while running do
 								--TODO: VERIFY STATE CHANGE
 
 								if verify_position_update(ent, payload) then
-									world["players"][payload.alias] = {
-                                        velocity = vector(round_to_nth_decimal(payload.x_vel, 2), round_to_nth_decimal(payload.y_vel,2)),
-                                        x=round_to_nth_decimal(payload.x,2),
-                                        y=round_to_nth_decimal(payload.y,2),
-                                        colour = ent.colour, entity_type = ent.entity_type,
-                                        state = payload.state, orientation = ent.orientation
-                                    }
+                                    apply_player_position_update(ent, payload)
+                                    -- world["players"][payload.alias] = {
+                                    --     velocity = vector(round_to_nth_decimal(payload.x_vel, 2), round_to_nth_decimal(payload.y_vel,2)),
+                                    --     x=round_to_nth_decimal(payload.x,2),
+                                    --     y=round_to_nth_decimal(payload.y,2),
+                                    --     state = payload.state, orientation = payload.orientation
+                                    -- }
 								else
                                     send_client_correction_packet(event.peer, payload.alias)
 									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
@@ -132,7 +133,7 @@ while running do
 		end
 
         update_client_timeout(dt)
-        process_collisions(dt)
+        --process_collisions(dt)
 	end
 end
 

@@ -23,6 +23,7 @@ function round_to_nth_decimal(num, n)
 end
 
 function print_table(table, name)
+  print("==================")
   if name then print("Printing table: " .. name) end
   for k, v in pairs(table) do
     if type(v) == "table" then
@@ -58,4 +59,11 @@ function math.clamp(val, min, max)
         return max
     end
     return val
+end
+
+function merge_tables(base, additions)
+    for k,v in ipairs(additions) do
+        base[k] = v
+    end
+    return base
 end

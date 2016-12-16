@@ -90,9 +90,28 @@ end
 
 function process_collisions(dt)
     for alias, player in pairs(world["players"]) do
+        --print_table(player, alias)
         for shape, delta in pairs(HC.collisions(player.hitbox)) do
             print("Colliding. Separating vector = (" .. delta.x .. ",".. delta.y)
         end
     end
+end
 
+
+function apply_player_position_update(ent, payload)
+    -- local updates = {
+    --     velocity = vector(round_to_nth_decimal(tonumber(payload.x_vel), 2), round_to_nth_decimal(tonumber(payload.y_vel),2)),
+    --     x=round_to_nth_decimal(tonumber(payload.x),2),
+    --     y=round_to_nth_decimal(tonumber(payload.y),2),
+    --     state = payload.state, orientation = payload.orientation
+    -- }
+    ent.x = round_to_nth_decimal(tonumber(payload.x),2)
+    ent.y = round_to_nth_decimal(tonumber(payload.y),2)
+    ent.velocity = vector(round_to_nth_decimal(tonumber(payload.x_vel), 2), round_to_nth_decimal(tonumber(payload.y_vel),2))
+    ent.state = payload.state
+    ent.orientation = payload.orientation
+
+    --local new_player = merge_tables(ent, updates)
+    --print_table(payload, "ent update: " .. payload.alias)
+    world["players"][payload.alias] = ent
 end

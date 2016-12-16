@@ -7,9 +7,9 @@ function love.load()
 	GamestateManager = require "libs.gamestate"
     Class = require "libs.class"
     HC = require "libs.HC"
+    require("util")
     settings = require("settings")
 	constants = require("constants")
-	require("util")
 	require("error_screen")
 	require("network")
 	require("game")
@@ -19,8 +19,6 @@ function love.load()
     user_alive = false
 	GamestateManager.registerEvents()
     GamestateManager.switch(menu)
-	--GamestateManager.switch(loading, "JOIN_GAME")
-    --GamestateManager.switch(game)
 end
 
 function love.update(dt)

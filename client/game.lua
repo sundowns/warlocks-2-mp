@@ -68,12 +68,17 @@ function game:draw()
     --draw players
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
+
             local ent_x, ent_y = entity:centre()
+
+            -- if entity.entity_type == "ENEMY" then
+            --     print(k .. " x: " .. ent_x .. " y: " .. ent_y)
+            -- end
             --print("k: " .. k .. " orientation: " .. entity.orientation .. " type: " .. entity.entity_type)
             if entity.orientation == "LEFT" then
-				draw_instance(entity.sprite_instance, ent_x, ent_y, true) --+entity.width/2 -entity.height/2
+				draw_instance(entity.sprite_instance, entity.x, entity.y, true) --+entity.width/2 -entity.height/2
 			elseif entity.orientation == "RIGHT" then
-				draw_instance(entity.sprite_instance, ent_x, ent_y) ---+entity.width/2 -entity.height/2
+				draw_instance(entity.sprite_instance, entity.x, entity.y) ---+entity.width/2 -entity.height/2
 			end
         end
 	end
