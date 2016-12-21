@@ -28,13 +28,12 @@ function remove_entity(name, entity_type)
     elseif entity_type == "PROJECTILE" then
         if world['projectiles'][name] then
             table.remove(world['projectiles'], name)
-            --world['projectiles'][name] = nil
         end
     end
 end
 
 function add_enemy(name, enemy)
-	local enemy = {
+	local new_enemy = {
 			name = enemy.name,
 			colour = enemy.colour,
 			entity_type = "ENEMY",
@@ -49,7 +48,7 @@ function add_enemy(name, enemy)
 			width = nil
 	}
 
-    function enemy:centre() -- PUT THESE INTO AN ENTITY SUPERCLASS
+    function new_enemy:centre() -- PUT THESE INTO AN ENTITY SUPERCLASS
         if self.orientation == "LEFT" then
             return self.x + self.width/2, self.y - self.height/2
         elseif self.orientation == "RIGHT" then
@@ -57,12 +56,12 @@ function add_enemy(name, enemy)
         end
     end
 
-	enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
+	new_enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
 
-	enemy.height = 20
-	enemy.width = 20
+	new_enemy.height = 20
+	new_enemy.width = 20
 
-	world[name] = enemy
+	world[name] = new_enemy
 end
 
 function add_projectile(ent)
@@ -80,9 +79,7 @@ function add_projectile(ent)
 
     projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
     projectile.sprite_instance.rotation =
-    -- change to table.insert /remove?
     table.insert(world['projectiles'], projectile)
-    --world['projectiles'][projectile.name] = projectile
 end
 
 function server_player_update(update)

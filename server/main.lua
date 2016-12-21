@@ -133,7 +133,7 @@ while running do
 		end
 
         update_client_timeout(dt)
-        --process_collisions(dt)
+        process_collisions(dt)
 	end
 end
 

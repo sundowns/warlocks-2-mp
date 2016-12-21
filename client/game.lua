@@ -68,17 +68,11 @@ function game:draw()
     --draw players
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
-
             local ent_x, ent_y = entity:centre()
-
-            -- if entity.entity_type == "ENEMY" then
-            --     print(k .. " x: " .. ent_x .. " y: " .. ent_y)
-            -- end
-            --print("k: " .. k .. " orientation: " .. entity.orientation .. " type: " .. entity.entity_type)
             if entity.orientation == "LEFT" then
-				draw_instance(entity.sprite_instance, entity.x, entity.y, true) --+entity.width/2 -entity.height/2
+				draw_instance(entity.sprite_instance, ent_x, ent_y, true) --+entity.width/2 -entity.height/2
 			elseif entity.orientation == "RIGHT" then
-				draw_instance(entity.sprite_instance, entity.x, entity.y) ---+entity.width/2 -entity.height/2
+				draw_instance(entity.sprite_instance, ent_x, ent_y) ---+entity.width/2 -entity.height/2
 			end
         end
 	end
@@ -108,6 +102,13 @@ function game:draw()
             love.graphics.setColor(0, 255, 0, 255)
             love.graphics.circle('fill', projectile.x, projectile.y, 1, 16)
             reset_colour()
+        end
+        for i, player in pairs(world) do
+            if player.entity_type == "ENEMY" then
+                love.graphics.setColor(255, 10, 10, 255)
+    			love.graphics.circle('fill', player.x, player.y, 2, 16)
+    			reset_colour()
+            end
         end
 		local stats = love.graphics.getStats()
 		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 80))

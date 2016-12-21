@@ -56,6 +56,7 @@ function update_player_positions(dt)
             entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
 			entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
 		end
+        entity.hitbox:moveTo(entity.x, entity.y)
     world[id] = entity
 	end
 end
@@ -92,6 +93,8 @@ function process_collisions(dt)
     for alias, player in pairs(world["players"]) do
         --print_table(player, alias)
         for shape, delta in pairs(HC.collisions(player.hitbox)) do
+            --you have OWNER and TYPE variables on the hitbox.
+            --Look at warlocks SP, `entityHit()` in player.lua
             print("Colliding. Separating vector = (" .. delta.x .. ",".. delta.y)
         end
     end
@@ -99,19 +102,11 @@ end
 
 
 function apply_player_position_update(ent, payload)
-    -- local updates = {
-    --     velocity = vector(round_to_nth_decimal(tonumber(payload.x_vel), 2), round_to_nth_decimal(tonumber(payload.y_vel),2)),
-    --     x=round_to_nth_decimal(tonumber(payload.x),2),
-    --     y=round_to_nth_decimal(tonumber(payload.y),2),
-    --     state = payload.state, orientation = payload.orientation
-    -- }
     ent.x = round_to_nth_decimal(tonumber(payload.x),2)
     ent.y = round_to_nth_decimal(tonumber(payload.y),2)
     ent.velocity = vector(round_to_nth_decimal(tonumber(payload.x_vel), 2), round_to_nth_decimal(tonumber(payload.y_vel),2))
     ent.state = payload.state
-    ent.orientation = payload.orientation
+    ent.orientation = payload.orientation or ent.orientation
 
-    --local new_player = merge_tables(ent, updates)
-    --print_table(payload, "ent update: " .. payload.alias)
     world["players"][payload.alias] = ent
 end
