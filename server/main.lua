@@ -35,6 +35,7 @@ while running do
 	local dt = time - prevTime
 	prevTime = time
 	tick_timer = tick_timer + dt
+    Timer.update(dt)
 
 	if tick_timer > constants.TICKRATE then
 		tick = tick + 1

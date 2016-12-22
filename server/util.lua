@@ -62,8 +62,21 @@ function math.clamp(val, min, max)
 end
 
 function merge_tables(base, additions)
-    for k,v in ipairs(additions) do
+    for k,v in pairs(additions) do
         base[k] = v
     end
     return base
+end
+
+function random_string(l) --this is probably a bad way to do this. Try some form of hashing os time??
+  if l < 1 then return nil end
+  local stringy=""
+  for i=1,l do
+    stringy=stringy..random_letter()
+  end
+  return stringy
+end
+
+function random_letter()
+    return string.char(math.random(97, 122));
 end

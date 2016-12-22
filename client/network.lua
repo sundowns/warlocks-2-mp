@@ -6,6 +6,7 @@ last_offset = 1
 connected = false
 connection_is_new = true
 connected_time = 0
+debug_log = {}
 
 function net_initialise()
 	host = enet.host_create()
@@ -34,7 +35,6 @@ function confirm_join(server_stage, assigned_colour)
     --otherwise (or after the file download), send join accept packet
     load_stage(server_stage..".lua")
     player_colour = assigned_colour
-	--print("my name is " .. settings.username)
 	server:round_trip_time(10)
 	tick = payload.server_tick
 	server:send(create_binary_packet({client_version = constants.CLIENT_VERSION}, "JOIN", tick, settings.username))
@@ -43,11 +43,11 @@ function confirm_join(server_stage, assigned_colour)
 end
 
 function disconnect(msg)
-		if msg then print(msg) end
-		server:disconnect()
-		host:flush()
-		connected = false
-		GamestateManager.switch(error_screen, msg)
+	if msg then print(msg) end
+	server:disconnect()
+	host:flush()
+	connected = false
+	GamestateManager.switch(error_screen, msg)
 end
 
 function send_player_update(inPlayer, inName)
@@ -168,7 +168,6 @@ function verify_spawn_packet(payload)
     return verified, update
 end
 
-
 function network_run()
     if connected then
         network_gamerunning()
@@ -227,8 +226,6 @@ function network_gamerunning()
                     end
                 elseif payload.cmd == 'ENTITYDESTROY' then
                     remove_entity(payload.alias, payload.entity_type)
-                elseif payload.cmd == 'SERVERERROR' then
-                    disconnect("Connection closed. " ..payload.message)
                 elseif payload.cmd == 'SPAWN' then
                     local ok, update = verify_spawn_packet(payload)
                     if ok then
@@ -239,6 +236,16 @@ function network_gamerunning()
                     if ok then
                         apply_retroactive_updates(update)
                     end
+                elseif payload.cmd == 'SERVERERROR' then
+                    disconnect("Connection closed. " ..payload.message)
+                elseif payload.cmd == 'DEBUG' then
+                    debug_log[#debug_log+1] = payload.message
+
+                    print_table(payload, true, "pizload")
+                    testX1 = tonumber(payload.x1)
+                    testX2 = tonumber(payload.x2)
+                    testY1 = tonumber(payload.y1)
+                    testY2 = tonumber(payload.y2)
                 else
                     dbg("unrecognised command:", payload.cmd)
                 end

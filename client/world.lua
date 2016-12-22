@@ -12,7 +12,6 @@ function add_entity(name, entity_type, ent)
 		if ent.name == settings.username then
 			world[name] = ent
 		else
-            print("adding enemy")
 			add_enemy(name, ent)
 		end
     elseif entity_type == "PROJECTILE" then
@@ -26,8 +25,8 @@ function remove_entity(name, entity_type)
     		world[name] = nil
     	end
     elseif entity_type == "PROJECTILE" then
-        if world['projectiles'][name] then
-            table.remove(world['projectiles'], name)
+        if world['projectiles'][name] ~= nil then
+            world['projectiles'][name] = nil
         end
     end
 end
@@ -66,7 +65,7 @@ end
 
 function add_projectile(ent)
     local projectile = {
-        name = ent.name,
+        id = ent.name,
         x = ent.x,
         y = ent.y,
         x_vel = ent.x_vel,
@@ -74,12 +73,14 @@ function add_projectile(ent)
         entity_type = "PROJECTILE",
         projectile_type = ent.projectile_type,
         sprite_instance = {},
-        velocity = vector(ent.x_vel, ent.y_vel)
+        velocity = vector(ent.x_vel, ent.y_vel),
+        width = ent.width,
+        height = ent.height
     }
 
     projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
-    projectile.sprite_instance.rotation =
-    table.insert(world['projectiles'], projectile)
+    projectile.sprite_instance.rotation = projectile.velocity:angleTo(vector(0,-1))
+    world["projectiles"][projectile.id] = projectile
 end
 
 function server_player_update(update)
@@ -131,15 +132,15 @@ function server_entity_create(entity)
 	assert(entity.x, "Undefined x coordinate value for entity creation")
 	assert(entity.y, "Undefined y coordinate value for entity creation")
 	assert(entity.entity_type, "Undefined entity_type value for entity creation")
-	--assert(entity.state, "Invalid state value for entity creation")
 	x, y, x_vel, y_vel = tonumber(entity.x), tonumber(entity.y), tonumber(entity.x_vel), tonumber(entity.y_vel)
-
+    width, height = tonumber(entity.width), tonumber(entity.height)
 	add_entity(entity.alias, entity.entity_type, {
         name = entity.alias,
         colour = entity.colour or nil,
         x=x, y=y, x_vel=x_vel or 0,
         y_vel=y_vel or 0, state=entity.state or nil,
-        projectile_type = entity.projectile_type or nil
+        projectile_type = entity.projectile_type or nil,
+        width = entity.width or 0, height = entity.height or 0
     })
 end
 

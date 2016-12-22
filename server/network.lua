@@ -16,13 +16,13 @@ function send_world_update()
 		end
 	end
 
-    for i, entity in ipairs(world["entities"]) do
+    for id, entity in pairs(world["entities"]) do
         local payload = create_entity_payload(entity)
-        local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, i)
+        local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, id)
 		if ok then
 			host:broadcast(packet)
 		else
-			print("Error sending projectile " .. i .. " during world update. Dumping data:")
+			print("Error sending projectile " .. id .. " during world update. Dumping data:")
 			print_table(payload)
 			print("----------")
 		end
@@ -71,7 +71,9 @@ function create_entity_payload(entity)
         x_vel = tostring(round_to_nth_decimal(entity.velocity.x,2)),
         y_vel = tostring(round_to_nth_decimal(entity.velocity.y,2)),
         entity_type = entity.entity_type,
-        projectile_type = entity.projectile_type or nil
+        projectile_type = entity.projectile_type or nil,
+        width = entity.width or 0,
+        height = entity.height or 0
     }
 end
 
@@ -83,6 +85,15 @@ end
 function send_spawn_packet(peer, player)
     print(player.name .. " spawned.")
 	peer:send(create_binary_packet(create_spawn_player_payload(player), "SPAWN", tick))
+end
+
+function broadcast_debug_packet(message, extra_data)
+    local data = {message = message}
+    if extra_data then
+        data = merge_tables(data, extra_data)
+    end
+
+	host:broadcast(create_binary_packet(data, "DEBUG", tick))
 end
 
 function send_join_accept(peer, colour)

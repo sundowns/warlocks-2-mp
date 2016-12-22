@@ -49,14 +49,9 @@ function menu:update(dt)
         suit.Label("Player Name", {align = "left"}, suit.layout:col(140))
     suit.layout:pop()
     if total_form_errors > 0 then
-      --http://suit.readthedocs.io/en/latest/gettingstarted.html#gui-instances
-      --read above link on gui instances to learn how to make error labels separate
-      --suit.theme.color.normal.fg = {255,0,0}
-
         for k, v in pairs(form_errors) do
           validation_errors:Label(v.msg, {align = "left"}, validation_errors.layout:row(300, 15))
         end
-      --suit.theme.color.normal.fg = {188,188,188}
     end
 
     suit.layout:row(100, 200)
@@ -69,7 +64,6 @@ function menu:update(dt)
             validate_field(ip.text, "Address", "Please enter an address")
             validate_field(port.text, "Port", "Please enter a port")
             validate_field(username.text, "Username", "Please enter a player name")
-            print("form error count: " .. total_form_errors)
             if total_form_errors == 0 then
                 print("username: " ..username.text)
                 GamestateManager.switch(loading, "JOIN_GAME", {ip = ip.text, port = port.text, username = username.text})

@@ -1,1 +1,3 @@
-keep on stormin'
+Currently trying to print projectile hitbox coordinates via server debug message
+-- See textX1 etc variables on client. Points appearing but hitbox calc not correct yet
+-- Can we draw the rectangle using the two corner points? (yes, but like, is it ez?)

@@ -1,5 +1,7 @@
 game = {} -- the game state
 
+testX1, testX2, testY1, testY2 = 0
+
 function game:init()
 	require("world")
 	require("player")
@@ -11,7 +13,6 @@ function game:init()
     if stage_file then
         load_stage(stage_file)
     end
-
 end
 
 function game:enter(previous)
@@ -40,6 +41,10 @@ function game:update(dt)
 		cooldowns(dt)
 	end
 
+    while #debug_log > 20 do
+        table.remove(debug_log, 1)
+    end
+
 	update_entities(dt)
 
 	if tick_timer > constants.TICKRATE then -- THIS SHOULD BE USED FOR COMMUNCATION TO/FROM SERVER/KEEPING IN SYNC
@@ -55,7 +60,6 @@ function game:update(dt)
 				player_buffer_size = player_buffer_size - 1
    	        end
 	 	end
-
 		network_run()
 	end
 end
@@ -70,16 +74,18 @@ function game:draw()
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
             local ent_x, ent_y = entity:centre()
             if entity.orientation == "LEFT" then
-				draw_instance(entity.sprite_instance, ent_x, ent_y, true) --+entity.width/2 -entity.height/2
+				draw_instance(entity.sprite_instance, ent_x, ent_y, true)
 			elseif entity.orientation == "RIGHT" then
-				draw_instance(entity.sprite_instance, ent_x, ent_y) ---+entity.width/2 -entity.height/2
+				draw_instance(entity.sprite_instance, ent_x, ent_y)
 			end
         end
 	end
 
     for k, projectile in pairs(world['projectiles']) do
-        -- get maths from warlocks mk 1 for centre-point of front-facing edge of projectiles
-        draw_instance(projectile.sprite_instance, projectile.x, projectile.y)
+    	local perpendicular = projectile.velocity:perpendicular():angleTo()
+    	local adjustedX = projectile.x - projectile.width/2*math.cos(perpendicular)
+    	local adjustedY = projectile.y - projectile.width/2*math.sin(perpendicular)
+        draw_instance(projectile.sprite_instance, adjustedX, adjustedY)
     end
 
 	if settings.debug then
@@ -111,13 +117,23 @@ function game:draw()
             end
         end
 		local stats = love.graphics.getStats()
-		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 80))
-		love.graphics.print("drawcalls: ".. stats.drawcalls, camera:worldCoords(3, 100))
-		love.graphics.print("canvasswitches: ".. stats.canvasswitches , camera:worldCoords(3, 120))
-		love.graphics.print("images loaded: ".. stats.images, camera:worldCoords(3, 140))
-		love.graphics.print("canvases loaded: ".. stats.canvases, camera:worldCoords(3, 160))
-		love.graphics.print("fonts loaded: ".. stats.fonts, camera:worldCoords(3, 180))
-		reset_font()
+		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 60))
+		love.graphics.print("drawcalls: ".. stats.drawcalls, camera:worldCoords(3, 80))
+		love.graphics.print("canvasswitches: ".. stats.canvasswitches , camera:worldCoords(3, 100))
+		love.graphics.print("images loaded: ".. stats.images, camera:worldCoords(3, 120))
+		love.graphics.print("canvases loaded: ".. stats.canvases, camera:worldCoords(3, 140))
+		love.graphics.print("fonts loaded: ".. stats.fonts, camera:worldCoords(3, 160))
+        --server debug messages
+        for i = 1,#debug_log do
+            love.graphics.setColor(35,140,35, 255 - (i-1) * 8)
+            love.graphics.print(debug_log[#debug_log - (i-1)], camera:worldCoords(3, 200+ i * 15))
+        end
+
+        --print last updated projectile hitbox vertices
+
+        love.graphics.points(testX1, testY1, testX2, testY2)
+
+        reset_font()
 	end
 
 	if not connected then

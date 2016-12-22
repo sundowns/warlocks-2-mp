@@ -1,6 +1,6 @@
 return {
   debug = false,
-  username = 'jim' .. random_string(6),
+  username = 'ply_' .. random_string(6),
   controls = {
     RIGHT= 'd',
   	LEFT = 'a',
