@@ -27,7 +27,7 @@ unused_colours = {"purple","green","red", "blue", "orange"}
 
 print("Initialising world...")
 load_stage()
-
+--HC.resetHash([cell_size = 100]) --reset/set HC world cell size
 
 print("Beginning server loop.")
 while running do
@@ -47,13 +47,13 @@ while running do
 					payload = binser.deserialize(event.data)
 					setmetatable(payload, packet_meta)
 					if not assert(payload.alias) then print(tostring(payload)) end
-					assert(client_list[event.peer])
-					if client_list[event.peer] ~= nil then
-						client_list[event.peer].time_since_last_msg = 0
+					assert(client_list[event.peer:index()])
+					if client_list[event.peer:index()] ~= nil then
+						client_list[event.peer:index()].time_since_last_msg = 0
 					end
 					assert(payload.cmd)
 					if payload.cmd == "PLAYERUPDATE" then
-						if client_list[event.peer] then
+						if client_list[event.peer:index()] then
 							assert(payload.client_tick)
 							assert(payload.x_vel and payload.y_vel and payload.x and payload.y and payload.state)
 							local ent = world["players"][payload.alias]
@@ -82,13 +82,14 @@ while running do
 							send_error_packet(event.peer, "Incorrect version. Server is running " .. server_version)
 							remove_client(event.peer, event.peer .. " version " .. payload.client_version .. " conflicts with server version " .. server_version)
 						else
-							client_list[event.peer].name = payload.alias
+							client_list[event.peer:index()].name = payload.alias
+
 							if world["players"][payload.alias] then
 								send_error_packet(event.peer, "The alias " .. payload.alias .. " is already in use.")
 								remove_client(payload.alias, "Duplicate alias")
 							else
-								client_player_map[event.peer] = payload.alias
-								send_spawn_packet(event.peer, spawn_player(payload.alias, 250, 250, client_list[event.peer].colour))
+								client_player_map[event.peer:index()] = payload.alias
+								send_spawn_packet(event.peer, spawn_player(payload.alias, 250, 250, event.peer:index()))
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then
@@ -114,27 +115,27 @@ while running do
 					send_error_packet(event.peer, "Game is full.")
 				else
 					local colour = table.remove(unused_colours)
-					client_list[event.peer] =  {ip=msg_or_ip, port=port_or_nil, name=nil, time_since_last_msg = 0, colour = colour}
+					client_list[event.peer:index()] =  {ip=msg_or_ip, port=port_or_nil, name=nil, time_since_last_msg = 0, colour = colour}
 					client_count = client_count + 1
 					print(event.peer:connect_id() .. ' connected.')
 					send_join_accept(event.peer, colour)
 				end
 			elseif event.type == "disconnect" then
-				if client_list[event.peer] ~= nil then
-					remove_client(event.peer,  client_list[event.peer].name .." disconnected. Closed by user")
+				if client_list[event.peer:index()] ~= nil then
+					remove_client(event.peer,  client_list[event.peer:index()].name .." disconnected. Closed by user")
 				end
 			end
 			event = host:service()
 		end
 
 		update_entity_positions(dt)
+        process_collisions(dt)
 		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
 			send_world_update()
 			deleted = {}
 		end
 
         update_client_timeout(dt)
-        process_collisions(dt)
 	end
 end
 

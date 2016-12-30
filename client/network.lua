@@ -243,9 +243,10 @@ function network_gamerunning()
 
                     print_table(payload, true, "pizload")
                     testX1 = tonumber(payload.x1)
-                    testX2 = tonumber(payload.x2)
+                    testWidth = tonumber(payload.width)
                     testY1 = tonumber(payload.y1)
-                    testY2 = tonumber(payload.y2)
+                    testHeight = tonumber(payload.height)
+                    testRotation = tonumber(payload.rotation)
                 else
                     dbg("unrecognised command:", payload.cmd)
                 end

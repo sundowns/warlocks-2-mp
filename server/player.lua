@@ -1,4 +1,5 @@
-function spawn_player(name, x, y, colour)
+function spawn_player(name, x, y, client_index)
+    local colour =  client_list[client_index].colour
 	local new_player = {
 		x = x,
 		y = y,
@@ -23,10 +24,10 @@ function spawn_player(name, x, y, colour)
 	  	height = 22,
 	  	colour = colour
   	}
-
 	world["players"][payload.alias] = new_player
+    world["players"][payload.alias].index = client_index
     world["players"][payload.alias].velocity = vector(0,0)
-    world["players"][payload.alias].hitbox = HC.rectangle(new_player.x,new_player.y,new_player.width,new_player.height)
+    world["players"][payload.alias].hitbox = HC.circle(new_player.x,new_player.y,new_player.width/2)
     world["players"][payload.alias].hitbox.owner = name
 	world["players"][payload.alias].hitbox.type = "PLAYER"
 	return new_player
@@ -39,5 +40,7 @@ function player_cast_fireball(player_x, player_y, at_X, at_Y, alias)
 end
 
 function calc_vector_from_points(fromX, fromY, toX, toY)
-    return vector(toX-fromX, toY-fromY)
+    local vec = vector(toX-fromX, toY-fromY)
+    --print("vec x: " .. vec.x .. " y: " .. vec.y)
+    return vec
 end

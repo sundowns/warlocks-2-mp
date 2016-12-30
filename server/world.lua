@@ -42,7 +42,7 @@ end
 
 function update_player_positions(dt)
   for id, entity in pairs(world["players"]) do
-	if entity.velocity.x and entity.velocity.y then
+	if entity.velocity.x and entity.velocity.y then --why is this componenatlised
         entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
 		entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
 	end
@@ -70,6 +70,7 @@ function remove_entity(id)
 end
 
 function spawn_projectile(x, y, velocity_vector, owner)
+    print("[DEBUG] Spawning projectile with owner: " .. owner)
     local new_projectile = {
         position = vector(x,y),
         velocity = velocity_vector,
@@ -84,7 +85,9 @@ function spawn_projectile(x, y, velocity_vector, owner)
     local id = random_string(12)
 
     new_projectile.hitbox = HC.rectangle(x, y, 14, 19)
-    new_projectile.hitbox:rotate(velocity_vector:angleTo()) --should this be angleTo(0,0)?
+    new_projectile.hitbox.owner = owner
+    new_projectile.hitbox.type = new_projectile.entity_type
+    new_projectile.hitbox:rotate(velocity_vector:angleTo(vector(0,-1))) --should this be angleTo(0,0)?
     local hbx1, hby1, hbx2, hby2 = new_projectile.hitbox:bbox()
     print("x1: " .. hbx1 .. " y1: " .. hby1 .. " x2: " .. hbx2 .. " y2: " .. hby2 )
     world["entities"][id] = new_projectile
@@ -93,18 +96,40 @@ function spawn_projectile(x, y, velocity_vector, owner)
         remove_entity(id)
     end)
     broadcast_debug_packet("+".. new_projectile.entity_type .. " " .. id,
-        {x1=tostring(hbx1),y1=tostring(hby1),x2=tostring(hbx2),y2=tostring(hby2)}
+        {x1=tostring(hbx1),y1=tostring(hby1),
+        width=tostring(new_projectile.width),
+        height=tostring(new_projectile.height),
+        rotation=tostring(velocity_vector:angleTo(vector(0,-1)))
+        }
     )
-
 end
 
 function process_collisions(dt)
     for alias, player in pairs(world["players"]) do
         --print_table(player, alias)
         for shape, delta in pairs(HC.collisions(player.hitbox)) do
-            if shape.owner ~= player.hitbox.owner then
-                print("Colliding. Separating vector = (" .. delta.x .. ",".. delta.y)
+            local d_vector = vector(delta.x,delta.y)
+            local player_pos = vector(player.x, player.y)
+
+            if shape.owner ~= alias then
+                print(alias ..  " & [" .. shape.type .. "] " .. shape.owner ..  " Colliding. Separating vector = (" .. delta.x .. ",".. delta.y)
             end
+
+            if shape.type == "PROJECTILE" then
+                -- do collision stuff
+            elseif shape.type == "PLAYER" then
+                if shape.owner ~= alias then
+                    -- apply delta force to
+                    print_table(player)
+                    player_pos = player_pos + d_vector * 1000 * dt
+                    player.x = player_pos.x
+                    player.y = player_pos.y
+                    player.hitbox:moveTo(player_pos.x, player_pos.y)
+                    --queue_correction(alias, payload, tick)
+                    --send_client_correction_packet(player,)
+                end
+            end
+
             --you have OWNER and TYPE variables on the hitbox.
             --Look at warlocks SP, `entityHit()` in player.lua
 

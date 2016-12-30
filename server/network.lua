@@ -2,6 +2,26 @@ client_count = 0
 client_list = {}
 client_player_map = {} -- look up player alias' by client ip
 packet_meta = {} -- meta table for decoding binary packets
+client_corrections = {}
+
+function queue_correction(alias, payload, tick)
+    local player = world["players"][alias]
+    if player then
+        local queue_item = {
+            alias = alias,
+            player = create_player_payload(player),
+            tick = tick,
+            client_index = player.index
+        }
+        table.insert(client_corrections, queue_item)
+    end
+end
+
+function send_buffered_corrections()
+    for i, v in ipairs(client_corrections) do
+        send_client_correction_packet(host:get_peer(v.client_index), v.alias, v.tick)
+    end
+end
 
 function send_world_update()
 	for k, player in pairs(world["players"]) do
@@ -100,9 +120,10 @@ function send_join_accept(peer, colour)
 	peer:send(create_binary_packet({colour = colour, stage_name = config.STAGE}, "JOINACCEPTED", tick))
 end
 
-function send_client_correction_packet(peer, alias)
+function send_client_correction_packet(peer, alias, tick_to_use)
+    if tick_to_use == nil then tick_to_use = tick end
     if world["players"][alias] then
-        peer:send(create_binary_packet(create_player_payload(world["players"][payload.alias]), "PLAYERCORRECTION", tick))
+        peer:send(create_binary_packet(create_player_payload(world["players"][payload.alias]), "PLAYERCORRECTION", tick_to_use))
     else
         print("[ERROR] Attempted to send correction packet to non-existent player: " .. payload.alias)
     end
@@ -111,12 +132,12 @@ end
 function remove_client(peer, msg)
     if peer == nil then return end
 	if (msg) then print(msg) end
-	local entId = client_player_map[peer]
+	local entId = client_player_map[peer:index()]
 	if entId then
 		remove_player(entId)
 	end
 
-	client_list[peer] = nil
+	client_list[peer:index()] = nil
 	client_count = client_count - 1
     pcall(peer.disconnect)
 	--peer:disconnect()
