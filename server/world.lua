@@ -41,14 +41,14 @@ function update_entity_positions(dt)
 end
 
 function update_player_positions(dt)
-  for id, entity in pairs(world["players"]) do
-	if entity.velocity.x and entity.velocity.y then --why is this componenatlised
-        entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
-		entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
-	end
-    entity.hitbox:moveTo(entity.x, entity.y)
-    world[id] = entity
-	end
+    for id, entity in pairs(world["players"]) do
+    	if entity.velocity.x and entity.velocity.y then --why is this componenatlised
+            entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
+    		entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
+    	end
+        entity.hitbox:moveTo(entity.x, entity.y)
+        world[id] = entity
+    end
 end
 
 function remove_player(entity)
@@ -106,37 +106,53 @@ end
 
 function process_collisions(dt)
     for alias, player in pairs(world["players"]) do
-        --print_table(player, alias)
         for shape, delta in pairs(HC.collisions(player.hitbox)) do
-            local d_vector = vector(delta.x,delta.y)
-            local player_pos = vector(player.x, player.y)
-
-            if shape.owner ~= alias then
-                print(alias ..  " & [" .. shape.type .. "] " .. shape.owner ..  " Colliding. Separating vector = (" .. delta.x .. ",".. delta.y)
-            end
-
             if shape.type == "PROJECTILE" then
                 -- do collision stuff
             elseif shape.type == "PLAYER" then
                 if shape.owner ~= alias then
                     -- apply delta force to
-                    print_table(player)
-                    player_pos = player_pos + d_vector * 1000 * dt
-                    player.x = player_pos.x
-                    player.y = player_pos.y
-                    player.hitbox:moveTo(player_pos.x, player_pos.y)
-                    --queue_correction(alias, payload, tick)
-                    --send_client_correction_packet(player,)
+                    --print_table(player)
+                    players_colliding(player, shape.owner, delta, dt) -- player1,
+
                 end
             end
-
-            --you have OWNER and TYPE variables on the hitbox.
             --Look at warlocks SP, `entityHit()` in player.lua
 
         end
     end
 end
 
+function players_colliding(player1, other_player_alias, collision_vector, dt)
+    if player1.hasCollidedWith[other_player_alias] then return end -- If they're already colliding
+    local player2 = world["players"][other_player_alias]
+    if player2 == nil then return end -- can happen if players collide as one is disconnecting
+    if player2.hasCollidedWith[player1.name] then return end
+
+    local d_vector = vector(collision_vector.x,collision_vector.y)
+    local resultant_velocity = player1.velocity + player2.velocity
+
+    local player_pos = vector(player1.x, player1.y)
+    print("resultant vel len: " .. resultant_velocity:len() .. " x: " .. resultant_velocity.x .. " y: " .. resultant_velocity.y)
+    player_pos = player_pos + d_vector * resultant_velocity:len2() * dt --math.min(resultant_velocity:len(), 50)
+    player1.x = player_pos.x
+    player1.y = player_pos.y
+    player1.velocity = d_vector:normalized()*resultant_velocity:len()
+    player1.hitbox:moveTo(player_pos.x, player_pos.y)
+
+    --move player 2 as well
+
+    player1.hasCollidedWith[player2.name] = true
+    player2.hasCollidedWith[player1.name] = true
+    Timer.after(1, function()
+        print("resetting collisions")
+        player1.hasCollidedWith[player2.name] = false
+        world["players"][player2.name].hasCollidedWith[player1.name] = false
+    end)
+
+    world["players"][player2.name] = player2 -- Dont need to update player 1 because it is already a reference to the table
+    --queue_correction(alias, payload, tick) -- dont think you can use this until you can stop them SPAMMING collisions every frame?
+end
 
 function apply_player_position_update(ent, payload)
     ent.x = round_to_nth_decimal(tonumber(payload.x),2)

@@ -7,7 +7,7 @@ end
 
 function error_screen:enter(previous, line1, line2)
   love.graphics.setBackgroundColor(96, 96, 96)
-  love.graphics.setColor(0,0,0,255)
+  love.graphics.setColor(255,50,50,255)
   error_line1 = line1
   error_line2 = line2
 end

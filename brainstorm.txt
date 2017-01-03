@@ -1,3 +1,6 @@
-Currently trying to print projectile hitbox coordinates via server debug message
--- See textX1 etc variables on client. Points appearing but hitbox calc not correct yet
--- Can we draw the rectangle using the two corner points? (yes, but like, is it ez?)
+Handling player on player collisions
+ -- Would like them to bounce away from each other sensically
+ -- Currently it seems to translate them correctly, but does not update the players velocity
+ -- Could this be because the player's own updates are overriding the servers new change in velocity?
+ -- Check out anti-cheat function handles this atm, the server MUST be authorative over the client in situations like this
+ -- Can I do one sweeping fix to make server-based changes STICK?

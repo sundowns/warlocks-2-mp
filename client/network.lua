@@ -57,8 +57,8 @@ function send_player_update(inPlayer, inName)
 		y = inPlayer.y,
 		state = inPlayer.state,
 		acceleration = inPlayer.acceleration,
-		x_vel = inPlayer.x_vel,
-		y_vel = inPlayer.y_vel
+		x_vel = inPlayer.velocity.x,
+		y_vel = inPlayer.velocity.y
 	}
 	server:send(create_binary_packet(playerVM, "PLAYERUPDATE", tick, inName))
 end

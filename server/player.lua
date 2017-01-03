@@ -30,6 +30,7 @@ function spawn_player(name, x, y, client_index)
     world["players"][payload.alias].hitbox = HC.circle(new_player.x,new_player.y,new_player.width/2)
     world["players"][payload.alias].hitbox.owner = name
 	world["players"][payload.alias].hitbox.type = "PLAYER"
+    world["players"][payload.alias].hasCollidedWith = {}
 	return new_player
 end
 

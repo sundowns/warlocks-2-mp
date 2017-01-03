@@ -137,6 +137,7 @@ while running do
 
         update_client_timeout(dt)
 	end
+    send_buffered_corrections()
 end
 
 host:disconnect()

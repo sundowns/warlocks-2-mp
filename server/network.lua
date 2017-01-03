@@ -21,6 +21,7 @@ function send_buffered_corrections()
     for i, v in ipairs(client_corrections) do
         send_client_correction_packet(host:get_peer(v.client_index), v.alias, v.tick)
     end
+    client_corrections = {}
 end
 
 function send_world_update()
