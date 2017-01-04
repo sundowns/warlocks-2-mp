@@ -1,7 +1,8 @@
 local network_params = {
   LAN = {
     NET_UPDATE_RATE = 4, -- Every 4 ticks
-    VARIANCE_POSITION = 6, -- 5 ideal for LAN?
+    VARIANCE_POSITION = 60000, -- 6 ideal for LAN?
+    VARIANCE_VELOCITY = 30000
   }
 }
 

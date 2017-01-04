@@ -61,16 +61,11 @@ while running do
 
 								--TODO: VERIFY STATE CHANGE
 
-								if verify_position_update(ent, payload) then
+								if verify_position_update(ent, payload) and verify_velocity_update(ent, payload) then
                                     apply_player_position_update(ent, payload)
-                                    -- world["players"][payload.alias] = {
-                                    --     velocity = vector(round_to_nth_decimal(payload.x_vel, 2), round_to_nth_decimal(payload.y_vel,2)),
-                                    --     x=round_to_nth_decimal(payload.x,2),
-                                    --     y=round_to_nth_decimal(payload.y,2),
-                                    --     state = payload.state, orientation = payload.orientation
-                                    -- }
+                                    apply_player_velocity_update(ent, payload)
 								else
-                                    send_client_correction_packet(event.peer, payload.alias)
+                                    send_client_correction_packet(event.peer, payload.alias, false)
 									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
 								end
 							else
@@ -128,8 +123,8 @@ while running do
 			event = host:service()
 		end
 
-		update_entity_positions(dt)
         process_collisions(dt)
+        update_entity_positions(dt)
 		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
 			send_world_update()
 			deleted = {}

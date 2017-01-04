@@ -39,6 +39,7 @@ function game:update(dt)
 		update_player_movement(player, input, dt, false)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
 		cooldowns(dt)
+        dbg("player velocity x:" .. player.velocity.x .. " y: " .. player.velocity.y) -- try to see if its bouncing away properly (i mean its clearly not sooo)
 	end
 
     while #debug_log > 20 do

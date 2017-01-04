@@ -58,7 +58,8 @@ function send_player_update(inPlayer, inName)
 		state = inPlayer.state,
 		acceleration = inPlayer.acceleration,
 		x_vel = inPlayer.velocity.x,
-		y_vel = inPlayer.velocity.y
+		y_vel = inPlayer.velocity.y,
+        orientation = inPlayer.orientation
 	}
 	server:send(create_binary_packet(playerVM, "PLAYERUPDATE", tick, inName))
 end
@@ -93,16 +94,15 @@ end
 
 packet_meta = {}
 function packet_meta.__index(table, key)
-  --print("im doing stuff")
-  if key == 'alias' then
-    return table[4]
-  elseif key == 'cmd'then
-    return table[3]
-	elseif key == 'server_tick' or key == 'tick' then
-		return table[2]
-  else
-    return table[1][key]
-  end
+    if key == 'alias' then
+        return table[4]
+    elseif key == 'cmd'then
+        return table[3]
+    elseif key == 'server_tick' or key == 'tick' then
+       return table[2]
+    else
+        return table[1][key]
+    end
 end
 
 function create_binary_packet(payload, cmd, tick, alias)
@@ -116,7 +116,8 @@ function verify_player_correction_packet(payload)
         x_vel = tonumber(payload.x_vel),
         y_vel = tonumber(payload.y_vel),
         state = payload.state,
-        colour = payload.colour
+        colour = payload.colour,
+        entity_type = "PLAYER"
     }
     local verified = true
     if not assert(update.x) then verified = false print("Failed to verify x update for player") end
@@ -234,7 +235,14 @@ function network_gamerunning()
                 elseif payload.cmd == 'PLAYERCORRECTION' then
                     local ok, update = verify_player_correction_packet(payload)
                     if ok then
-                        apply_retroactive_updates(update)
+                        --print("retroactively doodlin x_vel: " .. update.x_vel .. " y_vel: " .. update.y_vel )
+                        if payload.retroactive == true then
+                            print("im retro")
+                            server_player_update(update, true) --runs retroactive update process
+                        else
+                            print("im NOT retro")
+                            apply_player_updates(update) -- simply applies the updates AS IS (no winding back ticks and recalculating)
+                        end
                     end
                 elseif payload.cmd == 'SERVERERROR' then
                     disconnect("Connection closed. " ..payload.message)

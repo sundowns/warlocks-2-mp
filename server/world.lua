@@ -111,10 +111,7 @@ function process_collisions(dt)
                 -- do collision stuff
             elseif shape.type == "PLAYER" then
                 if shape.owner ~= alias then
-                    -- apply delta force to
-                    --print_table(player)
-                    players_colliding(player, shape.owner, delta, dt) -- player1,
-
+                    players_colliding(player, shape.owner, delta, dt)
                 end
             end
             --Look at warlocks SP, `entityHit()` in player.lua
@@ -123,6 +120,11 @@ function process_collisions(dt)
     end
 end
 
+
+--PLAYER 1 WILL ALWAYSSSSSSSSSSS BE THE PLAYER WHO JOINED LAST, SO THE LOGIC MUSTTTTTTTT!!
+--BE BASED PURELY OFF OF MATHS USING EACH PLAYERS VELOCITIES, WE DONT KNOW "WHO RAN INTO WHO"
+
+--http://blog.wolfire.com/2009/07/linear-algebra-for-game-developers-part-2/ DOT product maybe useful here??
 function players_colliding(player1, other_player_alias, collision_vector, dt)
     if player1.hasCollidedWith[other_player_alias] then return end -- If they're already colliding
     local player2 = world["players"][other_player_alias]
@@ -131,35 +133,52 @@ function players_colliding(player1, other_player_alias, collision_vector, dt)
 
     local d_vector = vector(collision_vector.x,collision_vector.y)
     local resultant_velocity = player1.velocity + player2.velocity
+    local resultant_magnitude = resultant_velocity:len()*50
 
-    local player_pos = vector(player1.x, player1.y)
-    print("resultant vel len: " .. resultant_velocity:len() .. " x: " .. resultant_velocity.x .. " y: " .. resultant_velocity.y)
-    player_pos = player_pos + d_vector * resultant_velocity:len2() * dt --math.min(resultant_velocity:len(), 50)
-    player1.x = player_pos.x
-    player1.y = player_pos.y
-    player1.velocity = d_vector:normalized()*resultant_velocity:len()
-    player1.hitbox:moveTo(player_pos.x, player_pos.y)
+    local p1_delta = d_vector
+    local p2_delta = d_vector:clone()
 
-    --move player 2 as well
+    if player1.velocity:len() > player2.velocity:len() then
+        p1_delta = -1 * p1_delta
+    else
+        p2_delta = -1 * p2_delta
+    end
+
+    --local player1_pos = vector(player1.x, player1.y)
+    player1.velocity = player1.velocity + p1_delta:normalized()*resultant_magnitude
+    print("colliding n shit")
+    --player1_pos = player1_pos + (player1.velocity + (d_vector * resultant_magnitude) * dt)
+    --player1 = move_player(player1, player1_pos.x, player1_pos.y)
+
+    --local player2_pos = vector(player2.x, player2.y)
+    player2.velocity = player2.velocity + p2_delta:normalized()*resultant_magnitude
+    --player2_pos = player2_pos + (player2.velocity + (d_vector * resultant_magnitude) * dt)
+    --player2 = move_player(player2, player2_pos.x, player2_pos.y)
 
     player1.hasCollidedWith[player2.name] = true
     player2.hasCollidedWith[player1.name] = true
-    Timer.after(1, function()
-        print("resetting collisions")
+    Timer.after(0.5, function()
         player1.hasCollidedWith[player2.name] = false
         world["players"][player2.name].hasCollidedWith[player1.name] = false
     end)
 
     world["players"][player2.name] = player2 -- Dont need to update player 1 because it is already a reference to the table
-    --queue_correction(alias, payload, tick) -- dont think you can use this until you can stop them SPAMMING collisions every frame?
+    send_client_correction_packet(host:get_peer(player1.index), player1.name, true)
+    send_client_correction_packet(host:get_peer(player2.index), player2.name, true)
+    print("p1: " .. player1.index .. " " .. player1.name .. " p2: " .. player2.index .. " " .. player2.name) -- The list iterates in reverse order??? (not a biggy, just surprising)
+    --queue_correction(player1.name, tick)
+    --queue_correction(player2.name, tick)
 end
 
 function apply_player_position_update(ent, payload)
     ent.x = round_to_nth_decimal(tonumber(payload.x),2)
     ent.y = round_to_nth_decimal(tonumber(payload.y),2)
-    ent.velocity = vector(round_to_nth_decimal(tonumber(payload.x_vel), 2), round_to_nth_decimal(tonumber(payload.y_vel),2))
     ent.state = payload.state
     ent.orientation = payload.orientation or ent.orientation
 
     world["players"][payload.alias] = ent
+end
+
+function apply_player_velocity_update(ent, payload)
+    world["players"][payload.alias].velocity = vector(round_to_nth_decimal(tonumber(payload.x_vel), 2), round_to_nth_decimal(tonumber(payload.y_vel),2))
 end

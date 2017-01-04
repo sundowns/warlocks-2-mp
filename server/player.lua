@@ -34,6 +34,12 @@ function spawn_player(name, x, y, client_index)
 	return new_player
 end
 
+function move_player(inPlayer, x, y)
+    inPlayer.x = x
+    inPlayer.y = y
+    inPlayer.hitbox:moveTo(x, y)
+    return inPlayer
+end
 
 function player_cast_fireball(player_x, player_y, at_X, at_Y, alias)
     local vector = calc_vector_from_points(player_x, player_y, at_X, at_Y)

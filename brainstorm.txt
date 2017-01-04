@@ -1,6 +1,3 @@
 Handling player on player collisions
- -- Would like them to bounce away from each other sensically
- -- Currently it seems to translate them correctly, but does not update the players velocity
- -- Could this be because the player's own updates are overriding the servers new change in velocity?
- -- Check out anti-cheat function handles this atm, the server MUST be authorative over the client in situations like this
  -- Can I do one sweeping fix to make server-based changes STICK?
+ -- Currently the client seems to just be un-do'ing what the server tells it to change

@@ -4,7 +4,7 @@ client_player_map = {} -- look up player alias' by client ip
 packet_meta = {} -- meta table for decoding binary packets
 client_corrections = {}
 
-function queue_correction(alias, payload, tick)
+function queue_correction(alias, tick)
     local player = world["players"][alias]
     if player then
         local queue_item = {
@@ -19,7 +19,7 @@ end
 
 function send_buffered_corrections()
     for i, v in ipairs(client_corrections) do
-        send_client_correction_packet(host:get_peer(v.client_index), v.alias, v.tick)
+        send_client_correction_packet(host:get_peer(v.client_index), v.alias, true, v.tick)
     end
     client_corrections = {}
 end
@@ -55,7 +55,8 @@ function send_world_update()
 end
 
 function create_player_payload(player)
-	return {x = tostring(player.x), y = tostring(player.y),
+	return {
+        x = tostring(player.x), y = tostring(player.y),
         x_vel = tostring(round_to_nth_decimal(player.velocity.x,2)),
         y_vel = tostring(round_to_nth_decimal(player.velocity.y,2)),
         colour = player.colour, entity_type = "PLAYER",
@@ -121,17 +122,23 @@ function send_join_accept(peer, colour)
 	peer:send(create_binary_packet({colour = colour, stage_name = config.STAGE}, "JOINACCEPTED", tick))
 end
 
-function send_client_correction_packet(peer, alias, tick_to_use)
+function send_client_correction_packet(peer, alias, retroactive, tick_to_use)
     if tick_to_use == nil then tick_to_use = tick end
     if world["players"][alias] then
-        peer:send(create_binary_packet(create_player_payload(world["players"][payload.alias]), "PLAYERCORRECTION", tick_to_use))
+        local player_payload = create_player_payload(world["players"][alias])
+        if retroactive then
+            player_payload.retroactive = true
+        else
+            player_payload.retroactive = false
+        end
+        peer:send(create_binary_packet(player_payload, "PLAYERCORRECTION", tick_to_use))
     else
-        print("[ERROR] Attempted to send correction packet to non-existent player: " .. payload.alias)
+        print("[ERROR] Attempted to send correction packet to non-existent player: " .. alias)
     end
 end
 
 function remove_client(peer, msg)
-    if peer == nil then return end
+    if peer == nil or peer.index == nil then return end
 	if (msg) then print(msg) end
 	local entId = client_player_map[peer:index()]
 	if entId then
@@ -177,6 +184,18 @@ function verify_position_update(old, new)
 	elseif not within_variance(old.y, new.y, constants.NET_PARAMS.VARIANCE_POSITION) then
 		accept_update = false
 		print("ruh roh, y not within variance. old: " .. old.y .. " new: " .. new.y)
+	end
+	return accept_update
+end
+
+function verify_velocity_update(old, new)
+  local accept_update = true
+	if not within_variance(old.velocity.x, new.x_vel, constants.NET_PARAMS.VARIANCE_VELOCITY) then
+		accept_update = false
+		print("ruh roh, x velocity component not within variance. old: " .. old.velocity.x .. " new: " .. new.x_vel)
+	elseif not within_variance(old.velocity.y, new.y_vel, constants.NET_PARAMS.VARIANCE_VELOCITY) then
+		accept_update = false
+		print("ruh roh, y velocity component not within variance. old: " .. old.velocity.y .. " new: " .. new.y_vel)
 	end
 	return accept_update
 end

@@ -56,7 +56,6 @@ function add_enemy(name, enemy)
     end
 
 	new_enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
-
 	new_enemy.height = 20
 	new_enemy.width = 20
 
@@ -83,7 +82,7 @@ function add_projectile(ent)
     world["projectiles"][projectile.id] = projectile
 end
 
-function server_player_update(update)
+function server_player_update(update, forced)
 	assert(update.x and update.y, "Undefined x or y coordinates for player update")
 	assert(update.entity_type, "Undefined entity_type value for player update")
 	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for player update")
@@ -94,11 +93,12 @@ function server_player_update(update)
 	local player_state = player_state_buffer[update.server_tick]
 	if player_state then
 		if not within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) or
-		not within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
+		not within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION)
+        or forced then
 		--USE PCALL/XPCALL HERE TO "TRY" RETROACTIVE UPDATE, IF FAIL -> APPLY UPDATE DIRECTLY??
 			retroactive_player_state_calc(update)
 		else
-			apply_retroactive_updates(update)
+			apply_player_updates(update)
 		end
 	else
 		--print("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "]")
@@ -194,7 +194,7 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
     local friction_vector = entity.velocity*-1
     friction_vector:normalizeInplace()
 
-	if entity.velocity:len2() < 1 then
+	if entity.velocity:len() < 3 then
 		entity.velocity = vector(0, 0)
 		if isPlayer then
 			if not isRetroactive then

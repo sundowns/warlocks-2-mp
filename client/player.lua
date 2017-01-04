@@ -104,7 +104,7 @@ function update_player_movement(player_obj, inputs, dt, isRetroactive)
 	local friction = constants['PLAYER_FRICTION']
 	if (not inputs.up and not inputs.down and
 	not inputs.left and not inputs.right) then
-		friction = friction*3
+		friction = friction*2
 	end
 
     if inputs.left and not inputs.right then player_obj.orientation = "LEFT" end
@@ -163,7 +163,7 @@ function retroactive_player_state_calc(update)
 	--insert new player state into buffer
 	local old = player_state_buffer[update.server_tick]
 	local updated_state = create_player_state_snapshot(update.x, update.y, update.x_vel, update.y_vel, update.state,
-	 old.player.acceleration, old.player.orientation, old.player.dash, old.player.max_movement_velocity)
+	old.player.acceleration, old.player.orientation, old.player.dash, old.player.max_movement_velocity)
 	old.player = updated_state
 	player_state_buffer[update.server_tick] = old
 
@@ -172,19 +172,20 @@ function retroactive_player_state_calc(update)
 	local newer = 0
 	for k in pairs(player_state_buffer) do
 		if k < update.server_tick then
-    	player_state_buffer[k] = nil
-			player_buffer_size = player_buffer_size - 1
-			older = older + 1
+           player_state_buffer[k] = nil
+           player_buffer_size = player_buffer_size - 1
+           older = older + 1
 		else newer = newer + 1
 		end
 	end
 
 	local index = update.server_tick
-	local result_state = {}
+	--local result_state = {}
+    local result_state = updated_state
 	local updated = false
 	for index=update.server_tick, tick-last_offset,2 do --Lets make sure we're not correcting events as they happen.
 		local input = player_state_buffer[index].input
-		result_state = calc_new_player_state(updated_state, input, constants.TICKRATE*2) --(dt = 2 ticks)
+		result_state = calc_new_player_state(result_state, input, constants.TICKRATE*2) --(dt = 2 ticks)
 		--update that state in the player_state_buffer
 		local new_snapshot = {player=result_state,input=input,tick=index}
 		player_state_buffer[index] = new_snapshot
@@ -193,7 +194,7 @@ function retroactive_player_state_calc(update)
 
 	--update player with result state
 	if updated then
-		apply_retroactive_updates(result_state)
+		apply_player_updates(result_state)
 	end
 end
 
@@ -205,7 +206,7 @@ function calc_new_player_state(previous_state, input, dt)
 end
 
 
-function apply_retroactive_updates(result)
+function apply_player_updates(result)
 	player.x = result.x
 	player.y = result.y
 	player.x_vel = result.x_vel
