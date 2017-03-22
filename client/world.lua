@@ -106,17 +106,10 @@ function server_player_update(update, forced)
 		end
 	else
 		--print("failed player_state condition")
-        if player_buffer_size >= constants.PLAYER_BUFFER_LENGTH and not printed then
-            print_table(player_state_buffer, false, "player state buffer")
-            dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][buffer_size ".. player_buffer_size .. "]")
-            printed = true
-        end
+        dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][buffer_size ".. player_buffer_size .. "]")
 
 	end
 end
-
-printed = false --TODO: DELETE THIS
-
 
 function server_entity_update(entity, update)
 	assert(update.x and update.y, "Undefined x or y coordinates for entity update")

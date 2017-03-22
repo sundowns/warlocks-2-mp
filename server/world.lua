@@ -144,6 +144,7 @@ function players_colliding(player1, other_player_alias, collision_vector, dt)
         p2_delta = -1 * p2_delta
     end
 
+    --TODO: Work out collision logic once u have server updates working correctly
     --local player1_pos = vector(player1.x, player1.y)
     player1.velocity = player1.velocity + p1_delta:normalized()*resultant_magnitude
     print("colliding n shit")
@@ -159,7 +160,9 @@ function players_colliding(player1, other_player_alias, collision_vector, dt)
     player2.hasCollidedWith[player1.name] = true
     Timer.after(0.5, function()
         player1.hasCollidedWith[player2.name] = false
-        world["players"][player2.name].hasCollidedWith[player1.name] = false
+        if world["players"][player2.name] ~= nil then
+            world["players"][player2.name].hasCollidedWith[player1.name] = false
+        end
     end)
 
     world["players"][player2.name] = player2 -- Dont need to update player 1 because it is already a reference to the table

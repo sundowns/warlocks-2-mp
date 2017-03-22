@@ -1,36 +1,49 @@
+--TODO: Replace existing stuff with classes like below
+Entity = Class{
+    init = function(self, x, y)
+        self.x = x
+        self.y = y
+    end;
+}
+
+Player = Class { _includes = Entity,
+    init = function(self, x, y, name, colour)
+        Entity.init(self, x, y)
+        self.name = name
+        self.colour = colour
+        self.entity_type = "PLAYER"
+        self.state = "STAND"
+		self.orientation = "RIGHT"
+        self.max_movement_velocity = constants.DEFAULTS.PLAYER.max_movement_velocity
+        self.movement_friction = constants.DEFAULTS.PLAYER.movement_friction
+		self.base_acceleration = constants.DEFAULTS.PLAYER.base_acceleration
+		self.acceleration = constants.DEFAULTS.PLAYER.acceleration
+        self.x_vel = 0 -- TODO think these are redundant/can be removed if u clean up network.
+        self.y_vel = 0 -- TODO think these are redundant/can be removed if u clean up network.
+        self.dash = { -- TODO does this do anything????
+            acceleration = constants.DEFAULTS.PLAYER.dash_acceleration,
+			duration = constants.DEFAULTS.PLAYER.dash_duration, --for some reason bitser hates decimals in tables?
+			timer = constants.DEFAULTS.PLAYER.dash_timer,
+			cancellable_after = constants.DEFAULTS.PLAYER.dash_cancellable_after --after timer is 0.7, so after 0.3seconds
+        }
+        self.width = constants.DEFAULTS.PLAYER.width
+        self.height = constants.DEFAULTS.PLAYER.height
+        self.index = client_index
+        self.velocity = vector(0,0)
+        self.hitbox = HC.circle(self.x,self.y,self.width/2)
+        self.hitbox.owner = self.name
+    	self.hitbox.type = "PLAYER"
+        self.hasCollidedWith = {}
+    end;
+}
+
 function spawn_player(name, x, y, client_index)
     local colour =  client_list[client_index].colour
-	local new_player = {
-		x = x,
-		y = y,
-	  	name = name,
-	  	entity_type = "PLAYER",
-	  	state = "STAND",
-		orientation = "RIGHT",
-	  	--velocity = vector(0,0),
-        x_vel = 0,
-        y_vel = 0,
-	  	max_movement_velocity = 130,
-	  	movement_friction = 200,
-		base_acceleration = 240,
-		acceleration = 240,
-		dash = {
-			acceleration = 70,
-			duration = "0.3", --for some reason bitser hates decimals in tables?
-			timer = "0.3",
-			cancellable_after = "0.1" --after timer is 0.7, so after 0.3seconds
-		},
-        width = 20,
-	  	height = 22,
-	  	colour = colour
-  	}
+	local new_player = Player(x,y,name,colour)
+
+    --Why do we have to do it this way again? Test putting in constructor before placing into world collection
 	world["players"][payload.alias] = new_player
-    world["players"][payload.alias].index = client_index
-    world["players"][payload.alias].velocity = vector(0,0)
-    world["players"][payload.alias].hitbox = HC.circle(new_player.x,new_player.y,new_player.width/2)
-    world["players"][payload.alias].hitbox.owner = name
-	world["players"][payload.alias].hitbox.type = "PLAYER"
-    world["players"][payload.alias].hasCollidedWith = {}
+
 	return new_player
 end
 

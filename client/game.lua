@@ -52,7 +52,7 @@ function game:update(dt)
 		tick_timer = tick_timer - constants.TICKRATE
 
 		if connected and user_alive then
-			local player_state = {player = get_player_state_snapshot(), input = get_input_snapshot(), tick = tick}
+			local player_state = {player = get_player_state_snapshot(), input = get_input_snapshot(), tick = tick} -- TODO: Implement a buffer that works nicer (at all), google it!
 	   	    player_state_buffer[tick] = player_state
 			player_buffer_size = player_buffer_size + 1
    	        if player_buffer_size > constants.PLAYER_BUFFER_LENGTH then
@@ -159,5 +159,8 @@ function game:keyreleased(key, code)
         x,y = camera:worldCoords(x,y)
         local player_x, player_y = player:centre()
         send_action_packet("CASTSPELL", {at_X=x, at_Y=y, player_x = player.x, player_y = player.y, spell_type=player.spellbook['SPELL1']})
+    elseif key == "f2" then
+        print("[client_tick: " .. tick .. "][buffer_size ".. player_buffer_size .. "]")
+        print_table(player_state_buffer, true, "player state buffer")
     end
 end

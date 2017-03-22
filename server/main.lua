@@ -10,6 +10,7 @@ vector = require "vector"
 Timer = require "timer"
 HC = require "HC"
 config = require "config"
+Class = require "class"
 --host:bandwidth_limit(1024000, 1024000)
 
 server_version = "0.0.1"
