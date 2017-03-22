@@ -161,6 +161,7 @@ end
 
 function retroactive_player_state_calc(update)
 	--insert new player state into buffer
+	print("retroactive_player_state_calc entered")
 	local old = player_state_buffer[update.server_tick]
 	local updated_state = create_player_state_snapshot(update.x, update.y, update.x_vel, update.y_vel, update.state,
 	old.player.acceleration, old.player.orientation, old.player.dash, old.player.max_movement_velocity)
@@ -181,7 +182,7 @@ function retroactive_player_state_calc(update)
 
 	local index = update.server_tick
 	--local result_state = {}
-    local result_state = updated_state
+  local result_state = updated_state
 	local updated = false
 	for index=update.server_tick, tick-last_offset,2 do --Lets make sure we're not correcting events as they happen.
 		local input = player_state_buffer[index].input
@@ -195,6 +196,7 @@ function retroactive_player_state_calc(update)
 	--update player with result state
 	if updated then
 		apply_player_updates(result_state)
+		print("applying results of retroactive update")
 	end
 end
 

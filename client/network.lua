@@ -237,10 +237,8 @@ function network_gamerunning()
                     if ok then
                         --print("retroactively doodlin x_vel: " .. update.x_vel .. " y_vel: " .. update.y_vel )
                         if payload.retroactive == true then
-                            print("im retro")
                             server_player_update(update, true) --runs retroactive update process
                         else
-                            print("im NOT retro")
                             apply_player_updates(update) -- simply applies the updates AS IS (no winding back ticks and recalculating)
                         end
                     end

@@ -92,18 +92,31 @@ function server_player_update(update, forced)
 	update.y_vel = tonumber(update.y_vel)
 	local player_state = player_state_buffer[update.server_tick]
 	if player_state then
-		if not within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) or
+		print("passed player_state condition")
+		if forced or
+		not within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) or
 		not within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION)
-        or forced then
+		then
 		--USE PCALL/XPCALL HERE TO "TRY" RETROACTIVE UPDATE, IF FAIL -> APPLY UPDATE DIRECTLY??
+
 			retroactive_player_state_calc(update)
 		else
+			print("not retro")
 			apply_player_updates(update)
 		end
 	else
-		--print("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "]")
+		--print("failed player_state condition")
+        if player_buffer_size >= constants.PLAYER_BUFFER_LENGTH and not printed then
+            print_table(player_state_buffer, false, "player state buffer")
+            dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][buffer_size ".. player_buffer_size .. "]")
+            printed = true
+        end
+
 	end
 end
+
+printed = false --TODO: DELETE THIS
+
 
 function server_entity_update(entity, update)
 	assert(update.x and update.y, "Undefined x or y coordinates for entity update")

@@ -110,7 +110,7 @@ while running do
 					send_error_packet(event.peer, "Game is full.")
 				else
 					local colour = table.remove(unused_colours)
-					client_list[event.peer:index()] =  {ip=msg_or_ip, port=port_or_nil, name=nil, time_since_last_msg = 0, colour = colour}
+					client_list[event.peer:index()] =  {ip=msg_or_ip, port=port_or_nil, name='', time_since_last_msg = 0, colour = colour}
 					client_count = client_count + 1
 					print(event.peer:connect_id() .. ' connected.')
 					send_join_accept(event.peer, colour)
