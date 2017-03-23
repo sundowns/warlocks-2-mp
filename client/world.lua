@@ -58,6 +58,7 @@ function add_enemy(name, enemy)
 	new_enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
 	new_enemy.height = 20
 	new_enemy.width = 20
+    
 
 	world[name] = new_enemy
 end
@@ -217,6 +218,19 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 	end
 
 	return entity
+end
+
+function process_collisions(dt)
+    for shape, delta in pairs(HC.collisions(player.hitbox)) do
+        if shape.type == "PROJECTILE" then
+            -- do collision stuff
+        elseif shape.type == "PLAYER" then
+            print("")
+
+
+        end
+        --Look at warlocks SP, `entityHit()` in player.lua
+    end
 end
 
 function prepare_camera(x, y, zoom)

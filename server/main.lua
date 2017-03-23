@@ -17,6 +17,7 @@ server_version = "0.0.1"
 require("util")
 require("network")
 require("world")
+require("projectile")
 require("player")
 
 local running = true
@@ -124,7 +125,8 @@ while running do
 			event = host:service()
 		end
 
-        process_collisions(dt)
+        --disabled for now (forever? just verify off the back of client-detected collisions instead? 100x easier)
+        --process_collisions(dt)
         update_entity_positions(dt)
 		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
 			send_world_update()

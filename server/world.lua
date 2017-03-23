@@ -9,6 +9,13 @@ local STAGE_HEIGHT_TILES = nil
 local STAGE_WIDTH_TOTAL = nil
 local STAGE_HEIGHT_TOTAL = nil
 
+Entity = Class{
+    init = function(self, x, y)
+        self.x = x
+        self.y = y
+    end;
+}
+
 function load_stage()
   if not file_exists("stages/"..config.STAGE) then
     if pcall(dofile, "stages/"..config.STAGE..".lua") then
@@ -46,7 +53,7 @@ function update_player_positions(dt)
             entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
     		entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
     	end
-        entity.hitbox:moveTo(entity.x, entity.y)
+        --entity.hitbox:moveTo(entity.x, entity.y)
         world[id] = entity
     end
 end
@@ -56,7 +63,7 @@ function remove_player(entity)
 	local ent = world["players"][entity]
 	if ent.entity_type == "PLAYER" then
 		table.insert(unused_colours, ent.colour)
-        HC.remove(ent.hitbox)
+        --HC.remove(ent.hitbox)
 		world["players"][entity] = nil
 	end
     table.insert(deleted, {id = entity, entity_type = ent.entity_type})
@@ -104,6 +111,10 @@ function spawn_projectile(x, y, velocity_vector, owner)
         }
     )
 end
+
+--http://gamedev.stackexchange.com/questions/3884/should-collision-detection-be-done-server-side-or-cooperatively-between-client-s
+-- Do collision detection mostly on the CLIENT and just use the server to verify when necessary
+-- ur game isnt gonna be a AAA eSport so dont waste your life trying to make it bulletproof!
 
 function process_collisions(dt)
     for alias, player in pairs(world["players"]) do

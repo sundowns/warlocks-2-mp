@@ -1,10 +1,5 @@
 --TODO: Replace existing stuff with classes like below
-Entity = Class{
-    init = function(self, x, y)
-        self.x = x
-        self.y = y
-    end;
-}
+
 
 Player = Class { _includes = Entity,
     init = function(self, x, y, name, colour, client_index)
@@ -18,8 +13,6 @@ Player = Class { _includes = Entity,
         self.movement_friction = constants.DEFAULTS.PLAYER.movement_friction
 		self.base_acceleration = constants.DEFAULTS.PLAYER.base_acceleration
 		self.acceleration = constants.DEFAULTS.PLAYER.acceleration
-        self.x_vel = 0 -- TODO think these are redundant/can be removed if u clean up network.
-        self.y_vel = 0 -- TODO think these are redundant/can be removed if u clean up network.
         self.dash = { -- TODO does this do anything????
             acceleration = constants.DEFAULTS.PLAYER.dash_acceleration,
 			duration = constants.DEFAULTS.PLAYER.dash_duration, --for some reason bitser hates decimals in tables?
@@ -30,9 +23,9 @@ Player = Class { _includes = Entity,
         self.height = constants.DEFAULTS.PLAYER.height
         self.index = client_index
         self.velocity = vector(0,0)
-        self.hitbox = HC.circle(self.x,self.y,self.width/2)
-        self.hitbox.owner = self.name
-    	self.hitbox.type = "PLAYER"
+        -- self.hitbox = HC.circle(self.x,self.y,self.width/2)
+        -- self.hitbox.owner = self.name
+    	-- self.hitbox.type = "PLAYER"
         self.hasCollidedWith = {}
     end;
 }
@@ -40,8 +33,6 @@ Player = Class { _includes = Entity,
 function spawn_player(name, x, y, client_index)
     local colour =  client_list[client_index].colour
 	local new_player = Player(x,y,name,colour, client_index)
-
-    --Why do we have to do it this way again? Test putting in constructor before placing into world collection
 	world["players"][payload.alias] = new_player
 
 	return new_player

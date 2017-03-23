@@ -21,6 +21,9 @@ function prepare_player(player_data)
         end
     end
     player.velocity = vector(player_data.x_vel, player_data.y_vel)
+    player.hitbox = HC.circle(player.x,player.y,player.width/2)
+    player.hitbox.owner = player.name
+    player.hitbox.type = "PLAYER"
 	add_entity(player.name, player.entity_type, player)
 	user_alive = true
 end
