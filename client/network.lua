@@ -29,7 +29,7 @@ StateBuffer = Class{
         end
         --DONT DELETE THE FOLLOWING COMMENTED OUT DBG LINE.
         --It demonstrates fundamental networking problem at the moment
-        --The client seems to stutter/skip ticks as
+        --The client seems to stutter/skip ticks (as it processes other stuff?? OR as it falls behind the sever & gets synced up?)
         dbg("max: " .. self.current_max_tick .. " - " .. in_tick .. " = " .. (self.current_max_tick - in_tick) )
         return table.maxn(self.buffer) - (self.current_max_tick - in_tick)
     end;
@@ -120,8 +120,8 @@ end
 function send_player_update(inPlayer, inName)
 	if not connected then return end
 	local playerVM = {
-		x = inPlayer.x,
-		y = inPlayer.y,
+		x = inPlayer.position.x,
+		y = inPlayer.position.y,
 		state = inPlayer.state,
 		acceleration = inPlayer.acceleration,
 		x_vel = inPlayer.velocity.x,

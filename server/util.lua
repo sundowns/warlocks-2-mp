@@ -84,3 +84,8 @@ end
 function log(msg)
     print("[".. tick .."] " .. msg)
 end
+
+function calc_vector_from_points(fromX, fromY, toX, toY)
+    local vec = vector(toX-fromX, toY-fromY)
+    return vec
+end

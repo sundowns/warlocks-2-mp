@@ -1,29 +1,50 @@
 player_colour = nil
 player = {}
- --ticks in the past kept
+
+Player = Class { _includes = Entity,
+     init = function(self, player_data)
+         Entity.init(self, vector(player_data.x, player_data.y))
+         self.name = player_data.name
+         self.colour = player_data.colour
+         self.entity_type = player_data.entity_type
+         self.state = player_data.state
+         self.orientation = player_data.orientation
+         self.max_movement_velocity = player_data.max_movement_velocity
+         self.movement_friction = player_data.movement_friction
+         self.base_acceleration = player_data.base_acceleration
+         self.acceleration = player_data.acceleration
+         self.dash = { -- TODO does this do anything????
+             acceleration = tonumber(player_data.dash.acceleration),
+             duration = tonumber(player_data.dash.duration), --for some reason bitser hates decimals in tables?
+             timer = tonumber(player_data.dash.timer),
+             cancellable_after = tonumber(player_data.dash.cancellable_after) --after timer is 0.7, so after 0.3seconds
+         }
+         self.width = player_data.width
+         self.height = player_data.height
+         self.velocity = vector(player_data.x_vel, player_data.y_vel)
+         self.hitbox = HC.circle(self.position.x,self.position.y,self.width/2)
+         self.hitbox.owner = self.name
+         self.hitbox.type = "PLAYER"
+         self.hasCollidedWith = {}
+         self.sprite_instance = get_sprite_instance("assets/sprites/player-" .. self.colour ..".lua")
+         self.spellbook = {}
+         self.spellbook['SPELL1'] = "FIREBALL"
+     end;
+     centre = function(self)
+         if self.orientation == "LEFT" then
+             return self.position.x + self.width/2, self.position.y - self.height/2
+         elseif self.orientation == "RIGHT" then
+             return self.position.x - self.width/2, self.position.y - self.height/2
+         end
+     end;
+     move = function(self, newX, newY)
+         Entity.move(self, newX, newY)
+         self.hitbox:moveTo(newX, newY)
+     end;
+}
 
 function prepare_player(player_data)
-	player = player_data
-	player.dash.duration = tonumber(player.dash.duration)
-	player.dash.timer = tonumber(player.dash.timer)
-	player.dash.cancellable_after = tonumber(player.dash.cancellable_after)
-
-	player.sprite_instance = get_sprite_instance("assets/sprites/player-" .. player.colour ..".lua")
-
-    player.spellbook = {}
-    player.spellbook['SPELL1'] = "FIREBALL"
-
-    function player:centre() -- PUT THESE INTO AN ENTITY SUPERCLASS
-        if self.orientation == "LEFT" then
-            return self.x + self.width/2, self.y - self.height/2
-        elseif self.orientation == "RIGHT" then
-            return self.x - self.width/2, self.y - self.height/2
-        end
-    end
-    player.velocity = vector(player_data.x_vel, player_data.y_vel)
-    player.hitbox = HC.circle(player.x,player.y,player.width/2)
-    player.hitbox.owner = player.name
-    player.hitbox.type = "PLAYER"
+	player = Player(player_data)
 	add_entity(player.name, player.entity_type, player)
 	user_alive = true
 end
@@ -132,8 +153,7 @@ end
 function create_player_state_snapshot(x, y, x_vel, y_vel, state, acceleration,
 	orientation, dash, max_movement_velocity)
 	return {
-		x = x,
-		y = y,
+        position = vector(x, y),
 		x_vel = x_vel,
 		y_vel = y_vel,
         velocity = vector(x_vel, y_vel),
@@ -147,8 +167,7 @@ end
 
 function get_player_state_snapshot()
 	return {
-		x = player.x,
-		y = player.y,
+		position = player.position,
 		x_vel = player.x_vel,
 		y_vel = player.y_vel,
         velocity = player.velocity,
@@ -196,8 +215,8 @@ end
 
 
 function apply_player_updates(result)
-	player.x = result.x
-	player.y = result.y
+	player.position.x = result.x
+	player.position.y = result.y
 	player.x_vel = result.x_vel
 	player.y_vel = result.y_vel
 	update_player_state(result.state)

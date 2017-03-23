@@ -87,7 +87,7 @@ function game:draw()
 		love.graphics.print("fps: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,-15))
 		if user_alive then
 			love.graphics.setColor(255, 255, 255, 255)
-			love.graphics.circle('fill', player.x, player.y, 2, 16)
+			love.graphics.circle('fill', player.position.x, player.position.y, 2, 16)
 			reset_colour()
 		end
 		display_net_info()
@@ -95,13 +95,13 @@ function game:draw()
 
         for i, projectile in ipairs(world["projectiles"]) do
             love.graphics.setColor(0, 255, 0, 255)
-            love.graphics.circle('fill', projectile.x, projectile.y, 1, 16)
+            love.graphics.circle('fill', projectile.position.x, projectile.position.y, 1, 16)
             reset_colour()
         end
-        for i, player in pairs(world) do
+        for i, ent in pairs(world) do
             if player.entity_type == "ENEMY" then
                 love.graphics.setColor(255, 10, 10, 255)
-    			love.graphics.circle('fill', player.x, player.y, 2, 16)
+    			love.graphics.circle('fill', ent.position.x, ent.position.y, 2, 16)
     			reset_colour()
             end
         end

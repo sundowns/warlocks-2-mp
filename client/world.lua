@@ -7,6 +7,16 @@ local maxCamY = 2000
 cameraBoxHeight = 0.035
 cameraBoxWidth = 0.05
 
+Entity = Class{
+    init = function(self, position)
+        self.position = position
+    end;
+    move = function(self, inX, inY)
+        self.position.x = inX
+        self.position.y = inY
+    end;
+}
+
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
 		if ent.name == settings.username then
@@ -58,7 +68,6 @@ function add_enemy(name, enemy)
 	new_enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
 	new_enemy.height = 20
 	new_enemy.width = 20
-    
 
 	world[name] = new_enemy
 end
@@ -97,8 +106,8 @@ function server_player_update(update, force_retroactive)
             retroactive_player_state_calc(update)
         else
             -- If the server's representation of us is within acceptable variance of our own
-            if within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) and
-    		within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
+            if within_variance(player_state.player.position.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) and
+    		within_variance(player_state.player.position.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
                 --do nothing
             else
                 --try retro, else do manual override
@@ -179,10 +188,10 @@ function update_entity(entity, x, y, x_vel, y_vel, orientation)
         if orientation then entity.orientation = orientation end
     end
 
-	entity.x = round_to_nth_decimal(x, 2)
-	entity.y = round_to_nth_decimal(y, 2)
-	entity.x_vel = round_to_nth_decimal(x_vel, 2)
-	entity.y_vel = round_to_nth_decimal(y_vel, 2)
+	entity.position.x = round_to_nth_decimal(x, 2)
+	entity.position.y = round_to_nth_decimal(y, 2)
+	entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
+	entity.velocity.y = round_to_nth_decimal(y_vel, 2)
 	return entity
 end
 
@@ -197,8 +206,8 @@ function update_entity_state(entity, state)
 end
 
 function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
-	entity.x = round_to_nth_decimal((entity.x + (entity.velocity.x * dt)),2)
-	entity.y = round_to_nth_decimal((entity.y + (entity.velocity.y * dt)),2)
+	entity.position.x = round_to_nth_decimal((entity.position.x + (entity.velocity.x * dt)),2)
+	entity.position.y = round_to_nth_decimal((entity.position.y + (entity.velocity.y * dt)),2)
 
     local friction_vector = entity.velocity*-1
     friction_vector:normalizeInplace()
@@ -245,27 +254,27 @@ function update_camera()
 	local camX, camY = camera:position()
 	local newX, newY = camX, camY
 
-	if point_is_in_rectangle(player.x, player.y,
+	if point_is_in_rectangle(player.position.x, player.position.y,
 	  round_to_nth_decimal(camX - love.graphics.getWidth()*cameraBoxWidth - 1, 2), round_to_nth_decimal(camY - love.graphics.getHeight()*cameraBoxHeight - 1,2),
 	  round_to_nth_decimal(love.graphics.getWidth()*cameraBoxWidth*2 + 2,2),  round_to_nth_decimal(love.graphics.getHeight()*cameraBoxHeight*2 + 2), 2) then
-		if not within_variance(player.x, camX, 3) and
-		 	 not within_variance(player.y, camY, 3) then
-			newX = math.clamp(player.x, minCamX, maxCamX)
-			newY = math.clamp(player.y, minCamY, maxCamY)
+		if not within_variance(player.position.x, camX, 3) and
+		 	 not within_variance(player.position.y, camY, 3) then
+			newX = math.clamp(player.position.x, minCamX, maxCamX)
+			newY = math.clamp(player.position.y, minCamY, maxCamY)
 			camera:lockPosition(newX, newY, camera.smooth.damped(0.6))
 		end
 	else
-		if (player.x > camX + love.graphics.getWidth()*cameraBoxWidth) then
-			newX = player.x - love.graphics.getWidth()*cameraBoxWidth
+		if (player.position.x > camX + love.graphics.getWidth()*cameraBoxWidth) then
+			newX = player.position.x - love.graphics.getWidth()*cameraBoxWidth
 		end
-		if (player.x < camX - love.graphics.getWidth()*cameraBoxWidth) then
-			newX = player.x + love.graphics.getWidth()*cameraBoxWidth
+		if (player.position.x < camX - love.graphics.getWidth()*cameraBoxWidth) then
+			newX = player.position.x + love.graphics.getWidth()*cameraBoxWidth
 		end
-		if (player.y > camY + love.graphics.getHeight()*cameraBoxHeight) then
-			newY = player.y - love.graphics.getHeight()*cameraBoxHeight
+		if (player.position.y > camY + love.graphics.getHeight()*cameraBoxHeight) then
+			newY = player.position.y - love.graphics.getHeight()*cameraBoxHeight
 		end
-		if (player.y < camY - love.graphics.getHeight()*cameraBoxHeight) then
-			newY = player.y + love.graphics.getHeight()*cameraBoxHeight
+		if (player.position.y < camY - love.graphics.getHeight()*cameraBoxHeight) then
+			newY = player.position.y + love.graphics.getHeight()*cameraBoxHeight
 		end
 
 		newX = math.clamp(newX, minCamX,maxCamX)

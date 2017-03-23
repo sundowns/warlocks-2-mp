@@ -1,5 +1,3 @@
---TODO: Replace existing stuff with classes like below
-
 Player = Class { _includes = Entity,
     init = function(self, position, name, colour, client_index)
         Entity.init(self, position)
@@ -31,6 +29,15 @@ Player = Class { _includes = Entity,
         Entity.move(self, newX, newY)
         --self.hitbox:moveTo(newX, newY)
     end;
+    castSpell = function(self, spell, at_X, at_Y)
+        if spell == "FIREBALL" then
+            self:castFireball(at_X, at_Y)
+        end
+    end;
+    castFireball = function(self, at_X, at_Y)
+        local vector = calc_vector_from_points(self.position.x, self.position.y, at_X, at_Y)
+        spawn_projectile(self.position.x, self.position.y, vector, self.name)
+    end;
 }
 
 function spawn_player(name, x, y, client_index)
@@ -39,14 +46,4 @@ function spawn_player(name, x, y, client_index)
 	world["players"][payload.alias] = new_player
 
 	return new_player
-end
-
-function player_cast_fireball(player_x, player_y, at_X, at_Y, alias)
-    local vector = calc_vector_from_points(player_x, player_y, at_X, at_Y)
-    spawn_projectile(player_x, player_y, vector, alias)
-end
-
-function calc_vector_from_points(fromX, fromY, toX, toY)
-    local vec = vector(toX-fromX, toY-fromY)
-    return vec
 end
