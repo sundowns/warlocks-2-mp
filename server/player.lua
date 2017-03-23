@@ -1,9 +1,8 @@
 --TODO: Replace existing stuff with classes like below
 
-
 Player = Class { _includes = Entity,
-    init = function(self, x, y, name, colour, client_index)
-        Entity.init(self, x, y)
+    init = function(self, position, name, colour, client_index)
+        Entity.init(self, position)
         self.name = name
         self.colour = colour
         self.entity_type = "PLAYER"
@@ -28,21 +27,18 @@ Player = Class { _includes = Entity,
     	-- self.hitbox.type = "PLAYER"
         self.hasCollidedWith = {}
     end;
+    move = function(self, newX, newY)
+        Entity.move(self, newX, newY)
+        --self.hitbox:moveTo(newX, newY)
+    end;
 }
 
 function spawn_player(name, x, y, client_index)
     local colour =  client_list[client_index].colour
-	local new_player = Player(x,y,name,colour, client_index)
+	local new_player = Player(vector(x, y),name,colour, client_index)
 	world["players"][payload.alias] = new_player
 
 	return new_player
-end
-
-function move_player(inPlayer, x, y)
-    inPlayer.x = x
-    inPlayer.y = y
-    inPlayer.hitbox:moveTo(x, y)
-    return inPlayer
 end
 
 function player_cast_fireball(player_x, player_y, at_X, at_Y, alias)

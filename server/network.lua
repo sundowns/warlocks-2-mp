@@ -56,7 +56,7 @@ end
 
 function create_player_payload(player)
 	return {
-        x = tostring(player.x), y = tostring(player.y),
+        x = tostring(player.position.x), y = tostring(player.position.y),
         x_vel = tostring(round_to_nth_decimal(player.velocity.x,2)),
         y_vel = tostring(round_to_nth_decimal(player.velocity.y,2)),
         colour = player.colour, entity_type = "PLAYER",
@@ -69,8 +69,8 @@ end
 
 function create_spawn_player_payload(player)
     return {
-		x = player.x,
-		y = player.y,
+		x = player.position.x,
+		y = player.position.y,
 	  	name = player.name,
 	  	entity_type = "PLAYER",
 	  	state = "STAND",
@@ -179,12 +179,12 @@ end
 
 function verify_position_update(old, new)
   local accept_update = true
-	if not within_variance(old.x, new.x, constants.NET_PARAMS.VARIANCE_POSITION) then
+	if not within_variance(old.position.x, new.x, constants.NET_PARAMS.VARIANCE_POSITION) then
 		accept_update = false
-		log("x not within variance. old: " .. old.x .. " new: " .. new.x)
-	elseif not within_variance(old.y, new.y, constants.NET_PARAMS.VARIANCE_POSITION) then
+		log("x not within variance. old: " .. old.position.x .. " new: " .. new.x)
+	elseif not within_variance(old.position.y, new.y, constants.NET_PARAMS.VARIANCE_POSITION) then
 		accept_update = false
-		log("y not within variance. old: " .. old.y .. " new: " .. new.y)
+		log("y not within variance. old: " .. old.position.y .. " new: " .. new.y)
 	end
 	return accept_update
 end
