@@ -1,5 +1,6 @@
 return {
   debug = false,
+  show_warnings = false,
   username = 'ply_' .. random_string(6),
   controls = {
     RIGHT= 'd',

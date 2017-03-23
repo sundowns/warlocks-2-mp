@@ -82,7 +82,7 @@ function add_projectile(ent)
     world["projectiles"][projectile.id] = projectile
 end
 
-function server_player_update(update, forced)
+function server_player_update(update, force_retroactive)
 	assert(update.x and update.y, "Undefined x or y coordinates for player update")
 	assert(update.entity_type, "Undefined entity_type value for player update")
 	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for player update")
@@ -90,23 +90,25 @@ function server_player_update(update, forced)
 	update.y = tonumber(update.y)
 	update.x_vel = tonumber(update.x_vel)
 	update.y_vel = tonumber(update.y_vel)
-	local player_state = player_state_buffer[update.server_tick]
+	local player_state = player_state_buffer:get(tonumber(update.server_tick))
 	if player_state then
-		print("passed player_state condition")
-		if forced or
-		not within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) or
-		not within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION)
-		then
-		--USE PCALL/XPCALL HERE TO "TRY" RETROACTIVE UPDATE, IF FAIL -> APPLY UPDATE DIRECTLY??
-
-			retroactive_player_state_calc(update)
-		else
-			print("not retro")
-			apply_player_updates(update)
-		end
+		if force_retroactive then
+            retroactive_player_state_calc(update)
+        else
+            -- If the server's representation of us is within acceptable variance of our own
+            if within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) and
+    		within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
+                --do nothing
+            else
+                --try retro, else do manual override
+                if not pcall(retroactive_player_state_calc, update) then
+                    apply_player_updates(update)
+                end
+            end
+        end
 	else
 		--print("failed player_state condition")
-        dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][buffer_size ".. player_buffer_size .. "]")
+        dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][largest buffer tick ".. player_state_buffer.current_max_tick .. "]")
 
 	end
 end

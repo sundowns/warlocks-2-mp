@@ -23,7 +23,7 @@ function round_to_nth_decimal(num, n)
 end
 
 function print_table(table, name)
-  print("==================")
+  log("==================")
   if name then print("Printing table: " .. name) end
   for k, v in pairs(table) do
     if type(v) == "table" then
@@ -79,4 +79,8 @@ end
 
 function random_letter()
     return string.char(math.random(97, 122));
+end
+
+function log(msg)
+    print("[".. tick .."] " .. msg)
 end

@@ -36,9 +36,8 @@ end
 function love.keypressed(key, scancode, isrepeat)
 	if key == "f1" then
 		settings.debug = not settings.debug
-    elseif key == "f5" then
-        os.execute("cls")
-        print("\n")
+    elseif key == "f2" then
+        settings.show_warnings = not settings.show_warnings
 	elseif key == "escape" then
 		love.event.quit()
     elseif key == "f10"then

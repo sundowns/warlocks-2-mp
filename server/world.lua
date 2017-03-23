@@ -17,9 +17,9 @@ function load_stage()
       STAGE_HEIGHT_TILES = current_stage.height
       STAGE_WIDTH_TOTAL = STAGE_WIDTH_TILES * current_stage.tilewidth
       STAGE_HEIGHT_TOTAL = STAGE_HEIGHT_TILES * current_stage.tileheight
-      print("Loaded stage: '" .. config.STAGE .. "' succesfully")
+      log("Loaded stage: '" .. config.STAGE .. "' succesfully")
     else
-      print("[ERROR] Failed to load stage. " .. config.STAGE .. " File is incorrect format or corrupt")
+      log("[ERROR] Failed to load stage. " .. config.STAGE .. " File is incorrect format or corrupt")
     end
   end
 end
@@ -56,6 +56,7 @@ function remove_player(entity)
 	local ent = world["players"][entity]
 	if ent.entity_type == "PLAYER" then
 		table.insert(unused_colours, ent.colour)
+        HC.remove(ent.hitbox)
 		world["players"][entity] = nil
 	end
     table.insert(deleted, {id = entity, entity_type = ent.entity_type})
@@ -70,7 +71,7 @@ function remove_entity(id)
 end
 
 function spawn_projectile(x, y, velocity_vector, owner)
-    print("[DEBUG] Spawning projectile with owner: " .. owner)
+    log("[DEBUG] Spawning projectile with owner: " .. owner)
     local new_projectile = {
         position = vector(x,y),
         velocity = velocity_vector,
@@ -89,7 +90,7 @@ function spawn_projectile(x, y, velocity_vector, owner)
     new_projectile.hitbox.type = new_projectile.entity_type
     new_projectile.hitbox:rotate(velocity_vector:angleTo(vector(0,-1))) --should this be angleTo(0,0)?
     local hbx1, hby1, hbx2, hby2 = new_projectile.hitbox:bbox()
-    print("x1: " .. hbx1 .. " y1: " .. hby1 .. " x2: " .. hbx2 .. " y2: " .. hby2 )
+    log("x1: " .. hbx1 .. " y1: " .. hby1 .. " x2: " .. hbx2 .. " y2: " .. hby2 )
     world["entities"][id] = new_projectile
     --TODO: Start player cooldown (and check the skill is ready in the first place)
     Timer.after(5, function()
@@ -111,6 +112,7 @@ function process_collisions(dt)
                 -- do collision stuff
             elseif shape.type == "PLAYER" then
                 if shape.owner ~= alias then
+                    log("shape owner: " .. shape.owner .. " player alias: " .. alias)
                     players_colliding(player, shape.owner, delta, dt)
                 end
             end
@@ -147,7 +149,7 @@ function players_colliding(player1, other_player_alias, collision_vector, dt)
     --TODO: Work out collision logic once u have server updates working correctly
     --local player1_pos = vector(player1.x, player1.y)
     player1.velocity = player1.velocity + p1_delta:normalized()*resultant_magnitude
-    print("colliding n shit")
+    log("colliding n shit")
     --player1_pos = player1_pos + (player1.velocity + (d_vector * resultant_magnitude) * dt)
     --player1 = move_player(player1, player1_pos.x, player1_pos.y)
 
@@ -158,7 +160,7 @@ function players_colliding(player1, other_player_alias, collision_vector, dt)
 
     player1.hasCollidedWith[player2.name] = true
     player2.hasCollidedWith[player1.name] = true
-    Timer.after(0.5, function()
+    Timer.after(0.2, function()
         player1.hasCollidedWith[player2.name] = false
         if world["players"][player2.name] ~= nil then
             world["players"][player2.name].hasCollidedWith[player1.name] = false
@@ -166,9 +168,9 @@ function players_colliding(player1, other_player_alias, collision_vector, dt)
     end)
 
     world["players"][player2.name] = player2 -- Dont need to update player 1 because it is already a reference to the table
-    send_client_correction_packet(host:get_peer(player1.index), player1.name, true)
-    send_client_correction_packet(host:get_peer(player2.index), player2.name, true)
-    print("p1: " .. player1.index .. " " .. player1.name .. " p2: " .. player2.index .. " " .. player2.name) -- The list iterates in reverse order??? (not a biggy, just surprising)
+    send_client_correction_packet(host:get_peer(player1.index), player1.name, false)
+    send_client_correction_packet(host:get_peer(player2.index), player2.name, false)
+    log("p1: " .. player1.index .. " " .. player1.name .. " p2: " .. player2.index .. " " .. player2.name) -- The list iterates in reverse order??? (not a biggy, just surprising)
     --queue_correction(player1.name, tick)
     --queue_correction(player2.name, tick)
 end

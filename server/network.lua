@@ -31,9 +31,9 @@ function send_world_update()
 		if ok then
 			host:broadcast(packet)
 		else
-			print("Error sending player " .. k .. " world update. Dumping data:")
+			log("Error sending player " .. k .. " world update. Dumping data:")
 			print_table(payload)
-			print("----------")
+			log("----------")
 		end
 	end
 
@@ -43,9 +43,9 @@ function send_world_update()
 		if ok then
 			host:broadcast(packet)
 		else
-			print("Error sending projectile " .. id .. " during world update. Dumping data:")
+			log("Error sending projectile " .. id .. " during world update. Dumping data:")
 			print_table(payload)
-			print("----------")
+			log("----------")
 		end
     end
 
@@ -105,7 +105,7 @@ function send_error_packet(peer, message)
 end
 
 function send_spawn_packet(peer, player)
-    print(player.name .. " spawned.")
+    log(player.name .. " spawned.")
 	peer:send(create_binary_packet(create_spawn_player_payload(player), "SPAWN", tick))
 end
 
@@ -123,7 +123,7 @@ function send_join_accept(peer, colour)
 end
 
 function send_client_correction_packet(peer, alias, retroactive, tick_to_use)
-    if tick_to_use == nil then tick_to_use = tick end
+    if not tick_to_use then tick_to_use = tick end
     if world["players"][alias] then
         local player_payload = create_player_payload(world["players"][alias])
         if retroactive then
@@ -131,15 +131,16 @@ function send_client_correction_packet(peer, alias, retroactive, tick_to_use)
         else
             player_payload.retroactive = false
         end
+        log("correction tick " .. tick_to_use)
         peer:send(create_binary_packet(player_payload, "PLAYERCORRECTION", tick_to_use))
     else
-        print("[ERROR] Attempted to send correction packet to non-existent player: " .. alias)
+        log("[ERROR] Attempted to send correction packet to non-existent player: " .. alias)
     end
 end
 
 function remove_client(peer, msg)
     if peer == nil or peer.index == nil then return end
-	if (msg) then print(msg) end
+	if (msg) then log(msg) end
 	local entId = client_player_map[peer:index()]
 	if entId then
 		remove_player(entId)
@@ -180,22 +181,23 @@ function verify_position_update(old, new)
   local accept_update = true
 	if not within_variance(old.x, new.x, constants.NET_PARAMS.VARIANCE_POSITION) then
 		accept_update = false
-		print("ruh roh, x not within variance. old: " .. old.x .. " new: " .. new.x)
+		log("x not within variance. old: " .. old.x .. " new: " .. new.x)
 	elseif not within_variance(old.y, new.y, constants.NET_PARAMS.VARIANCE_POSITION) then
 		accept_update = false
-		print("ruh roh, y not within variance. old: " .. old.y .. " new: " .. new.y)
+		log("y not within variance. old: " .. old.y .. " new: " .. new.y)
 	end
 	return accept_update
 end
 
 function verify_velocity_update(old, new)
-  local accept_update = true
-	if not within_variance(old.velocity.x, new.x_vel, constants.NET_PARAMS.VARIANCE_VELOCITY) then
-		accept_update = false
-		print("ruh roh, x velocity component not within variance. old: " .. old.velocity.x .. " new: " .. new.x_vel)
-	elseif not within_variance(old.velocity.y, new.y_vel, constants.NET_PARAMS.VARIANCE_VELOCITY) then
-		accept_update = false
-		print("ruh roh, y velocity component not within variance. old: " .. old.velocity.y .. " new: " .. new.y_vel)
-	end
+    -- overriding this whole function for now cause fk u ok.
+    local accept_update = true
+	-- if not within_variance(old.velocity.x, new.x_vel, constants.NET_PARAMS.VARIANCE_VELOCITY) then
+	-- 	accept_update = false
+	-- 	log("x velocity component not within variance. old: " .. old.velocity.x .. " new: " .. new.x_vel)
+	-- elseif not within_variance(old.velocity.y, new.y_vel, constants.NET_PARAMS.VARIANCE_VELOCITY) then
+	-- 	accept_update = false
+	-- 	log("y velocity component not within variance. old: " .. old.velocity.y .. " new: " .. new.y_vel)
+	-- end
 	return accept_update
 end

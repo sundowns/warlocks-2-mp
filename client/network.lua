@@ -8,6 +8,73 @@ connection_is_new = true
 connected_time = 0
 debug_log = {}
 
+StateBuffer = Class{
+    init = function(self, size)
+        self.max_size = size
+        self.current_max_tick = 0
+        self.largest_index = 0
+        self.buffer = {}
+    end;
+    add = function(self, state, input, client_tick)
+        local state_snapshot = {player = state, input = input, tick = client_tick}
+        self.largest_index = table.insert(self.buffer, state_snapshot)
+        self.current_max_tick = client_tick
+        if #self.buffer > self.max_size then
+            table.remove(self.buffer, 1)
+        end
+    end;
+    getIndexByTick = function(self, in_tick)
+        if self:getMinimumTick() > in_tick then
+            return nil --this tick's state isnt in the buffers current range
+        end
+        --DONT DELETE THE FOLLOWING COMMENTED OUT DBG LINE.
+        --It demonstrates fundamental networking problem at the moment
+        --The client seems to stutter/skip ticks as
+        dbg("max: " .. self.current_max_tick .. " - " .. in_tick .. " = " .. (self.current_max_tick - in_tick) )
+        return table.maxn(self.buffer) - (self.current_max_tick - in_tick)
+    end;
+    get = function(self, in_tick)
+        if self.current_max_tick == 0 then return nil end
+        local snapshot_index = self:getIndexByTick(in_tick)
+        if not snapshot_index then return nil end
+        local snapshot = self.buffer[snapshot_index]
+        if not snapshot then return nil end
+        if snapshot.tick ~= in_tick then
+            warning("[WARNING] snapshot tick [".. snapshot.tick ..
+                 "] did not match parameter tick [" .. in_tick .. "]")
+        end
+        -- assert(snapshot.tick == in_tick, "snapshot tick [".. snapshot.tick ..
+        --     "] did not match parameter tick [" .. in_tick .. "]")
+
+        return snapshot
+    end;
+    replaceAndRemoveOld = function(self, in_tick, snapshot)
+        local index_to_replace = self:replace(in_tick, snapshot)
+
+        --remove the older ones here too
+        for i = 1, index_to_replace - 1, 1 do
+            table.remove(self.buffer, i)
+        end
+    end;
+    replace = function(self, in_tick, snapshot)
+        local index_to_replace = self:getIndexByTick(in_tick)
+        if not index_to_replace then return false end
+        self.buffer[index_to_replace] = snapshot
+        return index_to_replace
+    end;
+    getCurrentSize = function(self)
+        return #self.buffer
+    end;
+    getMinimumTick = function(self)
+        return self.current_max_tick - #self.buffer
+    end;
+    printDump = function(self, force)
+        print_table(self.buffer, force, "[Player State Buffer Dump]")
+    end;
+}
+
+player_state_buffer = StateBuffer(constants.PLAYER_BUFFER_LENGTH)
+
 function net_initialise()
 	host = enet.host_create()
 	server = host:connect(settings.IP..':'..settings.port)
@@ -117,7 +184,8 @@ function verify_player_correction_packet(payload)
         y_vel = tonumber(payload.y_vel),
         state = payload.state,
         colour = payload.colour,
-        entity_type = "PLAYER"
+        entity_type = "PLAYER",
+        server_tick = payload.server_tick
     }
     local verified = true
     if not assert(update.x) then verified = false print("Failed to verify x update for player") end
@@ -126,6 +194,7 @@ function verify_player_correction_packet(payload)
     if not assert(update.y_vel) then verified = false print("Failed to verify y_vel update for player") end
     if not assert(update.state) or not type(update.state) == 'string' then verified = false print("Failed to verify state update for player") end
     if not assert(update.colour) or not type(update.colour) == 'string' then verified = false print("Failed to verify colour update for player") end
+    if not assert(update.server_tick) then verified = false print("Failed to verify tick") end
     return verified, update
 end
 
@@ -186,6 +255,7 @@ function network_loading()
             if payload.cmd == 'SERVERERROR' then
                 disconnect("Connection closed. " ..payload.message)
             elseif payload.cmd == 'JOINACCEPTED' then
+                sync_client(payload.server_tick)
                 confirm_join(payload.stage_name, payload.colour)
             elseif payload.cmd == 'SPAWN' then
                 local ok, update = verify_spawn_packet(payload)
@@ -235,7 +305,6 @@ function network_gamerunning()
                 elseif payload.cmd == 'PLAYERCORRECTION' then
                     local ok, update = verify_player_correction_packet(payload)
                     if ok then
-                        --print("retroactively doodlin x_vel: " .. update.x_vel .. " y_vel: " .. update.y_vel )
                         if payload.retroactive == true then
                             server_player_update(update, true) --runs retroactive update process
                         else

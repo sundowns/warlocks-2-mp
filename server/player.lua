@@ -7,7 +7,7 @@ Entity = Class{
 }
 
 Player = Class { _includes = Entity,
-    init = function(self, x, y, name, colour)
+    init = function(self, x, y, name, colour, client_index)
         Entity.init(self, x, y)
         self.name = name
         self.colour = colour
@@ -39,7 +39,7 @@ Player = Class { _includes = Entity,
 
 function spawn_player(name, x, y, client_index)
     local colour =  client_list[client_index].colour
-	local new_player = Player(x,y,name,colour)
+	local new_player = Player(x,y,name,colour, client_index)
 
     --Why do we have to do it this way again? Test putting in constructor before placing into world collection
 	world["players"][payload.alias] = new_player
@@ -61,6 +61,5 @@ end
 
 function calc_vector_from_points(fromX, fromY, toX, toY)
     local vec = vector(toX-fromX, toY-fromY)
-    --print("vec x: " .. vec.x .. " y: " .. vec.y)
     return vec
 end

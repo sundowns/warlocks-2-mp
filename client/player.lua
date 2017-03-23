@@ -1,5 +1,3 @@
-player_state_buffer = {}
-player_buffer_size = 0
 player_colour = nil
 player = {}
  --ticks in the past kept
@@ -160,36 +158,22 @@ function get_player_state_snapshot()
 end
 
 function retroactive_player_state_calc(update)
-	--insert new player state into buffer
-	print("retroactive_player_state_calc entered")
-	local old = player_state_buffer[update.server_tick]
+	local old = player_state_buffer:get(tonumber(update.server_tick))
 	local updated_state = create_player_state_snapshot(update.x, update.y, update.x_vel, update.y_vel, update.state,
 	old.player.acceleration, old.player.orientation, old.player.dash, old.player.max_movement_velocity)
 	old.player = updated_state
-	player_state_buffer[update.server_tick] = old
 
-	--delete all states older than update
-	local older = 0
-	local newer = 0
-	for k in pairs(player_state_buffer) do
-		if k < update.server_tick then
-           player_state_buffer[k] = nil
-           player_buffer_size = player_buffer_size - 1
-           older = older + 1
-		else newer = newer + 1
-		end
-	end
+    player_state_buffer:replaceAndRemoveOld(tonumber(update.server_tick), old)
 
-	local index = update.server_tick
-	--local result_state = {}
-  local result_state = updated_state
+    local result_state = updated_state
 	local updated = false
+    --TODO: SHOULD WE BE DOING THIS 2 AT A TIME?????
 	for index=update.server_tick, tick-last_offset,2 do --Lets make sure we're not correcting events as they happen.
-		local input = player_state_buffer[index].input
+        local snapshot = player_state_buffer:get(index)
+        assert(snapshot)
+        local input = snapshot.input
 		result_state = calc_new_player_state(result_state, input, constants.TICKRATE*2) --(dt = 2 ticks)
-		--update that state in the player_state_buffer
-		local new_snapshot = {player=result_state,input=input,tick=index}
-		player_state_buffer[index] = new_snapshot
+        player_state_buffer:replace(index, {player=result_state,input=input,tick=index})
 		updated = true
 	end
 

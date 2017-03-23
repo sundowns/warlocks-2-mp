@@ -26,11 +26,11 @@ tick = 0
 local tick_timer = 0
 unused_colours = {"purple","green","red", "blue", "orange"}
 
-print("Initialising world...")
+log("Initialising world...")
 load_stage()
 --HC.resetHash([cell_size = 100]) --reset/set HC world cell size
 
-print("Beginning server loop.")
+log("Beginning server loop.")
 while running do
 	time = socket.gettime()
 	local dt = time - prevTime
@@ -47,7 +47,7 @@ while running do
 				if not xpcall(binser.deserialize, event.data) then
 					payload = binser.deserialize(event.data)
 					setmetatable(payload, packet_meta)
-					if not assert(payload.alias) then print(tostring(payload)) end
+					if not assert(payload.alias) then log(tostring(payload)) end
 					assert(client_list[event.peer:index()])
 					if client_list[event.peer:index()] ~= nil then
 						client_list[event.peer:index()].time_since_last_msg = 0
@@ -67,10 +67,10 @@ while running do
                                     apply_player_velocity_update(ent, payload)
 								else
                                     send_client_correction_packet(event.peer, payload.alias, false)
-									print("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
+									log("[ANTI-CHEAT] Rejected player update from " .. payload.alias)
 								end
 							else
-								print("[WARNING] tried to UPDATE non existing player. " .. payload.alias)
+								log("[WARNING] tried to UPDATE non existing player. " .. payload.alias)
 							end
 						end
 					elseif payload.cmd == 'JOIN' then
@@ -89,7 +89,7 @@ while running do
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then
-						print('[WARNING] Explicitly requested world update received. Potential security risk.')
+						log('[WARNING] Explicitly requested world update received. Potential security risk.')
                     elseif payload.cmd == 'CASTSPELL' then
                         assert(payload.spell_type)
                         if payload.spell_type == "FIREBALL" then
@@ -97,14 +97,14 @@ while running do
                             if world["players"][payload.alias] then
                                 player_cast_fireball(payload.player_x, payload.player_y, payload.at_X, payload.at_Y, payload.alias)
                             else
-                                print("[WARNING] Non-existant player: " .. payload.alias .. " attempted to cast fierball")
+                                log("[WARNING] Non-existant player: " .. payload.alias .. " attempted to cast fierball")
                             end
                         end
 					else
-						print("[WARNING] unrecognised command: " .. payload.cmd)
+						log("[WARNING] unrecognised command: " .. payload.cmd)
 					end
 				else
-					print("Failed to packet: " .. tostring(event.data))
+					log("Failed to packet: " .. tostring(event.data))
 				end
 			elseif event.type == "connect" then
 				if client_count >= constants.MAX_CLIENTS then
@@ -113,7 +113,7 @@ while running do
 					local colour = table.remove(unused_colours)
 					client_list[event.peer:index()] =  {ip=msg_or_ip, port=port_or_nil, name='', time_since_last_msg = 0, colour = colour}
 					client_count = client_count + 1
-					print(event.peer:connect_id() .. ' connected.')
+					log(event.peer:connect_id() .. ' connected.')
 					send_join_accept(event.peer, colour)
 				end
 			elseif event.type == "disconnect" then

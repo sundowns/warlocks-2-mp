@@ -94,6 +94,10 @@ function dbg(msg)
   if settings.debug then print(msg) end
 end
 
+function warning(msg)
+  if settings.warning then print(msg) end
+end
+
 function print_table(table, force, name)
   local printer = dbg
   if force then printer = print end

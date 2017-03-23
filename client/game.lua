@@ -7,16 +7,12 @@ function game:init()
 	require("player")
 	require("spritemanager")
 
-    --net_initialise()
-    -- wait and request this from server if its not loaded
-    --stage_file = "arena2.lua"
     if stage_file then
         load_stage(stage_file)
     end
 end
 
 function game:enter(previous)
-    tick = 0
     tick_timer = 0
     love.graphics.setBackgroundColor(0,0,0)
     if stage ~= nil then
@@ -30,6 +26,15 @@ end
 function game:update(dt)
 	tick_timer = tick_timer + dt
 	update_connection(dt)
+    if tick_timer > constants.TICKRATE then -- THIS SHOULD BE USED FOR COMMUNCATION TO/FROM SERVER/KEEPING IN SYNC
+		tick = tick + 1
+		tick_timer = tick_timer - constants.TICKRATE
+
+		if connected and user_alive then
+            player_state_buffer:add(get_player_state_snapshot(), get_input_snapshot(), tick)
+	 	end
+		network_run()
+	end
 
 	if user_alive then
 		local input = get_input_snapshot()
@@ -41,27 +46,11 @@ function game:update(dt)
 		cooldowns(dt)
 	end
 
-  while #debug_log > 20 do
+    while #debug_log > 20 do
       table.remove(debug_log, 1)
-  end
+    end
 
 	update_entities(dt)
-
-	if tick_timer > constants.TICKRATE then -- THIS SHOULD BE USED FOR COMMUNCATION TO/FROM SERVER/KEEPING IN SYNC
-		tick = tick + 1
-		tick_timer = tick_timer - constants.TICKRATE
-
-		if connected and user_alive then
-			local player_state = {player = get_player_state_snapshot(), input = get_input_snapshot(), tick = tick} -- TODO: Implement a buffer that works nicer (at all), google it!
-	   	    player_state_buffer[tick] = player_state
-			player_buffer_size = player_buffer_size + 1
-   	        if player_buffer_size > constants.PLAYER_BUFFER_LENGTH then
-	            player_state_buffer[tick-constants.PLAYER_BUFFER_LENGTH] = nil
-				player_buffer_size = player_buffer_size - 1
-   	        end
-	 	end
-		network_run()
-	end
 end
 
 function game:draw()
@@ -159,8 +148,8 @@ function game:keyreleased(key, code)
         x,y = camera:worldCoords(x,y)
         local player_x, player_y = player:centre()
         send_action_packet("CASTSPELL", {at_X=x, at_Y=y, player_x = player.x, player_y = player.y, spell_type=player.spellbook['SPELL1']})
-    elseif key == "f2" then
-        print("[client_tick: " .. tick .. "][buffer_size ".. player_buffer_size .. "]")
-        print_table(player_state_buffer, true, "player state buffer")
+    elseif key == "f5" then
+        print("[client_tick: " .. tick .. "][buffer_size ".. player_state_buffer:getCurrentSize() .. "][" .. "largest_tick " .. player_state_buffer.current_max_tick .. "]")
+        player_state_buffer:printDump(true)
     end
 end

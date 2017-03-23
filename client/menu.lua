@@ -61,15 +61,19 @@ function menu:update(dt)
            love.event.quit()
         end
         if suit.Button("Connect", suit.layout:col(160, 40)).hit then
-            validate_field(ip.text, "Address", "Please enter an address")
-            validate_field(port.text, "Port", "Please enter a port")
-            validate_field(username.text, "Username", "Please enter a player name")
-            if total_form_errors == 0 then
-                print("username: " ..username.text)
-                GamestateManager.switch(loading, "JOIN_GAME", {ip = ip.text, port = port.text, username = username.text})
-            end
+            try_connect()
         end
     suit.layout:pop()
+end
+
+function try_connect()
+    validate_field(ip.text, "Address", "Please enter an address")
+    validate_field(port.text, "Port", "Please enter a port")
+    validate_field(username.text, "Username", "Please enter a player name")
+    if total_form_errors == 0 then
+        print("username: " ..username.text)
+        GamestateManager.switch(loading, "JOIN_GAME", {ip = ip.text, port = port.text, username = username.text})
+    end
 end
 
 function validate_field(value, fieldname, invalid_msg)
@@ -93,4 +97,10 @@ function menu:draw()
     love.graphics.print("Timbo's Warlox", love.graphics.getWidth()/5, love.graphics.getHeight()/14)
     love.graphics.draw(menu_image, love.graphics.getWidth()*0.75, love.graphics.getHeight()/10, 0, 1.5, 1.5)
     reset_font()
+end
+
+function menu:keypressed(key)
+    if key == "return" then
+        try_connect()
+    end
 end
