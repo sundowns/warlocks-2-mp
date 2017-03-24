@@ -21,11 +21,13 @@ Entity = Class{
         self.position.x = inX
         self.position.y = inY
     end;
-    updateState = function(self, newState)
+    updateState = function(self, newState, isRetroactive)
         if self.state ~= newState then
     		 self.state = newState
-             self.sprite_instance.curr_anim = newState
-             self.sprite_instance.curr_frame = 1
+             if not isRetroactive then
+                 self.sprite_instance.curr_anim = newState
+                 self.sprite_instance.curr_frame = 1
+             end
     	 end
     end;
 }

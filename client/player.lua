@@ -37,8 +37,8 @@ Player = Class{ _includes = Entity,
         Entity.move(self, newX, newY)
         self.hitbox:moveTo(newX, newY)
     end;
-    updateState = function(self, newState)
-        Entity.updateState(self, newState)
+    updateState = function(self, newState, isRetroactive)
+        Entity.updateState(self, newState, isRetroactive)
     end;
 }
 
@@ -90,6 +90,12 @@ User = Class{ _includes = Player,
     updateState = function(self, newState)
         Player.updateState(self, newState)
     end;
+    beginDash = function(self, direction, isRetroactive)
+        self:updateState(self, "DASH", isRetroactive)
+        self.dash.timer = player.dash.duration
+        self.dash.direction = direction
+        self.acceleration = player.acceleration + player.dash.acceleration
+    end;
 }
 
 function prepare_player(player_data)
@@ -98,7 +104,7 @@ function prepare_player(player_data)
 	user_alive = true
 end
 
-function process_movement_input(player_obj, inputs, dt)
+function process_movement_input(player_obj, inputs, dt, isRetroactive)
     -- TODO: POLLING SYSTEM
     -- PLAN:
     -- have an input polling function seperate of normal game tick (possible????????) that puts inputs in a buffer as they come
@@ -111,25 +117,25 @@ function process_movement_input(player_obj, inputs, dt)
 		if inputs.right and not inputs.left then
             resultant_input.x = 1
 			if (player_obj.velocity.x > -1*player_obj.dash.acceleration and player_obj.state == "STAND") then --or (player_obj.state == "DASH" and player_obj.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after)
-				begin_dash("RIGHT")
+				player_obj:beginDash("RIGHT", isRetroactive)
 			end
 		end
 		if inputs.left and not inputs.right then
             resultant_input.x = -1
 			if (player_obj.velocity.x < player_obj.dash.acceleration and player_obj.state == "STAND") then --or (player_obj.state == "DASH" and player_obj.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after)
-				begin_dash("LEFT")
+				player_obj:beginDash("LEFT", isRetroactive)
 			end
 		end
 		if inputs.up and not inputs.down then
             resultant_input.y = -1
 			if player_obj.velocity.y < player_obj.dash.acceleration and player_obj.state == "STAND" then
-				begin_dash("UP")
+				player_obj:beginDash("UP", isRetroactive)
 			end
 		end
 		if inputs.down and not inputs.up then
             resultant_input.y = 1
 			if player_obj.velocity.y > -1*player_obj.dash.acceleration and player_obj.state == "STAND" then
-				begin_dash("DOWN")
+				player_obj:beginDash("DOWN", isRetroactive)
 			end
 		end
 
@@ -154,12 +160,13 @@ function cooldowns(dt)
 	end
 end
 
-function begin_dash(direction)
-	player:updateState("DASH")
-	player.dash.timer = player.dash.duration
-	player.dash.direction = direction
-	player.acceleration = player.acceleration + player.dash.acceleration
-end
+-- function begin_dash(direction)
+--     print("we dash")
+-- 	player:updateState("DASH")
+-- 	player.dash.timer = player.dash.duration
+-- 	player.dash.direction = direction
+-- 	player.acceleration = player.acceleration + player.dash.acceleration
+-- end
 
 function end_dash()
 	player.dash.timer = player.dash.duration
@@ -253,7 +260,7 @@ end
 
 function calc_new_player_state(previous_state, input, dt)
 	--Apply input & dt to old state to calc new state.
-	local resultant = process_movement_input(previous_state, input, dt)
+	local resultant = process_movement_input(previous_state, input, dt, true)
 	resultant = update_player_movement(resultant, input, dt, true)
 	return resultant
 end
