@@ -5,12 +5,11 @@ return {
     serialization_version = "0.0.1",
     name = "player_blue",
     image = "assets/sprites/player-blue.png",
-    frame_duration = 0.025,
+    frame_duration = 0.1,
     animations_names = {
         "STAND",
         "DASH",
         "RUN",
-        "TURN"
     },
     animations = {
       STAND = {

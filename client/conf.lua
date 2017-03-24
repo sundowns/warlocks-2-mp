@@ -1,6 +1,6 @@
 function love.conf(t)
 	t.title = "Warlocks MP Client"
-	t.version = "0.10.1"
+	t.version = "0.10.2"
 	t.window.width = 768--1024--
 	t.window.height = 576--768--
 	t.window.fullscreen = false

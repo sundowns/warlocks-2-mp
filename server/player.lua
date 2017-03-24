@@ -1,9 +1,6 @@
---TODO: Replace existing stuff with classes like below
-
-
 Player = Class { _includes = Entity,
-    init = function(self, x, y, name, colour, client_index)
-        Entity.init(self, x, y)
+    init = function(self, position, name, colour, client_index)
+        Entity.init(self, position)
         self.name = name
         self.colour = colour
         self.entity_type = "PLAYER"
@@ -26,31 +23,27 @@ Player = Class { _includes = Entity,
         -- self.hitbox = HC.circle(self.x,self.y,self.width/2)
         -- self.hitbox.owner = self.name
     	-- self.hitbox.type = "PLAYER"
-        self.hasCollidedWith = {}
+        --self.hasCollidedWith = {}
+    end;
+    move = function(self, newX, newY)
+        Entity.move(self, newX, newY)
+        --self.hitbox:moveTo(newX, newY)
+    end;
+    castSpell = function(self, spell, at_X, at_Y)
+        if spell == "FIREBALL" then
+            self:castFireball(at_X, at_Y)
+        end
+    end;
+    castFireball = function(self, at_X, at_Y)
+        local vector = calc_vector_from_points(self.position.x, self.position.y, at_X, at_Y)
+        spawn_projectile(self.position.x, self.position.y, vector, self.name)
     end;
 }
 
 function spawn_player(name, x, y, client_index)
     local colour =  client_list[client_index].colour
-	local new_player = Player(x,y,name,colour, client_index)
+	local new_player = Player(vector(x, y),name,colour, client_index)
 	world["players"][payload.alias] = new_player
 
 	return new_player
-end
-
-function move_player(inPlayer, x, y)
-    inPlayer.x = x
-    inPlayer.y = y
-    inPlayer.hitbox:moveTo(x, y)
-    return inPlayer
-end
-
-function player_cast_fireball(player_x, player_y, at_X, at_Y, alias)
-    local vector = calc_vector_from_points(player_x, player_y, at_X, at_Y)
-    spawn_projectile(player_x, player_y, vector, alias)
-end
-
-function calc_vector_from_points(fromX, fromY, toX, toY)
-    local vec = vector(toX-fromX, toY-fromY)
-    return vec
 end

@@ -7,6 +7,31 @@ local maxCamY = 2000
 cameraBoxHeight = 0.035
 cameraBoxWidth = 0.05
 
+--Abstract class inherited directly by Player and Projectile
+Entity = Class{
+    init = function(self, name, position, velocity, entity_type, state)
+        self.name = name
+        self.position = position
+        self.velocity = velocity
+        self.entity_type = entity_type
+        self.state = state
+        self.sprite_instance = {}
+    end;
+    move = function(self, inX, inY)
+        self.position.x = inX
+        self.position.y = inY
+    end;
+    updateState = function(self, newState, isRetroactive)
+        if self.state ~= newState then
+    		 self.state = newState
+             if not isRetroactive then
+                 self.sprite_instance.curr_anim = newState
+                 self.sprite_instance.curr_frame = 1
+             end
+    	 end
+    end;
+}
+
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
 		if ent.name == settings.username then
@@ -32,55 +57,22 @@ function remove_entity(name, entity_type)
 end
 
 function add_enemy(name, enemy)
-	local new_enemy = {
-			name = enemy.name,
-			colour = enemy.colour,
-			entity_type = "ENEMY",
-			x = enemy.x,
- 			y = enemy.y,
-			velocity = vector(enemy.x_vel, enemy.y_vel),
- 			orientation = "RIGHT",
- 			state ="STAND",
- 			states = {},
-			sprite_instance = {},
- 			height = nil,
-			width = nil
-	}
-
-    function new_enemy:centre() -- PUT THESE INTO AN ENTITY SUPERCLASS
-        if self.orientation == "LEFT" then
-            return self.x + self.width/2, self.y - self.height/2
-        elseif self.orientation == "RIGHT" then
-            return self.x - self.width/2, self.y - self.height/2
-        end
-    end
-
-	new_enemy.sprite_instance = get_sprite_instance("assets/sprites/player-" .. enemy.colour ..".lua")
-	new_enemy.height = 20
-	new_enemy.width = 20
-    
-
+    local new_enemy = Enemy(vector(enemy.x, enemy.y), name, enemy.colour,
+     "STAND", "RIGHT", 22, 20, vector(enemy.x_vel, enemy.y_vel))
 	world[name] = new_enemy
 end
 
 function add_projectile(ent)
-    local projectile = {
-        id = ent.name,
-        x = ent.x,
-        y = ent.y,
-        x_vel = ent.x_vel,
-        y_vel = ent.y_vel,
-        entity_type = "PROJECTILE",
-        projectile_type = ent.projectile_type,
-        sprite_instance = {},
-        velocity = vector(ent.x_vel, ent.y_vel),
-        width = ent.width,
-        height = ent.height
-    }
+    if ent.projectile_type == "FIREBALL" then
+        add_fireball(ent)
+    end
+end
 
-    projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
-    projectile.sprite_instance.rotation = projectile.velocity:angleTo(vector(0,-1))
-    world["projectiles"][projectile.id] = projectile
+function add_fireball(ent)
+    local fireball = Fireball(ent.name, vector(ent.x, ent.y), vector(ent.x_vel, ent.y_vel),
+        ent.height, ent.width
+    )
+    world["projectiles"][fireball.name] = fireball
 end
 
 function server_player_update(update, force_retroactive)
@@ -97,8 +89,8 @@ function server_player_update(update, force_retroactive)
             retroactive_player_state_calc(update)
         else
             -- If the server's representation of us is within acceptable variance of our own
-            if within_variance(player_state.player.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) and
-    		within_variance(player_state.player.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
+            if within_variance(player_state.player.position.x, update.x, constants.NET_PARAMS.VARIANCE_POSITION) and
+    		within_variance(player_state.player.position.y, update.y, constants.NET_PARAMS.VARIANCE_POSITION) then
                 --do nothing
             else
                 --try retro, else do manual override
@@ -110,7 +102,6 @@ function server_player_update(update, force_retroactive)
 	else
 		--print("failed player_state condition")
         dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][largest buffer tick ".. player_state_buffer.current_max_tick .. "]")
-
 	end
 end
 
@@ -126,7 +117,7 @@ function server_entity_update(entity, update)
     if update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
         local ent = world[entity]
     	if not ent then return nil end
-    	ent = update_entity_state(ent, update.state)
+    	ent:updateState(update.state)
         ent = update_entity(ent, x, y, x_vel, y_vel, update.orientation or nil)
         world[entity] = ent
     elseif update.entity_type == "PROJECTILE" then
@@ -172,33 +163,27 @@ function update_entities(dt)
 end
 
 function update_entity(entity, x, y, x_vel, y_vel, orientation)
-    if entity.entity_type == "PROJECTILE" then
-        entity.velocity.x = x_vel
-        entity.velocity.y = y_vel
-    elseif entity.entity_type == "ENEMY" then
-        if orientation then entity.orientation = orientation end
-    end
+    -- if entity.entity_type == "PROJECTILE" then
+    --     entity.velocity.x = x_vel
+    --     entity.velocity.y = y_vel
+    -- elseif entity.entity_type == "ENEMY" then
+    --     if orientation then entity.orientation = orientation end
+    -- end
 
-	entity.x = round_to_nth_decimal(x, 2)
-	entity.y = round_to_nth_decimal(y, 2)
-	entity.x_vel = round_to_nth_decimal(x_vel, 2)
-	entity.y_vel = round_to_nth_decimal(y_vel, 2)
+	entity:move(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2))
+	entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
+	entity.velocity.y = round_to_nth_decimal(y_vel, 2)
 	return entity
 end
 
-function update_entity_state(entity, state)
-	if entity.state ~= state then
-		 entity.state = state
-		 entity.sprite_instance.curr_anim = state
-		 entity.sprite_instance.curr_frame = 1
-	 end
-     --recalc entity height/width?
-	 return entity
-end
-
 function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
-	entity.x = round_to_nth_decimal((entity.x + (entity.velocity.x * dt)),2)
-	entity.y = round_to_nth_decimal((entity.y + (entity.velocity.y * dt)),2)
+    if isRetroactive then
+        entity.position.x = round_to_nth_decimal((entity.position.x + (entity.velocity.x * dt)),2)
+    	entity.position.y = round_to_nth_decimal((entity.position.y + (entity.velocity.y * dt)),2)
+    else
+        entity:move(round_to_nth_decimal((entity.position.x + (entity.velocity.x * dt)),2),
+            round_to_nth_decimal((entity.position.y + (entity.velocity.y * dt)),2))
+    end
 
     local friction_vector = entity.velocity*-1
     friction_vector:normalizeInplace()
@@ -207,7 +192,7 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 		entity.velocity = vector(0, 0)
 		if isPlayer then
 			if not isRetroactive then
-				update_player_state("STAND")
+				entity:updateState("STAND")
 			else
 				entity.state = "STAND"
 			end
@@ -225,9 +210,7 @@ function process_collisions(dt)
         if shape.type == "PROJECTILE" then
             -- do collision stuff
         elseif shape.type == "PLAYER" then
-            print("")
-
-
+            print("colliding with another player")
         end
         --Look at warlocks SP, `entityHit()` in player.lua
     end
@@ -245,27 +228,27 @@ function update_camera()
 	local camX, camY = camera:position()
 	local newX, newY = camX, camY
 
-	if point_is_in_rectangle(player.x, player.y,
+	if point_is_in_rectangle(player.position.x, player.position.y,
 	  round_to_nth_decimal(camX - love.graphics.getWidth()*cameraBoxWidth - 1, 2), round_to_nth_decimal(camY - love.graphics.getHeight()*cameraBoxHeight - 1,2),
 	  round_to_nth_decimal(love.graphics.getWidth()*cameraBoxWidth*2 + 2,2),  round_to_nth_decimal(love.graphics.getHeight()*cameraBoxHeight*2 + 2), 2) then
-		if not within_variance(player.x, camX, 3) and
-		 	 not within_variance(player.y, camY, 3) then
-			newX = math.clamp(player.x, minCamX, maxCamX)
-			newY = math.clamp(player.y, minCamY, maxCamY)
+		if not within_variance(player.position.x, camX, 3) and
+		 	 not within_variance(player.position.y, camY, 3) then
+			newX = math.clamp(player.position.x, minCamX, maxCamX)
+			newY = math.clamp(player.position.y, minCamY, maxCamY)
 			camera:lockPosition(newX, newY, camera.smooth.damped(0.6))
 		end
 	else
-		if (player.x > camX + love.graphics.getWidth()*cameraBoxWidth) then
-			newX = player.x - love.graphics.getWidth()*cameraBoxWidth
+		if (player.position.x > camX + love.graphics.getWidth()*cameraBoxWidth) then
+			newX = player.position.x - love.graphics.getWidth()*cameraBoxWidth
 		end
-		if (player.x < camX - love.graphics.getWidth()*cameraBoxWidth) then
-			newX = player.x + love.graphics.getWidth()*cameraBoxWidth
+		if (player.position.x < camX - love.graphics.getWidth()*cameraBoxWidth) then
+			newX = player.position.x + love.graphics.getWidth()*cameraBoxWidth
 		end
-		if (player.y > camY + love.graphics.getHeight()*cameraBoxHeight) then
-			newY = player.y - love.graphics.getHeight()*cameraBoxHeight
+		if (player.position.y > camY + love.graphics.getHeight()*cameraBoxHeight) then
+			newY = player.position.y - love.graphics.getHeight()*cameraBoxHeight
 		end
-		if (player.y < camY - love.graphics.getHeight()*cameraBoxHeight) then
-			newY = player.y + love.graphics.getHeight()*cameraBoxHeight
+		if (player.position.y < camY - love.graphics.getHeight()*cameraBoxHeight) then
+			newY = player.position.y + love.graphics.getHeight()*cameraBoxHeight
 		end
 
 		newX = math.clamp(newX, minCamX,maxCamX)

@@ -93,13 +93,10 @@ while running do
 						log('[WARNING] Explicitly requested world update received. Potential security risk.')
                     elseif payload.cmd == 'CASTSPELL' then
                         assert(payload.spell_type)
-                        if payload.spell_type == "FIREBALL" then
-                            --verify cast packet
-                            if world["players"][payload.alias] then
-                                player_cast_fireball(payload.player_x, payload.player_y, payload.at_X, payload.at_Y, payload.alias)
-                            else
-                                log("[WARNING] Non-existant player: " .. payload.alias .. " attempted to cast fierball")
-                            end
+                        if world["players"][payload.alias] then
+                            world["players"][payload.alias]:castSpell(payload.spell_type, payload.at_X, payload.at_Y)
+                        else
+                            log("[WARNING] Non-existant player: " .. payload.alias .. " attempted to cast fierball")
                         end
 					else
 						log("[WARNING] unrecognised command: " .. payload.cmd)

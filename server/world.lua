@@ -10,9 +10,12 @@ local STAGE_WIDTH_TOTAL = nil
 local STAGE_HEIGHT_TOTAL = nil
 
 Entity = Class{
-    init = function(self, x, y)
-        self.x = x
-        self.y = y
+    init = function(self, position)
+        self.position = position
+    end;
+    move = function(self, inX, inY)
+        self.position.x = inX
+        self.position.y = inY
     end;
 }
 
@@ -49,12 +52,11 @@ end
 
 function update_player_positions(dt)
     for id, entity in pairs(world["players"]) do
-    	if entity.velocity.x and entity.velocity.y then --why is this componenatlised
-            entity.x = math.clamp(round_to_nth_decimal(entity.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100)
-    		entity.y = math.clamp(round_to_nth_decimal(entity.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
+    	if entity.velocity then
+            entity:move(math.clamp(round_to_nth_decimal(entity.position.x + entity.velocity.x*dt, 2), 0, STAGE_WIDTH_TOTAL or 100),
+                math.clamp(round_to_nth_decimal(entity.position.y + entity.velocity.y*dt, 2), 0, STAGE_HEIGHT_TOTAL or 100)
+            )
     	end
-        --entity.hitbox:moveTo(entity.x, entity.y)
-        world[id] = entity
     end
 end
 
@@ -187,8 +189,8 @@ function players_colliding(player1, other_player_alias, collision_vector, dt)
 end
 
 function apply_player_position_update(ent, payload)
-    ent.x = round_to_nth_decimal(tonumber(payload.x),2)
-    ent.y = round_to_nth_decimal(tonumber(payload.y),2)
+    ent.position.x = round_to_nth_decimal(tonumber(payload.x),2)
+    ent.position.y = round_to_nth_decimal(tonumber(payload.y),2)
     ent.state = payload.state
     ent.orientation = payload.orientation or ent.orientation
 

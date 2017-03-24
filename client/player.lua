@@ -1,34 +1,124 @@
 player_colour = nil
 player = {}
- --ticks in the past kept
+
+--[[ Class hierarchy
+                      /-Fireball
+         /-Projectile<
+       /
+Entity<         /-User
+       \-Player<
+                \-Enemy
+
+]]
+
+--Abstract class inherited by User and Enemy
+Player = Class{ _includes = Entity,
+    init = function(self, position, velocity, entity_type, name, colour, state, orientation,
+    width, height)
+        Entity.init(self, name, position, velocity, entity_type, state)
+        self.colour = colour
+        self.orientation = orientation
+        self.width = width
+        self.height = height
+        self.hitbox = HC.circle(self.position.x,self.position.y,self.width/2)
+        self.hitbox.owner = self.name
+        self.hitbox.type = "PLAYER"
+        self.hasCollidedWith = {}
+        self.sprite_instance = get_sprite_instance("assets/sprites/player-" .. self.colour ..".lua")
+    end;
+    centre = function(self)
+        if self.orientation == "LEFT" then
+            return self.position.x + self.width/2, self.position.y - self.height/2
+        elseif self.orientation == "RIGHT" then
+            return self.position.x - self.width/2, self.position.y - self.height/2
+        end
+    end;
+    move = function(self, newX, newY)
+        Entity.move(self, newX, newY)
+        self.hitbox:moveTo(newX, newY)
+    end;
+    updateState = function(self, newState, isRetroactive)
+        Entity.updateState(self, newState, isRetroactive)
+    end;
+}
+
+Enemy = Class{ _includes = Player,
+    init = function(self, position, name, colour, state, orientation, height, width, velocity)
+        Player.init(self, position, velocity, "ENEMY", name, colour, state, orientation,
+          height, width
+        )
+        --nothing else yet
+    end;
+    centre = function(self)
+        return Player.centre(self)
+    end;
+    move = function(self, newX, newY)
+        Player.move(self, newX, newY)
+    end;
+    updateState = function(self, newState)
+        Player.updateState(self, newState)
+    end;
+}
+
+User = Class{ _includes = Player,
+    init = function(self, player_data)
+        Player.init(self, vector(player_data.x, player_data.y),
+         vector(player_data.x_vel, player_data.y_vel),
+         player_data.entity_type, player_data.name, player_data.colour,
+         player_data.state, player_data.orientation,
+         player_data.width, player_data.height
+        )
+        self.max_movement_velocity = player_data.max_movement_velocity
+        self.movement_friction = player_data.movement_friction
+        self.base_acceleration = player_data.base_acceleration
+        self.acceleration = player_data.acceleration
+        self.dash = { -- TODO does this do anything????
+            acceleration = tonumber(player_data.dash.acceleration),
+            duration = tonumber(player_data.dash.duration), --for some reason bitser hates decimals in tables?
+            timer = tonumber(player_data.dash.timer),
+            cancellable_after = tonumber(player_data.dash.cancellable_after) --after timer is 0.7, so after 0.3seconds
+        }
+        self.spellbook = {}
+        self.spellbook['SPELL1'] = "FIREBALL"
+    end;
+    centre = function(self)
+        return Player.centre(self)
+    end;
+    move = function(self, newX, newY)
+        Player.move(self, newX, newY)
+    end;
+    updateState = function(self, newState)
+        Player.updateState(self, newState)
+    end;
+    beginDash = function(self, direction, isRetroactive)
+        self.updateState(self, "DASH", isRetroactive)
+        self.dash.timer = player.dash.duration
+        self.dash.direction = direction
+        self.acceleration = player.acceleration + player.dash.acceleration
+    end;
+    endDash = function(self)
+    	self.dash.timer = self.dash.duration
+    	self.updateState(self, "RUN")
+    	self.acceleration = self.acceleration - self.dash.acceleration
+    end;
+    updateCooldowns = function(self, dt)
+    	if player.state == "DASH" then
+    		player.dash.timer = player.dash.timer - dt
+    	end
+
+    	if player.dash.timer < 0 then
+    		player:endDash()
+    	end
+    end;
+}
 
 function prepare_player(player_data)
-	player = player_data
-	player.dash.duration = tonumber(player.dash.duration)
-	player.dash.timer = tonumber(player.dash.timer)
-	player.dash.cancellable_after = tonumber(player.dash.cancellable_after)
-
-	player.sprite_instance = get_sprite_instance("assets/sprites/player-" .. player.colour ..".lua")
-
-    player.spellbook = {}
-    player.spellbook['SPELL1'] = "FIREBALL"
-
-    function player:centre() -- PUT THESE INTO AN ENTITY SUPERCLASS
-        if self.orientation == "LEFT" then
-            return self.x + self.width/2, self.y - self.height/2
-        elseif self.orientation == "RIGHT" then
-            return self.x - self.width/2, self.y - self.height/2
-        end
-    end
-    player.velocity = vector(player_data.x_vel, player_data.y_vel)
-    player.hitbox = HC.circle(player.x,player.y,player.width/2)
-    player.hitbox.owner = player.name
-    player.hitbox.type = "PLAYER"
+	player = User(player_data)
 	add_entity(player.name, player.entity_type, player)
 	user_alive = true
 end
 
-function process_movement_input(player_obj, inputs, dt)
+function process_movement_input(player_obj, inputs, dt, isRetroactive)
     -- TODO: POLLING SYSTEM
     -- PLAN:
     -- have an input polling function seperate of normal game tick (possible????????) that puts inputs in a buffer as they come
@@ -41,25 +131,25 @@ function process_movement_input(player_obj, inputs, dt)
 		if inputs.right and not inputs.left then
             resultant_input.x = 1
 			if (player_obj.velocity.x > -1*player_obj.dash.acceleration and player_obj.state == "STAND") then --or (player_obj.state == "DASH" and player_obj.orientation == "LEFT" and player.dash.timer < player.dash.cancellable_after)
-				begin_dash("RIGHT")
+				player_obj:beginDash("RIGHT", isRetroactive)
 			end
 		end
 		if inputs.left and not inputs.right then
             resultant_input.x = -1
 			if (player_obj.velocity.x < player_obj.dash.acceleration and player_obj.state == "STAND") then --or (player_obj.state == "DASH" and player_obj.orientation == "RIGHT" and player.dash.timer < player.dash.cancellable_after)
-				begin_dash("LEFT")
+				player_obj:beginDash("LEFT", isRetroactive)
 			end
 		end
 		if inputs.up and not inputs.down then
             resultant_input.y = -1
 			if player_obj.velocity.y < player_obj.dash.acceleration and player_obj.state == "STAND" then
-				begin_dash("UP")
+				player_obj:beginDash("UP", isRetroactive)
 			end
 		end
 		if inputs.down and not inputs.up then
             resultant_input.y = 1
 			if player_obj.velocity.y > -1*player_obj.dash.acceleration and player_obj.state == "STAND" then
-				begin_dash("DOWN")
+				player_obj:beginDash("DOWN", isRetroactive)
 			end
 		end
 
@@ -72,33 +162,6 @@ function process_movement_input(player_obj, inputs, dt)
 	end
 
 	return player_obj
-end
-
-function cooldowns(dt)
-	if player.state == "DASH" then
-		player.dash.timer = player.dash.timer - dt
-	end
-
-	if player.dash.timer < 0 then
-		end_dash()
-	end
-end
-
-function begin_dash(direction)
-	update_player_state("DASH")
-	player.dash.timer = player.dash.duration
-	player.dash.direction = direction
-	player.acceleration = player.acceleration + player.dash.acceleration
-end
-
-function end_dash()
-	player.dash.timer = player.dash.duration
-	update_player_state("RUN")
-	player.acceleration = player.acceleration - player.dash.acceleration
-end
-
-function update_player_state(state)
-	update_entity_state(player, state)
 end
 
 function update_player_movement(player_obj, inputs, dt, isRetroactive)
@@ -132,8 +195,7 @@ end
 function create_player_state_snapshot(x, y, x_vel, y_vel, state, acceleration,
 	orientation, dash, max_movement_velocity)
 	return {
-		x = x,
-		y = y,
+        position = vector(x, y),
 		x_vel = x_vel,
 		y_vel = y_vel,
         velocity = vector(x_vel, y_vel),
@@ -147,8 +209,7 @@ end
 
 function get_player_state_snapshot()
 	return {
-		x = player.x,
-		y = player.y,
+		position = player.position,
 		x_vel = player.x_vel,
 		y_vel = player.y_vel,
         velocity = player.velocity,
@@ -189,16 +250,15 @@ end
 
 function calc_new_player_state(previous_state, input, dt)
 	--Apply input & dt to old state to calc new state.
-	local resultant = process_movement_input(previous_state, input, dt)
+	local resultant = process_movement_input(previous_state, input, dt, true)
 	resultant = update_player_movement(resultant, input, dt, true)
 	return resultant
 end
 
 
 function apply_player_updates(result)
-	player.x = result.x
-	player.y = result.y
-	player.x_vel = result.x_vel
-	player.y_vel = result.y_vel
-	update_player_state(result.state)
+    player:move(result.x, result.y)
+	--player.position = vector(result.x, result.y)
+    player.velocity = vector(result.x_vel, result.y_vel)
+	player:updateState(result.state)
 end

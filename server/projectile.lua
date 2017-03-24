@@ -15,16 +15,4 @@ Fireball = Class{ _includes = Projectile,
     end;
 }
 
---TODO: Add position, width, and height to projectiles/fireball. Add position vectors to Entity base class?!
-
-
--- local new_projectile = {
---     position = vector(x,y),
---     velocity = velocity_vector,
---     acceleration = 600,
---     entity_type = "PROJECTILE",
---     projectile_type = "FIREBALL",
---     owner = owner,
---     width = 14,
---     height = 19
--- }
+--TODO: Add position, width, and height to projectiles/fireball. 

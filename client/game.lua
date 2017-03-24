@@ -4,6 +4,7 @@ testX1, testWidth, testY1, testHeight, testRotation = 0
 
 function game:init()
 	require("world")
+    require("spell")
 	require("player")
 	require("spritemanager")
 
@@ -38,12 +39,12 @@ function game:update(dt)
 
 	if user_alive then
 		local input = get_input_snapshot()
-		player = process_movement_input(player, input, dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
+		process_movement_input(player, input, dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
         -- PROCESS SPELLS ETC!!
-
 		update_player_movement(player, input, dt, false)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
-		cooldowns(dt)
+		player:updateCooldowns(dt)
+        process_collisions(dt)
 	end
 
     while #debug_log > 20 do
@@ -72,8 +73,8 @@ function game:draw()
 
     for k, projectile in pairs(world['projectiles']) do
     	local perpendicular = projectile.velocity:perpendicular():angleTo()
-    	local adjustedX = projectile.x - projectile.width/2*math.cos(perpendicular)
-    	local adjustedY = projectile.y - projectile.width/2*math.sin(perpendicular)
+    	local adjustedX = projectile.position.x - projectile.width/2*math.cos(perpendicular)
+    	local adjustedY = projectile.position.y - projectile.width/2*math.sin(perpendicular)
         draw_instance(projectile.sprite_instance, adjustedX, adjustedY)
     end
 
@@ -87,7 +88,8 @@ function game:draw()
 		love.graphics.print("fps: "..tostring(love.timer.getFPS( )), camera:worldCoords(3,-15))
 		if user_alive then
 			love.graphics.setColor(255, 255, 255, 255)
-			love.graphics.circle('fill', player.x, player.y, 2, 16)
+			love.graphics.circle('fill', player.position.x, player.position.y, 2, 16)
+            player.hitbox:draw()
 			reset_colour()
 		end
 		display_net_info()
@@ -95,13 +97,14 @@ function game:draw()
 
         for i, projectile in ipairs(world["projectiles"]) do
             love.graphics.setColor(0, 255, 0, 255)
-            love.graphics.circle('fill', projectile.x, projectile.y, 1, 16)
+            love.graphics.circle('fill', projectile.position.x, projectile.position.y, 1, 16)
             reset_colour()
         end
-        for i, player in pairs(world) do
-            if player.entity_type == "ENEMY" then
+        for i, ent in pairs(world) do
+            if ent.entity_type == "ENEMY" then
                 love.graphics.setColor(255, 10, 10, 255)
-    			love.graphics.circle('fill', player.x, player.y, 2, 16)
+    			love.graphics.circle('fill', ent.position.x, ent.position.y, 2, 16)
+                ent.hitbox:draw()
     			reset_colour()
             end
         end

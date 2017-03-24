@@ -9,8 +9,7 @@ return {
     animations_names = {
         "STAND",
         "DASH",
-        "RUN",
-        "TURN"
+        "RUN"
     },
     animations = {
       STAND = {

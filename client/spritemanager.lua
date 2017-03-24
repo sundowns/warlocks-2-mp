@@ -6,7 +6,6 @@ local manager_version = "0.0.1"
 function load_sprite(sprite_def)
   local err, sprite_file
   sprite_file, err = love.filesystem.load(sprite_def)
-  --ok, sprite_file = pcall( love.filesystem.load, sprite_def )
   if not sprite_file then
     print('[ERROR] The following error happend: ' .. tostring(err))
     return nil
