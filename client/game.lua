@@ -4,6 +4,7 @@ testX1, testWidth, testY1, testHeight, testRotation = 0
 
 function game:init()
 	require("world")
+    require("spell")
 	require("player")
 	require("spritemanager")
 
@@ -38,12 +39,12 @@ function game:update(dt)
 
 	if user_alive then
 		local input = get_input_snapshot()
-		player = process_movement_input(player, input, dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
+		process_movement_input(player, input, dt) ----------\ KEEP THESE TWO ONE AFTER THE OTHER
         -- PROCESS SPELLS ETC!!
-
 		update_player_movement(player, input, dt, false)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
-		cooldowns(dt)
+		player:updateCooldowns(dt)
+        process_collisions(dt)
 	end
 
     while #debug_log > 20 do
@@ -62,7 +63,6 @@ function game:draw()
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
             local ent_x, ent_y = entity:centre()
-            --print("player centre: " .. ent_x .. "," .. "ent_y")
             if entity.orientation == "LEFT" then
 				draw_instance(entity.sprite_instance, ent_x, ent_y, true)
 			elseif entity.orientation == "RIGHT" then

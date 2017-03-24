@@ -32,50 +32,6 @@ Entity = Class{
     end;
 }
 
--- local projectile = {
---     id = ent.name,
---     x = ent.x,
---     y = ent.y,
---     x_vel = ent.x_vel,
---     y_vel = ent.y_vel,
---     entity_type = "PROJECTILE",
---     projectile_type = ent.projectile_type,
---     sprite_instance = {},
---     velocity = vector(ent.x_vel, ent.y_vel),
---     width = ent.width,
---     height = ent.height
--- }
---
--- projectile.sprite_instance = get_sprite_instance("assets/sprites/" .. projectile.projectile_type ..".lua")
--- projectile.sprite_instance.rotation = projectile.velocity:angleTo(vector(0,-1))
-
-Projectile = Class{ _includes = Entity,
-    init = function(self, name, position, velocity, projectile_type, height, width)
-        Entity.init(self, name, position, velocity, "PROJECTILE", "DEFAULT")
-        self.projectile_type = projectile_type
-        self.height = height
-        self.width = width
-    end;
-    move = function(self, newX, newY)
-        Entity.move(self, newX, newY)
-        self.hitbox:moveTo(newX, newY)
-    end;
-    updateState = function(self, newState)
-        Entity.updateState(self, newState)
-    end;
-}
-
-Fireball = Class{ _includes = Projectile,
-    init = function(self, name, position, velocity, height, width)
-        Projectile.init(self, name, position, velocity, "FIREBALL", height, width)
-        self.sprite_instance = get_sprite_instance("assets/sprites/fireball.lua")
-        self.sprite_instance.rotation = velocity:angleTo(vector(0,-1))
-    end;
-    move = function(self, newX, newY)
-        Projectile.move(self, newX, newY)
-    end;
-}
-
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
 		if ent.name == settings.username then
@@ -146,7 +102,6 @@ function server_player_update(update, force_retroactive)
 	else
 		--print("failed player_state condition")
         dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][largest buffer tick ".. player_state_buffer.current_max_tick .. "]")
-
 	end
 end
 
@@ -208,15 +163,14 @@ function update_entities(dt)
 end
 
 function update_entity(entity, x, y, x_vel, y_vel, orientation)
-    if entity.entity_type == "PROJECTILE" then
-        entity.velocity.x = x_vel
-        entity.velocity.y = y_vel
-    elseif entity.entity_type == "ENEMY" then
-        if orientation then entity.orientation = orientation end
-    end
+    -- if entity.entity_type == "PROJECTILE" then
+    --     entity.velocity.x = x_vel
+    --     entity.velocity.y = y_vel
+    -- elseif entity.entity_type == "ENEMY" then
+    --     if orientation then entity.orientation = orientation end
+    -- end
 
-	entity.position.x = round_to_nth_decimal(x, 2)
-	entity.position.y = round_to_nth_decimal(y, 2)
+	entity:move(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2))
 	entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
 	entity.velocity.y = round_to_nth_decimal(y_vel, 2)
 	return entity
@@ -256,9 +210,7 @@ function process_collisions(dt)
         if shape.type == "PROJECTILE" then
             -- do collision stuff
         elseif shape.type == "PLAYER" then
-            print("")
-
-
+            print("colliding with another player")
         end
         --Look at warlocks SP, `entityHit()` in player.lua
     end

@@ -91,10 +91,24 @@ User = Class{ _includes = Player,
         Player.updateState(self, newState)
     end;
     beginDash = function(self, direction, isRetroactive)
-        self:updateState(self, "DASH", isRetroactive)
+        self.updateState(self, "DASH", isRetroactive)
         self.dash.timer = player.dash.duration
         self.dash.direction = direction
         self.acceleration = player.acceleration + player.dash.acceleration
+    end;
+    endDash = function(self)
+    	self.dash.timer = self.dash.duration
+    	self.updateState(self, "RUN")
+    	self.acceleration = self.acceleration - self.dash.acceleration
+    end;
+    updateCooldowns = function(self, dt)
+    	if player.state == "DASH" then
+    		player.dash.timer = player.dash.timer - dt
+    	end
+
+    	if player.dash.timer < 0 then
+    		player:endDash()
+    	end
     end;
 }
 
@@ -148,30 +162,6 @@ function process_movement_input(player_obj, inputs, dt, isRetroactive)
 	end
 
 	return player_obj
-end
-
-function cooldowns(dt)
-	if player.state == "DASH" then
-		player.dash.timer = player.dash.timer - dt
-	end
-
-	if player.dash.timer < 0 then
-		end_dash()
-	end
-end
-
--- function begin_dash(direction)
---     print("we dash")
--- 	player:updateState("DASH")
--- 	player.dash.timer = player.dash.duration
--- 	player.dash.direction = direction
--- 	player.acceleration = player.acceleration + player.dash.acceleration
--- end
-
-function end_dash()
-	player.dash.timer = player.dash.duration
-	player:updateState("RUN")
-	player.acceleration = player.acceleration - player.dash.acceleration
 end
 
 function update_player_movement(player_obj, inputs, dt, isRetroactive)

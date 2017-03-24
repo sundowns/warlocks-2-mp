@@ -6,7 +6,6 @@ local manager_version = "0.0.1"
 function load_sprite(sprite_def)
   local err, sprite_file
   sprite_file, err = love.filesystem.load(sprite_def)
-  --ok, sprite_file = pcall( love.filesystem.load, sprite_def )
   if not sprite_file then
     print('[ERROR] The following error happend: ' .. tostring(err))
     return nil
@@ -60,8 +59,6 @@ function update_sprite_instance(instance, dt, rotation)
     if rotation then instance.rotation = rotation end
     instance.elapsed_time = instance.elapsed_time + dt
     if instance.elapsed_time > instance.sprite.frame_duration * instance.time_scale then
-        print("curr anim: " .. instance.curr_anim)
-        print_table(instance.sprite.animations, true)
         if instance.curr_frame < #instance.sprite.animations[instance.curr_anim] then
             instance.curr_frame = instance.curr_frame + 1
         else
