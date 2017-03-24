@@ -1,50 +1,99 @@
 player_colour = nil
 player = {}
 
-Player = Class { _includes = Entity,
-     init = function(self, player_data)
-         Entity.init(self, vector(player_data.x, player_data.y))
-         self.name = player_data.name
-         self.colour = player_data.colour
-         self.entity_type = player_data.entity_type
-         self.state = player_data.state
-         self.orientation = player_data.orientation
-         self.max_movement_velocity = player_data.max_movement_velocity
-         self.movement_friction = player_data.movement_friction
-         self.base_acceleration = player_data.base_acceleration
-         self.acceleration = player_data.acceleration
-         self.dash = { -- TODO does this do anything????
-             acceleration = tonumber(player_data.dash.acceleration),
-             duration = tonumber(player_data.dash.duration), --for some reason bitser hates decimals in tables?
-             timer = tonumber(player_data.dash.timer),
-             cancellable_after = tonumber(player_data.dash.cancellable_after) --after timer is 0.7, so after 0.3seconds
-         }
-         self.width = player_data.width
-         self.height = player_data.height
-         self.velocity = vector(player_data.x_vel, player_data.y_vel)
-         self.hitbox = HC.circle(self.position.x,self.position.y,self.width/2)
-         self.hitbox.owner = self.name
-         self.hitbox.type = "PLAYER"
-         self.hasCollidedWith = {}
-         self.sprite_instance = get_sprite_instance("assets/sprites/player-" .. self.colour ..".lua")
-         self.spellbook = {}
-         self.spellbook['SPELL1'] = "FIREBALL"
-     end;
-     centre = function(self)
-         if self.orientation == "LEFT" then
-             return self.position.x + self.width/2, self.position.y - self.height/2
-         elseif self.orientation == "RIGHT" then
-             return self.position.x - self.width/2, self.position.y - self.height/2
-         end
-     end;
-     move = function(self, newX, newY)
-         Entity.move(self, newX, newY)
-         self.hitbox:moveTo(newX, newY)
-     end;
+--[[ Class hierarchy
+                      /-Fireball
+         /-Projectile<
+       /
+Entity<         /-User
+       \-Player<
+                \-Enemy
+
+]]
+
+--Abstract class inherited by User and Enemy
+Player = Class{ _includes = Entity,
+    init = function(self, position, velocity, entity_type, name, colour, state, orientation,
+    width, height)
+        Entity.init(self, name, position, velocity, entity_type, state)
+        self.colour = colour
+        self.orientation = orientation
+        self.width = width
+        self.height = height
+        self.hitbox = HC.circle(self.position.x,self.position.y,self.width/2)
+        self.hitbox.owner = self.name
+        self.hitbox.type = "PLAYER"
+        self.hasCollidedWith = {}
+        self.sprite_instance = get_sprite_instance("assets/sprites/player-" .. self.colour ..".lua")
+    end;
+    centre = function(self)
+        if self.orientation == "LEFT" then
+            return self.position.x + self.width/2, self.position.y - self.height/2
+        elseif self.orientation == "RIGHT" then
+            return self.position.x - self.width/2, self.position.y - self.height/2
+        end
+    end;
+    move = function(self, newX, newY)
+        Entity.move(self, newX, newY)
+        self.hitbox:moveTo(newX, newY)
+    end;
+    updateState = function(self, newState)
+        Entity.updateState(self, newState)
+    end;
+}
+
+Enemy = Class{ _includes = Player,
+    init = function(self, position, name, colour, state, orientation, height, width, velocity)
+        Player.init(self, position, velocity, "ENEMY", name, colour, state, orientation,
+          height, width
+        )
+        --nothing else yet
+    end;
+    centre = function(self)
+        return Player.centre(self)
+    end;
+    move = function(self, newX, newY)
+        Player.move(self, newX, newY)
+    end;
+    updateState = function(self, newState)
+        Player.updateState(self, newState)
+    end;
+}
+
+User = Class{ _includes = Player,
+    init = function(self, player_data)
+        Player.init(self, vector(player_data.x, player_data.y),
+         vector(player_data.x_vel, player_data.y_vel),
+         player_data.entity_type, player_data.name, player_data.colour,
+         player_data.state, player_data.orientation,
+         player_data.width, player_data.height
+        )
+        self.max_movement_velocity = player_data.max_movement_velocity
+        self.movement_friction = player_data.movement_friction
+        self.base_acceleration = player_data.base_acceleration
+        self.acceleration = player_data.acceleration
+        self.dash = { -- TODO does this do anything????
+            acceleration = tonumber(player_data.dash.acceleration),
+            duration = tonumber(player_data.dash.duration), --for some reason bitser hates decimals in tables?
+            timer = tonumber(player_data.dash.timer),
+            cancellable_after = tonumber(player_data.dash.cancellable_after) --after timer is 0.7, so after 0.3seconds
+        }
+        self.spellbook = {}
+        self.spellbook['SPELL1'] = "FIREBALL"
+    end;
+    centre = function(self)
+        return Player.centre(self)
+    end;
+    move = function(self, newX, newY)
+        Player.move(self, newX, newY)
+    end;
+    updateState = function(self, newState)
+        Player.updateState(self, newState)
+    end;
 }
 
 function prepare_player(player_data)
-	player = Player(player_data)
+	player = User(player_data)
 	add_entity(player.name, player.entity_type, player)
 	user_alive = true
 end
@@ -106,7 +155,7 @@ function cooldowns(dt)
 end
 
 function begin_dash(direction)
-	update_player_state("DASH")
+	player:updateState("DASH")
 	player.dash.timer = player.dash.duration
 	player.dash.direction = direction
 	player.acceleration = player.acceleration + player.dash.acceleration
@@ -114,12 +163,8 @@ end
 
 function end_dash()
 	player.dash.timer = player.dash.duration
-	update_player_state("RUN")
+	player:updateState("RUN")
 	player.acceleration = player.acceleration - player.dash.acceleration
-end
-
-function update_player_state(state)
-	update_entity_state(player, state)
 end
 
 function update_player_movement(player_obj, inputs, dt, isRetroactive)
@@ -215,9 +260,8 @@ end
 
 
 function apply_player_updates(result)
-	player.position.x = result.x
-	player.position.y = result.y
-	player.x_vel = result.x_vel
-	player.y_vel = result.y_vel
-	update_player_state(result.state)
+    player:move(result.x, result.y)
+	--player.position = vector(result.x, result.y)
+    player.velocity = vector(result.x_vel, result.y_vel)
+	player:updateState(result.state)
 end

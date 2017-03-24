@@ -23,7 +23,7 @@ Player = Class { _includes = Entity,
         -- self.hitbox = HC.circle(self.x,self.y,self.width/2)
         -- self.hitbox.owner = self.name
     	-- self.hitbox.type = "PLAYER"
-        self.hasCollidedWith = {}
+        --self.hasCollidedWith = {}
     end;
     move = function(self, newX, newY)
         Entity.move(self, newX, newY)

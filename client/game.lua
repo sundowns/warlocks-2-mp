@@ -62,6 +62,7 @@ function game:draw()
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
             local ent_x, ent_y = entity:centre()
+            --print("player centre: " .. ent_x .. "," .. "ent_y")
             if entity.orientation == "LEFT" then
 				draw_instance(entity.sprite_instance, ent_x, ent_y, true)
 			elseif entity.orientation == "RIGHT" then
@@ -72,8 +73,8 @@ function game:draw()
 
     for k, projectile in pairs(world['projectiles']) do
     	local perpendicular = projectile.velocity:perpendicular():angleTo()
-    	local adjustedX = projectile.x - projectile.width/2*math.cos(perpendicular)
-    	local adjustedY = projectile.y - projectile.width/2*math.sin(perpendicular)
+    	local adjustedX = projectile.position.x - projectile.width/2*math.cos(perpendicular)
+    	local adjustedY = projectile.position.y - projectile.width/2*math.sin(perpendicular)
         draw_instance(projectile.sprite_instance, adjustedX, adjustedY)
     end
 
@@ -88,6 +89,7 @@ function game:draw()
 		if user_alive then
 			love.graphics.setColor(255, 255, 255, 255)
 			love.graphics.circle('fill', player.position.x, player.position.y, 2, 16)
+            player.hitbox:draw()
 			reset_colour()
 		end
 		display_net_info()
@@ -99,9 +101,10 @@ function game:draw()
             reset_colour()
         end
         for i, ent in pairs(world) do
-            if player.entity_type == "ENEMY" then
+            if ent.entity_type == "ENEMY" then
                 love.graphics.setColor(255, 10, 10, 255)
     			love.graphics.circle('fill', ent.position.x, ent.position.y, 2, 16)
+                ent.hitbox:draw()
     			reset_colour()
             end
         end
