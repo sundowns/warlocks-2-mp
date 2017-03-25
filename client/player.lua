@@ -102,13 +102,20 @@ User = Class{ _includes = Player,
     	self.acceleration = self.acceleration - self.dash.acceleration
     end;
     updateCooldowns = function(self, dt)
-    	if player.state == "DASH" then
-    		player.dash.timer = player.dash.timer - dt
+    	if self.state == "DASH" then
+    		self.dash.timer = self.dash.timer - dt
     	end
 
-    	if player.dash.timer < 0 then
-    		player:endDash()
+    	if self.dash.timer < 0 then
+    		self:endDash()
     	end
+    end;
+    collidingWithPlayer = function(self, dt, collided_with, delta)
+        if not collided_with then return end
+        self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
+
+        --self:move() move a smidge manually as well so peeps arent inside each other
+        print("colliding with another player")
     end;
 }
 

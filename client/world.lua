@@ -212,15 +212,13 @@ function process_collisions(dt)
         elseif shape.type == "PLAYER" then
             --colliding_with_player(dt)
             --send a packet sayin we collided ?
-            print("colliding with another player")
+            player:collidingWithPlayer(dt, world[shape.owner], vector(delta.x, delta.y))
+
         end
         --Look at warlocks SP, `entityHit()` in player.lua
     end
 end
 
-function colliding_with_player(dt)
-
-end
 
 -- function players_colliding(player1, other_player_alias, collision_vector, dt)
 --     if player1.hasCollidedWith[other_player_alias] then return end -- If they're already colliding
