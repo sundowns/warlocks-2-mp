@@ -12,9 +12,25 @@ function load_stage(mapname)
         stage = STI.new("assets/maps/"..stage_file)
         stage:resize(stage.width,  stage.height)
         print("Loaded "..stage_file.." map succesfully")
+        generate_tile_hitboxes()
+        print("Generated tileworld successfully")
     else
         GamestateManager.switch(error_screen, "Failed to load map ", "File is incorrect format or corrupt: "..stage_file)
     end
+end
+
+function generate_tile_hitboxes()
+    if stage.layers["Collidable Objects"] ~= nil then
+        local layer = stage.layers["Collidable Objects"]
+        for k, object in pairs(layer.objects) do
+            print_table(object, true, "obj")
+            object.hitbox = HC.rectangle(object.x, object.y, object.width, object.height)
+            object.hitbox.type = "OBJECT"
+            object.hitbox.owner = "__WORLD"
+        end
+
+    end
+
 end
 
 function draw_stage()
@@ -30,7 +46,14 @@ function draw_stage()
   if stage.layers["Ground 2"] ~= nil then
       stage:drawLayer(stage.layers["Ground 2"] )
   end
-  if stage.layers["Objects"] ~= nil then
-    stage:drawLayer(stage.layers["Objects"] )
+  if settings.debug and stage.layers["Collidable Objects"] ~= nil then
+      stage:drawLayer(stage.layers["Collidable Objects"] )
   end
+end
+
+function draw_foreground()
+    if stage == nil then return end
+    if stage.layers["Foreground"] ~= nil then
+        stage:drawLayer(stage.layers["Foreground"])
+    end
 end

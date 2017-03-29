@@ -78,6 +78,8 @@ function game:draw()
         draw_instance(projectile.sprite_instance, adjustedX, adjustedY)
     end
 
+    draw_foreground()
+
 	if settings.debug then
 		local camX, camY = camera:position()
 		love.graphics.setColor(255, 0, 0, 255)

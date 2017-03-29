@@ -33,9 +33,9 @@ Player = Class{ _includes = Entity,
             return self.position.x - self.width/2, self.position.y - self.height/2
         end
     end;
-    move = function(self, newX, newY)
-        Entity.move(self, newX, newY)
-        self.hitbox:moveTo(newX, newY)
+    move = function(self, new)
+        Entity.move(self, new)
+        self.hitbox:moveTo(new.x, new.y)
     end;
     updateState = function(self, newState, isRetroactive)
         Entity.updateState(self, newState, isRetroactive)
@@ -52,11 +52,18 @@ Enemy = Class{ _includes = Player,
     centre = function(self)
         return Player.centre(self)
     end;
-    move = function(self, newX, newY)
-        Player.move(self, newX, newY)
+    move = function(self, new)
+        Player.move(self, new)
     end;
     updateState = function(self, newState)
         Player.updateState(self, newState)
+    end;
+    collidingWithPlayer = function(self, dt, collided_with, delta)
+        if not collided_with then return end
+        self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
+        Player.move(self, self.position +  delta * self.hitbox._radius * dt)
+        --self:move() move a smidge manually as well so peeps arent inside each other
+        --print("colliding with another player")
     end;
 }
 
@@ -84,8 +91,8 @@ User = Class{ _includes = Player,
     centre = function(self)
         return Player.centre(self)
     end;
-    move = function(self, newX, newY)
-        Player.move(self, newX, newY)
+    move = function(self, new)
+        Player.move(self, new)
     end;
     updateState = function(self, newState)
         Player.updateState(self, newState)
@@ -110,13 +117,18 @@ User = Class{ _includes = Player,
     		self:endDash()
     	end
     end;
-    collidingWithPlayer = function(self, dt, collided_with, delta)
+    collidingWithEnemy = function(self, dt, collided_with, delta)
         if not collided_with then return end
         self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
-
+        self:move(self.position +  delta * self.hitbox._radius * dt)
+        collided_with:collidingWithPlayer(dt, self, -1*delta)
         --self:move() move a smidge manually as well so peeps arent inside each other
-        print("colliding with another player")
+        --print("colliding with another player")
     end;
+    collidingWithObject = function(self, dt, delta)
+        self:move(self.position +  delta * self.hitbox._radius * dt)
+        self.velocity = self.velocity + delta * self.velocity:len2()/2 * dt
+    end
 }
 
 function prepare_player(player_data)
@@ -264,7 +276,7 @@ end
 
 
 function apply_player_updates(result)
-    player:move(result.x, result.y)
+    player:move(vector(result.x, result.y))
 	--player.position = vector(result.x, result.y)
     player.velocity = vector(result.x_vel, result.y_vel)
 	player:updateState(result.state)

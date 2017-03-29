@@ -17,9 +17,8 @@ Entity = Class{
         self.state = state
         self.sprite_instance = {}
     end;
-    move = function(self, inX, inY)
-        self.position.x = inX
-        self.position.y = inY
+    move = function(self, new)
+        self.position = vector(new.x, new.y)
     end;
     updateState = function(self, newState, isRetroactive)
         if self.state ~= newState then
@@ -170,7 +169,7 @@ function update_entity(entity, x, y, x_vel, y_vel, orientation)
     --     if orientation then entity.orientation = orientation end
     -- end
 
-	entity:move(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2))
+	entity:move(vector(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2)))
 	entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
 	entity.velocity.y = round_to_nth_decimal(y_vel, 2)
 	return entity
@@ -181,8 +180,8 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
         entity.position.x = round_to_nth_decimal((entity.position.x + (entity.velocity.x * dt)),2)
     	entity.position.y = round_to_nth_decimal((entity.position.y + (entity.velocity.y * dt)),2)
     else
-        entity:move(round_to_nth_decimal((entity.position.x + (entity.velocity.x * dt)),2),
-            round_to_nth_decimal((entity.position.y + (entity.velocity.y * dt)),2))
+        entity:move(vector(round_to_nth_decimal((entity.position.x + (entity.velocity.x * dt)),2),
+            round_to_nth_decimal((entity.position.y + (entity.velocity.y * dt)),2)))
     end
 
     local friction_vector = entity.velocity*-1
@@ -212,8 +211,9 @@ function process_collisions(dt)
         elseif shape.type == "PLAYER" then
             --colliding_with_player(dt)
             --send a packet sayin we collided ?
-            player:collidingWithPlayer(dt, world[shape.owner], vector(delta.x, delta.y))
-
+            player:collidingWithEnemy(dt, world[shape.owner], vector(delta.x, delta.y))
+        elseif shape.type == "OBJECT" then
+            player:collidingWithObject(dt, vector(delta.x, delta.y))
         end
         --Look at warlocks SP, `entityHit()` in player.lua
     end
