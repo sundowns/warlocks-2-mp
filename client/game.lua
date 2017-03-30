@@ -63,6 +63,7 @@ function game:draw()
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
             local ent_x, ent_y = entity:centre()
+            if entity.entity_type == "ENEMY" then print("orientation: " .. entity.orientation) end
             if entity.orientation == "LEFT" then
 				draw_instance(entity.sprite_instance, ent_x, ent_y, true)
 			elseif entity.orientation == "RIGHT" then
@@ -110,13 +111,6 @@ function game:draw()
     			reset_colour()
             end
         end
-		local stats = love.graphics.getStats()
-		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 60))
-		love.graphics.print("drawcalls: ".. stats.drawcalls, camera:worldCoords(3, 80))
-		love.graphics.print("canvasswitches: ".. stats.canvasswitches , camera:worldCoords(3, 100))
-		love.graphics.print("images loaded: ".. stats.images, camera:worldCoords(3, 120))
-		love.graphics.print("canvases loaded: ".. stats.canvases, camera:worldCoords(3, 140))
-		love.graphics.print("fonts loaded: ".. stats.fonts, camera:worldCoords(3, 160))
         --server debug messages
         for i = 1,#debug_log do
             love.graphics.setColor(35,140,35, 255 - (i-1) * 8)
@@ -137,6 +131,19 @@ function game:draw()
         -- end
         reset_font()
 	end
+
+    if settings.show_resource_info then
+        reset_colour()
+        set_font(12, 'debug')
+        local stats = love.graphics.getStats()
+		love.graphics.print("texture memory (MB): ".. stats.texturememory / 1024 / 1024, camera:worldCoords(3, 60))
+		love.graphics.print("drawcalls: ".. stats.drawcalls, camera:worldCoords(3, 80))
+		love.graphics.print("canvasswitches: ".. stats.canvasswitches , camera:worldCoords(3, 100))
+		love.graphics.print("images loaded: ".. stats.images, camera:worldCoords(3, 120))
+		love.graphics.print("canvases loaded: ".. stats.canvases, camera:worldCoords(3, 140))
+		love.graphics.print("fonts loaded: ".. stats.fonts, camera:worldCoords(3, 160))
+        reset_font()
+    end
 
 	if not connected then
 		love.graphics.print("Awaiting connection to server.", camera:worldCoords(0, 0))

@@ -30,7 +30,7 @@ StateBuffer = Class{
         --DONT DELETE THE FOLLOWING COMMENTED OUT DBG LINE.
         --It demonstrates fundamental networking problem at the moment
         --The client seems to stutter/skip ticks (as it processes other stuff?? OR as it falls behind the sever & gets synced up?)
-        dbg("max: " .. self.current_max_tick .. " - " .. in_tick .. " = " .. (self.current_max_tick - in_tick) )
+        --dbg("max: " .. self.current_max_tick .. " - " .. in_tick .. " = " .. (self.current_max_tick - in_tick) )
         return table.maxn(self.buffer) - (self.current_max_tick - in_tick)
     end;
     get = function(self, in_tick)

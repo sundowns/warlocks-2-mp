@@ -62,8 +62,6 @@ Enemy = Class{ _includes = Player,
         if not collided_with then return end
         self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
         Player.move(self, self.position +  delta * self.hitbox._radius * dt)
-        --self:move() move a smidge manually as well so peeps arent inside each other
-        --print("colliding with another player")
     end;
 }
 
@@ -122,8 +120,6 @@ User = Class{ _includes = Player,
         self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
         self:move(self.position +  delta * self.hitbox._radius * dt)
         collided_with:collidingWithPlayer(dt, self, -1*delta)
-        --self:move() move a smidge manually as well so peeps arent inside each other
-        --print("colliding with another player")
     end;
     collidingWithObject = function(self, dt, delta)
         self:move(self.position +  delta * self.hitbox._radius * dt)

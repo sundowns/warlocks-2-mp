@@ -23,14 +23,11 @@ function generate_tile_hitboxes()
     if stage.layers["Collidable Objects"] ~= nil then
         local layer = stage.layers["Collidable Objects"]
         for k, object in pairs(layer.objects) do
-            print_table(object, true, "obj")
             object.hitbox = HC.rectangle(object.x, object.y, object.width, object.height)
             object.hitbox.type = "OBJECT"
             object.hitbox.owner = "__WORLD"
         end
-
     end
-
 end
 
 function draw_stage()

@@ -110,6 +110,7 @@ function server_entity_update(entity, update)
 	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for entity update")
     if update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
         assert(update.state, "Undefined state for entity update")
+        assert(update.orientation, "Undefined orientation for entity update")
     end
 	x, y, x_vel, y_vel = tonumber(update.x), tonumber(update.y), tonumber(update.x_vel), tonumber(update.y_vel)
 
@@ -170,6 +171,7 @@ function update_entity(entity, x, y, x_vel, y_vel, orientation)
     -- end
 
 	entity:move(vector(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2)))
+    entity.orientation = orientation
 	entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
 	entity.velocity.y = round_to_nth_decimal(y_vel, 2)
 	return entity

@@ -37,6 +37,8 @@ function love.keypressed(key, scancode, isrepeat)
 	if key == "f1" then
 		settings.debug = not settings.debug
     elseif key == "f2" then
+        settings.show_resource_info = not settings.show_resource_info
+    elseif key == "f3" then
         settings.show_warnings = not settings.show_warnings
 	elseif key == "escape" then
 		love.event.quit()
