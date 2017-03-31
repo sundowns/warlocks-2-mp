@@ -8,9 +8,12 @@ function game:init()
 	require("player")
 	require("spritemanager")
 
-    if stage_file then
-        load_stage(stage_file)
-    end
+    -- if stage_file then
+    --     print("we loading stage i guess")
+    --     local hash = load_stage(stage_file)
+    --
+    --     print("wtf?")
+    -- end
 end
 
 function game:enter(previous)

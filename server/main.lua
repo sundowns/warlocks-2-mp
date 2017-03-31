@@ -2,7 +2,7 @@ package.path = '.\\?.lua;'.. '.\\libs\\?.lua;' .. '.\\libs\\?\\init.lua;' .. pac
 package.cpath = '.\\libs\\?.dll;' .. package.cpath
 
 require "socket" -- to keep track of time
-binser = require 'binser'
+binser = require "binser"
 constants = require("constants")
 enet = require "enet"
 host = enet.host_create("*:12345")
@@ -11,6 +11,7 @@ Timer = require "timer"
 HC = require "HC"
 config = require "config"
 Class = require "class"
+md5 = require "md5"
 --host:bandwidth_limit(1024000, 1024000)
 
 server_version = "0.0.1"
@@ -77,8 +78,12 @@ while running do
 					elseif payload.cmd == 'JOIN' then
 						if tostring(payload.client_version) ~= server_version then
 							send_error_packet(event.peer, "Incorrect version. Server is running " .. server_version)
-							remove_client(event.peer, event.peer .. " version " .. payload.client_version .. " conflicts with server version " .. server_version)
-						else
+							remove_client(event.peer, "Client version " .. payload.client_version .. " conflicts with server version " .. server_version)
+                        elseif tostring(payload.hash) ~= STAGE_HASH then
+                            print("client hash: " .. tostring(payload.hash) .. " did not match server: " .. STAGE_HASH)
+                            send_error_packet(event.peer, "Stage file failed checksum. \nPlease ensure you have the correct version of stage " .. config.STAGE)
+							remove_client(event.peer, "Dropped " .. payload.alias .. ". Stage file does not match servers version")
+                        else
 							client_list[event.peer:index()].name = payload.alias
 
 							if world["players"][payload.alias] then
@@ -98,7 +103,12 @@ while running do
                         else
                             log("[WARNING] Non-existant player: " .. payload.alias .. " attempted to cast fierball")
                         end
-					else
+                    elseif payload.cmd == 'STAGEINFO' then
+                        assert(payload.hash)
+                        if STAGE_HASH ~= payload.hash then
+                            print("send error to user") -- TODO
+                        end
+                    else
 						log("[WARNING] unrecognised command: " .. payload.cmd)
 					end
 				else

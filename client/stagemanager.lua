@@ -9,11 +9,13 @@ function load_stage(mapname)
     end
     local ok = false
     if pcall(STI.new, "assets/maps/"..stage_file) then
+        local hash = md5.sumhexa(tostring(love.filesystem.load("assets/maps/"..stage_file)))
         stage = STI.new("assets/maps/"..stage_file)
         stage:resize(stage.width,  stage.height)
         print("Loaded "..stage_file.." map succesfully")
         generate_tile_hitboxes()
         print("Generated tileworld successfully")
+        return hash
     else
         GamestateManager.switch(error_screen, "Failed to load map ", "File is incorrect format or corrupt: "..stage_file)
     end

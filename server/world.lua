@@ -8,6 +8,7 @@ local STAGE_WIDTH_TILES = nil
 local STAGE_HEIGHT_TILES = nil
 local STAGE_WIDTH_TOTAL = nil
 local STAGE_HEIGHT_TOTAL = nil
+STAGE_HASH = nil
 
 Entity = Class{
     init = function(self, position)
@@ -27,6 +28,7 @@ function load_stage()
       STAGE_HEIGHT_TILES = current_stage.height
       STAGE_WIDTH_TOTAL = STAGE_WIDTH_TILES * current_stage.tilewidth
       STAGE_HEIGHT_TOTAL = STAGE_HEIGHT_TILES * current_stage.tileheight
+      STAGE_HASH = md5.sumhexa(tostring(current_stage))
       log("Loaded stage: '" .. config.STAGE .. "' succesfully")
     else
       log("[ERROR] Failed to load stage. " .. config.STAGE .. " File is incorrect format or corrupt")

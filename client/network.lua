@@ -100,11 +100,11 @@ end
 function confirm_join(server_stage, assigned_colour)
     --check if stage exists, if not then download the stage or error
     --otherwise (or after the file download), send join accept packet
-    load_stage(server_stage..".lua")
+    local hash = load_stage(server_stage..".lua")
     player_colour = assigned_colour
 	server:round_trip_time(10)
 	tick = payload.server_tick
-	server:send(create_binary_packet({client_version = constants.CLIENT_VERSION}, "JOIN", tick, settings.username))
+	server:send(create_binary_packet({client_version = constants.CLIENT_VERSION, hash = hash}, "JOIN", tick, settings.username))
 	connected = true
     GamestateManager.switch(game)
 end
@@ -132,6 +132,7 @@ function send_player_update(inPlayer, inName)
 end
 
 function send_action_packet(action, data)
+    print(action)
     if not connected then return end
     server:send(create_binary_packet(data, action, tick, settings.username))
 end
@@ -253,7 +254,7 @@ function network_loading()
             payload = binser.deserialize(event.data)
             setmetatable(payload, packet_meta)
             if payload.cmd == 'SERVERERROR' then
-                disconnect("Connection closed. " ..payload.message)
+                disconnect("Connection closed. \n" ..payload.message)
             elseif payload.cmd == 'JOINACCEPTED' then
                 sync_client(payload.server_tick)
                 confirm_join(payload.stage_name, payload.colour)

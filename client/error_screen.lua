@@ -22,9 +22,9 @@ end
 
 function error_screen:draw()
   set_font(32, 'debug')
-  love.graphics.print(error_line1, love.graphics.getWidth()/2 - 100, love.graphics.getHeight()/2-50)
+  love.graphics.print(error_line1, 10, love.graphics.getHeight()/2-50)
   if error_line2 then
     set_font(16, 'debug')
-    love.graphics.print(error_line2, love.graphics.getWidth()/2 - 100, love.graphics.getHeight()/2)
+    love.graphics.print(error_line2, 10, love.graphics.getHeight()/2+50)
   end
 end

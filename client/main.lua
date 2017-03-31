@@ -1,6 +1,7 @@
 function love.load()
 	math.randomseed(os.time())
 	binser = require "libs.binser"
+    md5 = require "libs.md5"
     vector = require "libs.vector"
 	Camera = require "libs.camera"
     Timer = require "libs.timer"
