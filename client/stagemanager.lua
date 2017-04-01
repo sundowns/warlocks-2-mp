@@ -9,7 +9,7 @@ function load_stage(mapname)
     end
     local ok = false
     if pcall(STI.new, "assets/maps/"..stage_file) then
-        local hash = md5.sumhexa(tostring(love.filesystem.load("assets/maps/"..stage_file)))
+        local hash = md5.sumhexa(love.filesystem.read("assets/maps/"..stage_file))
         stage = STI.new("assets/maps/"..stage_file)
         stage:resize(stage.width,  stage.height)
         print("Loaded "..stage_file.." map succesfully")

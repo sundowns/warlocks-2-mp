@@ -79,11 +79,13 @@ while running do
 						if tostring(payload.client_version) ~= server_version then
 							send_error_packet(event.peer, "Incorrect version. Server is running " .. server_version)
 							remove_client(event.peer, "Client version " .. payload.client_version .. " conflicts with server version " .. server_version)
-                        elseif tostring(payload.hash) ~= STAGE_HASH then
-                            print("client hash: " .. tostring(payload.hash) .. " did not match server: " .. STAGE_HASH)
-                            send_error_packet(event.peer, "Stage file failed checksum. \nPlease ensure you have the correct version of stage " .. config.STAGE)
-							remove_client(event.peer, "Dropped " .. payload.alias .. ". Stage file does not match servers version")
                         else
+                            if tostring(payload.hash) ~= STAGE_HASH then
+                                print("client hash: " .. tostring(payload.hash) .. " did not match server: " .. STAGE_HASH)
+                                --TODO: Figure out how to get a consistent hash between server & client (server hash changes every time???)
+                                --send_error_packet(event.peer, "Stage file failed checksum. \nPlease ensure you have the correct version of stage " .. config.STAGE)
+    							--remove_client(event.peer, "Dropped " .. payload.alias .. ". Stage file does not match servers version")
+                            end
 							client_list[event.peer:index()].name = payload.alias
 
 							if world["players"][payload.alias] then
