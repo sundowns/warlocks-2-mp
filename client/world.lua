@@ -216,6 +216,9 @@ function process_collisions(dt)
             player:collidingWithEnemy(dt, world[shape.owner], vector(delta.x, delta.y))
         elseif shape.type == "OBJECT" then
             player:collidingWithObject(dt, vector(delta.x, delta.y))
+            if shape.properties["collide_projectiles"] then
+                print("dis collides with projecties")
+            end
         end
         --Look at warlocks SP, `entityHit()` in player.lua
     end

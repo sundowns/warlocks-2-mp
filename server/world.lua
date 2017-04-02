@@ -11,8 +11,10 @@ local STAGE_HEIGHT_TOTAL = nil
 STAGE_HASH = nil
 
 Entity = Class{
-    init = function(self, position)
+    init = function(self, position, width, height)
         self.position = position
+        self.width = width
+        self.height = height
     end;
     move = function(self, inX, inY)
         self.position.x = inX
@@ -83,16 +85,17 @@ end
 
 function spawn_projectile(x, y, velocity_vector, owner)
     log("[DEBUG] Spawning projectile with owner: " .. owner)
-    local new_projectile = {
-        position = vector(x,y),
-        velocity = velocity_vector,
-        acceleration = 600,
-        entity_type = "PROJECTILE",
-        projectile_type = "FIREBALL",
-        owner = owner,
-        width = 14,
-        height = 19
-    }
+    new_projectile = Fireball(x, y, owner, 600, velocity_vector, 14, 19)
+    -- local new_projectile = {
+    --     position = vector(x,y),
+    --     velocity = velocity_vector,
+    --     acceleration = 600,
+    --     entity_type = "PROJECTILE",
+    --     projectile_type = "FIREBALL",
+    --     owner = owner,
+    --     width = 14,
+    --     height = 19
+    -- }
 
     local id = random_string(12)
 

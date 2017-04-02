@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" nextobjectid="65">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" nextobjectid="68">
  <tileset firstgid="1" name="terrain_atlas" tilewidth="16" tileheight="16" tilecount="4096" columns="64">
   <image source="../tilesets/terrain_atlas.png" width="1024" height="1024"/>
  </tileset>
@@ -24,31 +24,95 @@
   </data>
  </layer>
  <objectgroup name="Collidable Objects">
-  <object id="12" x="228.5" y="110.667" width="54" height="42.8333"/>
+  <object id="12" x="228.5" y="110.667" width="54" height="42.8333">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
   <object id="14" x="336" y="239.5" width="223" height="4"/>
   <object id="15" x="336.864" y="188.909" width="222" height="1"/>
   <object id="23" x="543" y="240.333" width="1.66667" height="45.167"/>
   <object id="24" x="543.167" y="285.5" width="176.333" height="1"/>
   <object id="26" x="799.5" y="112.667" width="1" height="416.833"/>
   <object id="30" x="545.864" y="111.773" width="254.636" height="1"/>
-  <object id="31" x="580" y="137" width="25" height="17.5"/>
-  <object id="32" x="580" y="251" width="24.5" height="18"/>
-  <object id="33" x="2.66667" y="2" width="312" height="43.3333"/>
-  <object id="38" x="178.667" y="41.3333" width="134" height="17.3333"/>
-  <object id="39" x="1.33333" y="39.3333" width="55.3333" height="24"/>
-  <object id="44" x="1" y="59" width="42" height="624"/>
-  <object id="46" x="39" y="338" width="24" height="30"/>
-  <object id="47" x="39" y="418" width="27" height="94"/>
-  <object id="50" x="44" y="555" width="36" height="67"/>
-  <object id="51" x="320" y="1" width="98" height="61"/>
-  <object id="52" x="421" y="2" width="276" height="46"/>
-  <object id="53" x="589" y="48" width="40" height="15"/>
+  <object id="31" x="580" y="137" width="25" height="17.5">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="32" x="580" y="251" width="24.5" height="18">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="33" x="2.66667" y="2" width="312" height="43.3333">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="38" x="178.667" y="41.3333" width="134" height="17.3333">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="39" x="1.33333" y="39.3333" width="55.3333" height="24">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="44" x="1" y="59" width="42" height="624">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="46" x="39" y="338" width="24" height="30">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="47" x="39" y="418" width="27" height="94">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="50" x="44" y="555" width="36" height="67">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="51" x="320" y="1" width="98" height="61">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="52" x="421" y="2" width="276" height="46">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="53" x="589" y="48" width="40" height="15">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
   <object id="55" x="546" y="526" width="252" height="1"/>
   <object id="57" x="718.5" y="285.25" width="1" height="162.75"/>
   <object id="58" x="543.667" y="449" width="176" height="1"/>
   <object id="61" x="543" y="448.333" width="2" height="78.3333"/>
-  <object id="62" x="580.667" y="470.667" width="24.6667" height="12.6667"/>
-  <object id="63" x="674.667" y="470" width="29.3333" height="10.6667"/>
-  <object id="64" x="624.667" y="502.667" width="30" height="12"/>
+  <object id="62" x="580.667" y="470.667" width="24.6667" height="12.6667">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="63" x="674.667" y="470" width="29.3333" height="10.6667">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="64" x="624.667" y="502.667" width="30" height="12">
+   <properties>
+    <property name="collide_projectiles" type="bool" value="true"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

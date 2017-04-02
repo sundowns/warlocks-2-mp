@@ -28,6 +28,7 @@ function generate_tile_hitboxes()
             object.hitbox = HC.rectangle(object.x, object.y, object.width, object.height)
             object.hitbox.type = "OBJECT"
             object.hitbox.owner = "__WORLD"
+            object.hitbox.properties = object.properties
         end
     end
 end

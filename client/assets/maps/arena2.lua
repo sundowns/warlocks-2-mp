@@ -8,7 +8,7 @@ return {
   height = 64,
   tilewidth = 16,
   tileheight = 16,
-  nextobjectid = 65,
+  nextobjectid = 68,
   properties = {},
   tilesets = {
     {
@@ -112,7 +112,9 @@ return {
           height = 42.8333,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 14,
@@ -203,7 +205,9 @@ return {
           height = 17.5,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 32,
@@ -216,7 +220,9 @@ return {
           height = 18,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 33,
@@ -229,7 +235,9 @@ return {
           height = 43.3333,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 38,
@@ -242,7 +250,9 @@ return {
           height = 17.3333,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 39,
@@ -255,7 +265,9 @@ return {
           height = 24,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 44,
@@ -268,7 +280,9 @@ return {
           height = 624,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 46,
@@ -281,7 +295,9 @@ return {
           height = 30,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 47,
@@ -294,7 +310,9 @@ return {
           height = 94,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 50,
@@ -307,7 +325,9 @@ return {
           height = 67,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 51,
@@ -320,7 +340,9 @@ return {
           height = 61,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 52,
@@ -333,7 +355,9 @@ return {
           height = 46,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 53,
@@ -346,7 +370,9 @@ return {
           height = 15,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 55,
@@ -411,7 +437,9 @@ return {
           height = 12.6667,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 63,
@@ -424,7 +452,9 @@ return {
           height = 10.6667,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         },
         {
           id = 64,
@@ -437,7 +467,9 @@ return {
           height = 12,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_projectiles"] = true
+          }
         }
       }
     }

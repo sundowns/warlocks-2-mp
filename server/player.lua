@@ -1,6 +1,6 @@
 Player = Class { _includes = Entity,
     init = function(self, position, name, colour, client_index)
-        Entity.init(self, position)
+        Entity.init(self, position, constants.DEFAULTS.PLAYER.width, constants.DEFAULTS.PLAYER.height)
         self.name = name
         self.colour = colour
         self.entity_type = "PLAYER"
@@ -16,8 +16,6 @@ Player = Class { _includes = Entity,
 			timer = constants.DEFAULTS.PLAYER.dash_timer,
 			cancellable_after = constants.DEFAULTS.PLAYER.dash_cancellable_after --after timer is 0.7, so after 0.3seconds
         }
-        self.width = constants.DEFAULTS.PLAYER.width
-        self.height = constants.DEFAULTS.PLAYER.height
         self.index = client_index
         self.velocity = vector(0,0)
         -- self.hitbox = HC.circle(self.x,self.y,self.width/2)
