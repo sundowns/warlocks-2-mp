@@ -17,8 +17,7 @@ Entity = Class{
         self.height = height
     end;
     move = function(self, inX, inY)
-        self.position.x = inX
-        self.position.y = inY
+        self.position = vector(inX, inY)
     end;
 }
 
@@ -85,7 +84,7 @@ end
 
 function spawn_projectile(x, y, velocity_vector, owner)
     log("[DEBUG] Spawning projectile with owner: " .. owner)
-    new_projectile = Fireball(x, y, owner, 600, velocity_vector, 14, 19)
+    new_projectile = Fireball(vector(x,y), owner, 600, velocity_vector, 14, 19)
     -- local new_projectile = {
     --     position = vector(x,y),
     --     velocity = velocity_vector,
