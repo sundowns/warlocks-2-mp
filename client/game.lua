@@ -20,7 +20,7 @@ function game:enter(previous)
     tick_timer = 0
     love.graphics.setBackgroundColor(0,0,0)
     if stage ~= nil then
-        prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 1.5)
+        prepare_camera(stage.width*stage.tilewidth/2, stage.height*stage.tilewidth/2, 2)
     else
         prepare_camera(0,0,0)
     end
