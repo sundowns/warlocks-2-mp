@@ -82,41 +82,7 @@ function remove_entity(id)
     end
 end
 
-function spawn_projectile(x, y, velocity_vector, owner)
-    log("[DEBUG] Spawning projectile with owner: " .. owner)
-    new_projectile = Fireball(vector(x,y), owner, 600, velocity_vector, 14, 19)
-    -- local new_projectile = {
-    --     position = vector(x,y),
-    --     velocity = velocity_vector,
-    --     acceleration = 600,
-    --     entity_type = "PROJECTILE",
-    --     projectile_type = "FIREBALL",
-    --     owner = owner,
-    --     width = 14,
-    --     height = 19
-    -- }
 
-    local id = random_string(12)
-
-    new_projectile.hitbox = HC.rectangle(x, y, 14, 19)
-    new_projectile.hitbox.owner = owner
-    new_projectile.hitbox.type = new_projectile.entity_type
-    new_projectile.hitbox:rotate(velocity_vector:angleTo(vector(0,-1))) --should this be angleTo(0,0)?
-    local hbx1, hby1, hbx2, hby2 = new_projectile.hitbox:bbox()
-    log("x1: " .. hbx1 .. " y1: " .. hby1 .. " x2: " .. hbx2 .. " y2: " .. hby2 )
-    world["entities"][id] = new_projectile
-    --TODO: Start player cooldown (and check the skill is ready in the first place)
-    Timer.after(5, function()
-        remove_entity(id)
-    end)
-    broadcast_debug_packet("+".. new_projectile.entity_type .. " " .. id,
-        {x1=tostring(hbx1),y1=tostring(hby1),
-        width=tostring(new_projectile.width),
-        height=tostring(new_projectile.height),
-        rotation=tostring(velocity_vector:angleTo(vector(0,-1)))
-        }
-    )
-end
 
 --http://gamedev.stackexchange.com/questions/3884/should-collision-detection-be-done-server-side-or-cooperatively-between-client-s
 -- Do collision detection mostly on the CLIENT and just use the server to verify when necessary

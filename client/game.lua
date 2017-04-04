@@ -121,16 +121,7 @@ function game:draw()
 
         --print last updated projectile hitbox vertices
         love.graphics.setColor(255,192,203, 200)
-        if testX1 and testY1 and testWidth and testHeight and testRotation then
-            --love.graphics.translate(player.x, player.y) -- should be projectile.x & y
-            love.graphics.rotate(testRotation)
-            love.graphics.rectangle('line', testX1, testY1, testWidth, testHeight)
-            love.graphics.origin()
-            --love.graphics.circle('fill', testX1, testY1, 1.5, 10)
-        end
-        -- if testX2 and testY2 then
-        --     love.graphics.circle('fill', testX2, testY2, 1.5, 10)
-        -- end
+        love.graphics.polygon('line', testX1, testY1, testX2, testY2,testX3, testY3,testX4, testY4)
         reset_font()
 	end
 

@@ -1,4 +1,4 @@
-Player = Class { _includes = Entity,
+Player = Class{ _includes = Entity,
     init = function(self, position, name, colour, client_index)
         Entity.init(self, position, constants.DEFAULTS.PLAYER.width, constants.DEFAULTS.PLAYER.height)
         self.name = name
@@ -23,6 +23,13 @@ Player = Class { _includes = Entity,
     	-- self.hitbox.type = "PLAYER"
         --self.hasCollidedWith = {}
     end;
+    centre = function(self)
+        if self.orientation == "LEFT" then
+            return self.position.x + self.width/2, self.position.y - self.height/2
+        elseif self.orientation == "RIGHT" then
+            return self.position.x - self.width/2, self.position.y - self.height/2
+        end
+    end;
     move = function(self, newX, newY)
         Entity.move(self, newX, newY)
         --self.hitbox:moveTo(newX, newY)
@@ -34,7 +41,11 @@ Player = Class { _includes = Entity,
     end;
     castFireball = function(self, at_X, at_Y)
         local vector = calc_vector_from_points(self.position.x, self.position.y, at_X, at_Y)
-        spawn_projectile(self.position.x, self.position.y, vector, self.name)
+        local nVector = (vector+self.velocity):normalized()
+        local spawnPosition = nVector*self.velocity:len()*constants['TICKRATE']
+        local spawnX = self.position.x + nVector.x*self.width
+        local spawnY = self.position.y + nVector.y*self.height
+        spawn_projectile(spawnX, spawnY, vector, self.name)
     end;
 }
 
