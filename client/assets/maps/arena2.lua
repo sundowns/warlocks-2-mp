@@ -8,7 +8,7 @@ return {
   height = 64,
   tilewidth = 16,
   tileheight = 16,
-  nextobjectid = 68,
+  nextobjectid = 94,
   properties = {},
   tilesets = {
     {
@@ -113,34 +113,9 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
-        },
-        {
-          id = 14,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 336,
-          y = 239.5,
-          width = 223,
-          height = 4,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 15,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 336.864,
-          y = 188.909,
-          width = 222,
-          height = 1,
-          rotation = 0,
-          visible = true,
-          properties = {}
         },
         {
           id = 23,
@@ -153,7 +128,10 @@ return {
           height = 45.167,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 24,
@@ -166,7 +144,10 @@ return {
           height = 1,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 26,
@@ -176,10 +157,13 @@ return {
           x = 799.5,
           y = 112.667,
           width = 1,
-          height = 416.833,
+          height = 414.395,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 30,
@@ -192,7 +176,10 @@ return {
           height = 1,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 31,
@@ -206,6 +193,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -221,6 +209,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -236,6 +225,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -251,6 +241,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -266,6 +257,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -281,6 +273,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -296,6 +289,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -311,6 +305,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -326,6 +321,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -341,6 +337,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -356,6 +353,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -371,6 +369,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -379,13 +378,16 @@ return {
           name = "",
           type = "",
           shape = "rectangle",
-          x = 546,
-          y = 526,
-          width = 252,
-          height = 1,
+          x = 545.111,
+          y = 525.997,
+          width = 254.193,
+          height = 1.00518,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 57,
@@ -398,20 +400,26 @@ return {
           height = 162.75,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 58,
           name = "",
           type = "",
           shape = "rectangle",
-          x = 543.667,
-          y = 449,
-          width = 176,
+          x = 545.031,
+          y = 448.273,
+          width = 174.697,
           height = 1,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 61,
@@ -424,7 +432,10 @@ return {
           height = 78.3333,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
         },
         {
           id = 62,
@@ -438,6 +449,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -453,6 +465,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
           }
         },
@@ -468,7 +481,40 @@ return {
           rotation = 0,
           visible = true,
           properties = {
+            ["collide_players"] = true,
             ["collide_projectiles"] = true
+          }
+        },
+        {
+          id = 69,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 336,
+          y = 239.5,
+          width = 208.5,
+          height = 4,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
+          }
+        },
+        {
+          id = 70,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 336.364,
+          y = 188.409,
+          width = 222,
+          height = 3.091,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["collide_players"] = true,
+            ["collide_projectiles"] = false
           }
         }
       }

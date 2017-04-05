@@ -13,13 +13,19 @@ Projectile = Class{ _includes = Entity,
 
 Fireball = Class{ _includes = Projectile,
     init = function(self, position, owner, acceleration, velocity, width, height)
-        Projectile.init(self, position, owner, acceleration, velocity, width, height)
+        local perpendicular = velocity:perpendicular():angleTo()
+        local adjustedX = position.x - width/2*math.cos(perpendicular)
+        local adjustedY = position.y - height/2*math.sin(perpendicular)
+
+        Projectile.init(self, vector(adjustedX, adjustedY), owner, acceleration, velocity, width, height)
         self.projectile_type = "FIREBALL"
     end;
 }
 
 function spawn_projectile(x, y, velocity_vector, owner)
     log("[DEBUG] Spawning projectile with owner: " .. owner)
+
+
     new_projectile = Fireball(vector(x,y), owner, 600, velocity_vector, 14, 19)
     -- local new_projectile = {
     --     position = vector(x,y),
@@ -50,14 +56,13 @@ function spawn_projectile(x, y, velocity_vector, owner)
     local id = random_string(12)
 
 
-
     new_projectile.hitbox = HC.polygon(calculateProjectileHitbox(
-    		new_projectile.position.x, new_projectile.position.y, new_projectile.velocity:angleTo(),
+    		new_projectile.position.x, new_projectile.position.y, new_projectile.velocity,
     		new_projectile.width, new_projectile.height))
     new_projectile.hitbox.owner = owner
     new_projectile.hitbox.type = new_projectile.entity_type
-    new_projectile.hitbox:rotate(velocity_vector:angleTo(vector(0,-1))) --should this be angleTo(0,0)?
-    print_table(new_projectile)
+    --new_projectile.hitbox:rotate(210) --should this be angleTo(0,0)?
+
     local x1,y1,x2,y2,x3,y3,x4,y4 = new_projectile.hitbox._polygon:unpack()
     while world["entities"][id] ~= nil do
         id = id .. 'a'
@@ -126,11 +131,13 @@ end
 -- end
 
 
-function calculateProjectileHitbox(x1, y1, angle, width, height)
+function calculateProjectileHitbox(x1, y1, velocity, width, height)
+    local angle = velocity:angleTo()
+    local perpendicularAngle = velocity:perpendicular():angleTo()
 	local x2 = x1 + (width * math.cos(angle))
 	local y2 = y1 + (width * math.sin(angle))
-	local x3 = x1 + (height * math.cos(angle+1.6)) --idk why +1.5 radians is the perpendicular but hey, it works
-	local y3 = y1 + (height * math.sin(angle+1.6))
+	local x3 = x1 + (height * math.cos(perpendicularAngle)) --idk why +1.5 radians is the perpendicular but hey, it works
+	local y3 = y1 + (height * math.sin(perpendicularAngle))
 	local x4 = x3 + (x2 - x1) -- x3 + the difference between x1 and x2
 	local y4 = y3 + (y2 - y1)
 

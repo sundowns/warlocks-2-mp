@@ -75,10 +75,11 @@ function game:draw()
 	end
 
     for k, projectile in pairs(world['projectiles']) do
-    	local perpendicular = projectile.velocity:perpendicular():angleTo()
-    	local adjustedX = projectile.position.x - projectile.width/2*math.cos(perpendicular)
-    	local adjustedY = projectile.position.y - projectile.width/2*math.sin(perpendicular)
-        draw_instance(projectile.sprite_instance, adjustedX, adjustedY)
+    	--local perpendicular = projectile.velocity:perpendicular():angleTo()
+    	--local adjustedX = projectile.position.x - projectile.width/2*math.cos(perpendicular)
+    	--local adjustedY = projectile.position.y - projectile.width/2*math.sin(perpendicular)
+        draw_instance(projectile.sprite_instance, projectile.position.x , projectile.position.y )
+        love.graphics.circle('fill', projectile.position.x, projectile.position.y, 2, 16)
     end
 
     draw_foreground()
