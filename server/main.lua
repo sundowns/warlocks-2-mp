@@ -17,6 +17,7 @@ md5 = require "md5"
 server_version = "0.0.1"
 require("util")
 require("network")
+require("entity")
 require("world")
 require("projectile")
 require("player")
@@ -135,7 +136,7 @@ while running do
 		end
 
         --disabled for now (forever? just verify off the back of client-detected collisions instead? 100x easier)
-        --process_collisions(dt)
+        process_collisions(dt)
         update_entity_positions(dt)
 		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
 			send_world_update()

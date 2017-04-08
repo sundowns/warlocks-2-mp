@@ -10,33 +10,6 @@ local STAGE_WIDTH_TOTAL = nil
 local STAGE_HEIGHT_TOTAL = nil
 STAGE_HASH = nil
 
-Entity = Class{
-    init = function(self, position, width, height)
-        self.position = position
-        self.width = width
-        self.height = height
-    end;
-    move = function(self, inX, inY)
-        self.position = vector(inX, inY)
-    end;
-    asSpawnPacket = function(self)
-        return {
-            x = tostring(self.position.x),
-            y = tostring(self.position.y),
-            width = self.width,
-            height = self.height
-        }
-    end;
-    asUpdatePacket = function(self)
-        return {
-            x = tostring(round_to_nth_decimal(self.position.x,2)),
-            y = tostring(round_to_nth_decimal(self.position.y)),
-            width = self.width,
-            height = self.height
-        }
-    end;
-}
-
 function load_stage()
   if not file_exists("stages/"..config.STAGE) then
     if pcall(dofile, "stages/"..config.STAGE..".lua") then
@@ -93,7 +66,7 @@ function remove_player(entity)
 	local ent = world["players"][entity]
 	if ent.entity_type == "PLAYER" then
 		table.insert(unused_colours, ent.colour)
-        --HC.remove(ent.hitbox)
+        HC.remove(ent.hitbox)
 		world["players"][entity] = nil
 	end
     table.insert(deleted, {id = entity, entity_type = ent.entity_type})
@@ -103,6 +76,9 @@ function remove_entity(id)
     local ent = world["entities"][id]
     if ent ~= nil then
         table.insert(deleted, {id = id, entity_type = ent.entity_type})
+        if world["entities"][id].hitbox ~= nil then
+            HC.remove(world["entities"][id].hitbox)
+        end
         world["entities"][id] = nil
     end
 end
@@ -115,12 +91,18 @@ function process_collisions(dt)
     for alias, player in pairs(world["players"]) do
         for shape, delta in pairs(HC.collisions(player.hitbox)) do
             if shape.type == "PROJECTILE" then
-                -- do collision stuff
-            elseif shape.type == "PLAYER" then
+
                 if shape.owner ~= alias then
-                    log("shape owner: " .. shape.owner .. " player alias: " .. alias)
-                    players_colliding(player, shape.owner, delta, dt)
+                    player:hitByProjectile(shape.owner, world["entities"][shape.id], vector(delta.x, delta.y), dt)
+                    world["entities"][shape.id]:hitEnemy()
+                    remove_entity(shape.id)
+                    --remove_entity(shape.parent)
                 end
+            -- elseif shape.type == "PLAYER" then
+                -- if shape.owner ~= alias then
+                --
+                --     --players_colliding(player, shape.owner, delta, dt)
+                -- end
             end
             --Look at warlocks SP, `entityHit()` in player.lua
 

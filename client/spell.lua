@@ -1,6 +1,7 @@
 Projectile = Class{ _includes = Entity,
-    init = function(self, name, position, velocity, projectile_type, height, width)
+    init = function(self, name, position, velocity, projectile_type, height, width, acceleration)
         Entity.init(self, name, position, velocity, "PROJECTILE", "DEFAULT")
+        self.acceleration = acceleration
         self.projectile_type = projectile_type
         self.height = height
         self.width = width
@@ -14,8 +15,8 @@ Projectile = Class{ _includes = Entity,
 }
 
 Fireball = Class{ _includes = Projectile,
-    init = function(self, name, position, velocity, height, width)
-        Projectile.init(self, name, position, velocity, "FIREBALL", height, width)
+    init = function(self, name, position, velocity, height, width, acceleration)
+        Projectile.init(self, name, position, velocity, "FIREBALL", height, width, acceleration)
         self.sprite_instance = get_sprite_instance("assets/sprites/fireball.lua")
         self.sprite_instance.rotation = velocity:angleTo(vector(0,-1))
         self.hitbox = HC.polygon(calculateProjectileHitbox(
@@ -27,8 +28,11 @@ Fireball = Class{ _includes = Projectile,
     end;
     move = function(self, new)
         Projectile.move(self, new)
-        
-        self.hitbox:moveTo(new.x, new.y)
+        local perpendicular = self.velocity:perpendicular():angleTo()
+        local adjustedX = self.position.x + self.width/2*math.cos(perpendicular)
+        local adjustedY = self.position.y + self.height/2*math.sin(perpendicular)
+        local delta = self.velocity:normalized() * self.acceleration * (constants.TICKRATE / 3.9) -- server net update rate!!
+        self.hitbox:move(delta.x, delta.y)
     end;
 }
 

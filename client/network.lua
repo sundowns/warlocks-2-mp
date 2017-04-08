@@ -249,7 +249,8 @@ function verify_spawn_projectile_packet(payload)
         alias = payload.alias,
         width = tonumber(payload.width),
         height = tonumber(payload.height),
-        projectile_type = payload.projectile_type
+        projectile_type = payload.projectile_type,
+        acceleration = payload.acceleration
     }
 
     local verified = true
@@ -261,7 +262,26 @@ function verify_spawn_projectile_packet(payload)
     if not assert(update.alias) or not type(update.alias) == 'string' then verified = false print("Failed to verify alias for projectile spawn packet") end
     if not assert(update.width) then verified = false print("Failed to verify width for projectile spawn packet") end
     if not assert(update.height) then verified = false print("Failed to verify height for projectile spawn packet") end
+    if not assert(update.acceleration) then verified = false print("Failed to verify acceleration for projectile spawn packet") end
     if not assert(update.projectile_type) then verified = false print("Failed to verify projectile_type for projectile spawn packet") end
+    return verified, update
+end
+
+function verify_spawn_explosion_packet(payload)
+    local update = {
+        id = payload.alias,
+        x = tonumber(payload.x),
+        y = tonumber(payload.y),
+        entity_type = payload.entity_type,
+        radius = payload.radius
+    }
+
+    local verified = true
+    if not assert(update.x) then verified = false print("Failed to verify x for explosion spawn packet") end
+    if not assert(update.y) then verified = false print("Failed to verify y for explosion spawn packet") end
+    if not assert(update.entity_type  == 'EXPLOSION') or not type(update.entity_type) == 'string' then verified = false print("Failed to verify entity_type for explosion spawn packet") end
+    if not assert(update.id) or not type(update.id) == 'string' then verified = false print("Failed to verify id for explosion spawn packet") end
+    if not assert(update.radius) then verified = false print("Failed to verify radius for explosion spawn packet") end
     return verified, update
 end
 
@@ -326,6 +346,11 @@ function network_gamerunning()
                     end
                 elseif payload.cmd == 'SPAWN_PROJECTILE' then
                     local ok, data = verify_spawn_projectile_packet(payload)
+                    if ok then
+                        server_entity_create(data)
+                    end
+                elseif payload.cmd == 'SPAWN_EXPLOSION' then
+                    local ok, data = verify_spawn_explosion_packet(payload)
                     if ok then
                         server_entity_create(data)
                     end

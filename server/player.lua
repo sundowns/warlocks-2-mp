@@ -1,9 +1,10 @@
 Player = Class{ _includes = Entity,
-    init = function(self, position, name, colour, client_index)
-        Entity.init(self, position, constants.DEFAULTS.PLAYER.width, constants.DEFAULTS.PLAYER.height)
+    init = function(self, name, position, colour, client_index)
+        Entity.init(self, name, position, "PLAYER")
+        self.width = constants.DEFAULTS.PLAYER.width
+        self.height = constants.DEFAULTS.PLAYER.height
         self.name = name
         self.colour = colour
-        self.entity_type = "PLAYER"
         self.state = "STAND"
 		self.orientation = "RIGHT"
         self.max_movement_velocity = constants.DEFAULTS.PLAYER.max_movement_velocity
@@ -18,6 +19,9 @@ Player = Class{ _includes = Entity,
         }
         self.index = client_index
         self.velocity = vector(0,0)
+        self.hitbox = HC.circle(position.x,position.y,constants.DEFAULTS.PLAYER.width/2)
+        self.hitbox.owner = name
+        self.hitbox.type = "PLAYER"
         -- self.hitbox = HC.circle(self.x,self.y,self.width/2)
         -- self.hitbox.owner = self.name
     	-- self.hitbox.type = "PLAYER"
@@ -31,8 +35,9 @@ Player = Class{ _includes = Entity,
         end
     end;
     move = function(self, newX, newY)
+        print("new: " .. newX .. ", " .. newY)
         Entity.move(self, newX, newY)
-        --self.hitbox:moveTo(newX, newY)
+        self.hitbox:moveTo(newX, newY)
     end;
     castSpell = function(self, spell, at_X, at_Y)
         if spell == "FIREBALL" then
@@ -47,11 +52,17 @@ Player = Class{ _includes = Entity,
         local spawnY = self.position.y + nVector.y*self.height
         spawn_projectile(spawnX, spawnY, vector, self.name)
     end;
+    hitByProjectile = function(self, projectile_owner, projectile, delta, dt)
+        --take a bit of damage for direct hit (more knockback too!!?)
+        self.velocity = self.velocity + delta * projectile.acceleration * dt
+        local new_pos = self.position +  delta * self.hitbox._radius * dt
+        self:move(new_pos.x, new_pos.y)
+    end;
 }
 
 function spawn_player(name, x, y, client_index)
     local colour =  client_list[client_index].colour
-	local new_player = Player(vector(x, y),name,colour, client_index)
+	local new_player = Player(name, vector(x, y),colour, client_index)
 	world["players"][payload.alias] = new_player
 
 	return new_player

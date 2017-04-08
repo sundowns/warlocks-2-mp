@@ -23,7 +23,7 @@ Player = Class{ _includes = Entity,
         self.hitbox = HC.circle(self.position.x,self.position.y,self.width/2)
         self.hitbox.owner = self.name
         self.hitbox.type = "PLAYER"
-        self.hasCollidedWith = {}
+        --self.hasCollidedWith = {}
         self.sprite_instance = get_sprite_instance("assets/sprites/player-" .. self.colour ..".lua")
     end;
     centre = function(self)
@@ -59,7 +59,7 @@ Enemy = Class{ _includes = Player,
         Player.updateState(self, newState)
     end;
     collidingWithPlayer = function(self, dt, collided_with, delta)
-        if not collided_with then return end
+        if not collided_with or not delta or not dt then return end
         self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
         Player.move(self, self.position +  delta * self.hitbox._radius * dt)
     end;

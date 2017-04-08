@@ -102,6 +102,11 @@ function broadcast_projectile_spawn_packet(projectile, id)
     host:broadcast(create_binary_packet(projectile:asSpawnPacket(), "SPAWN_PROJECTILE", tick, id))
 end
 
+function broadcast_projectile_explosion_packet(explosion, id)
+    host:broadcast(create_binary_packet(explosion:asSpawnPacket(), "SPAWN_EXPLOSION", tick, id))
+end
+
+
 function broadcast_debug_packet(message, extra_data)
     local data = {message = message}
     if extra_data then

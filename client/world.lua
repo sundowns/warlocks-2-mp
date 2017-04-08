@@ -50,6 +50,9 @@ function remove_entity(name, entity_type)
     	end
     elseif entity_type == "PROJECTILE" then
         if world['projectiles'][name] ~= nil then
+            if world['projectiles'][name].hitbox ~= nil then
+                HC.remove(world['projectiles'][name].hitbox)
+            end
             world['projectiles'][name] = nil
         end
     end
@@ -69,7 +72,7 @@ end
 
 function add_fireball(ent)
     local fireball = Fireball(ent.name, vector(ent.x, ent.y), vector(ent.x_vel, ent.y_vel),
-        ent.height, ent.width
+        ent.height, ent.width, ent.acceleration
     )
     world["projectiles"][fireball.name] = fireball
 end
@@ -107,12 +110,19 @@ end
 function server_entity_update(entity, update)
 	assert(update.x and update.y, "Undefined x or y coordinates for entity update")
 	assert(update.entity_type, "Undefined entity_type value for entity update")
-	assert(update.x_vel and update.y_vel, "Undefined x or y velocities for entity update")
-    if update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
+    local x, y, x_vel, y_vel
+    if update.entity_type == "PROJECTILE" then
+        assert(update.x_vel and update.y_vel, "Undefined x or y velocities for entity update")
+        x_vel, y_vel = tonumber(update.x_vel), tonumber(update.y_vel)
+    elseif update.entity_type == "EXPLOSION" then
+        assert(update.radius, "Undefined radius for explosion update")
+    elseif update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
+        assert(update.x_vel and update.y_vel, "Undefined x or y velocities for entity update")
         assert(update.state, "Undefined state for entity update")
         assert(update.orientation, "Undefined orientation for entity update")
+        x_vel, y_vel = tonumber(update.x_vel), tonumber(update.y_vel)
     end
-	x, y, x_vel, y_vel = tonumber(update.x), tonumber(update.y), tonumber(update.x_vel), tonumber(update.y_vel)
+	x, y = tonumber(update.x), tonumber(update.y)
 
     if update.entity_type == "PLAYER" or update.entity_type == "ENEMY" then
         local ent = world[entity]
@@ -133,14 +143,15 @@ function server_entity_create(entity)
 	assert(entity.y, "Undefined y coordinate value for entity creation")
 	assert(entity.entity_type, "Undefined entity_type value for entity creation")
 	x, y, x_vel, y_vel = tonumber(entity.x), tonumber(entity.y), tonumber(entity.x_vel), tonumber(entity.y_vel)
-    width, height = tonumber(entity.width), tonumber(entity.height)
+    width, height, acceleration = tonumber(entity.width), tonumber(entity.height), tonumber(entity.acceleration)
 	add_entity(entity.alias, entity.entity_type, {
         name = entity.alias,
         colour = entity.colour or nil,
         x=x, y=y, x_vel=x_vel or 0,
         y_vel=y_vel or 0, state=entity.state or nil,
         projectile_type = entity.projectile_type or nil,
-        width = entity.width or 0, height = entity.height or 0
+        width = width or 0, height = height or 0,
+        acceleration = acceleration
     })
 end
 
