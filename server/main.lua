@@ -93,7 +93,7 @@ while running do
 								remove_client(payload.alias, "Duplicate alias")
 							else
 								client_player_map[event.peer:index()] = payload.alias
-								send_spawn_packet(event.peer, spawn_player(payload.alias, 250, 250, event.peer:index()))
+								send_player_spawn_packet(event.peer, spawn_player(payload.alias, 250, 250, event.peer:index()))
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then

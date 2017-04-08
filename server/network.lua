@@ -38,7 +38,7 @@ function send_world_update()
 	end
 
     for id, entity in pairs(world["entities"]) do
-        local payload = create_entity_payload(entity)
+        local payload = entity:asUpdatePacket()
         local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, id)
 		if ok then
 			host:broadcast(packet)
@@ -88,25 +88,18 @@ function create_spawn_player_payload(player)
   	}
 end
 
-function create_entity_payload(entity)
-    return {x = tostring(round_to_nth_decimal(entity.position.x,2)), y = tostring(round_to_nth_decimal(entity.position.y)),
-        x_vel = tostring(round_to_nth_decimal(entity.velocity.x,2)),
-        y_vel = tostring(round_to_nth_decimal(entity.velocity.y,2)),
-        entity_type = entity.entity_type,
-        projectile_type = entity.projectile_type or nil,
-        width = entity.width or 0,
-        height = entity.height or 0
-    }
-end
-
 function send_error_packet(peer, message)
 	local data = { message = message }
 	peer:send(create_binary_packet(data, "SERVERERROR", tick))
 end
 
-function send_spawn_packet(peer, player)
+function send_player_spawn_packet(peer, player)
     log(player.name .. " spawned.")
-	peer:send(create_binary_packet(create_spawn_player_payload(player), "SPAWN", tick))
+	peer:send(create_binary_packet(create_spawn_player_payload(player), "SPAWN_PLAYER", tick))
+end
+
+function broadcast_projectile_spawn_packet(projectile, id)
+    host:broadcast(create_binary_packet(projectile:asSpawnPacket(), "SPAWN_PROJECTILE", tick, id))
 end
 
 function broadcast_debug_packet(message, extra_data)

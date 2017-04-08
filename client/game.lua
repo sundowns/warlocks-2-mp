@@ -95,22 +95,25 @@ function game:draw()
 		if user_alive then
 			love.graphics.setColor(255, 255, 255, 255)
 			love.graphics.circle('fill', player.position.x, player.position.y, 2, 16)
-            player.hitbox:draw()
+            player.hitbox:draw('line')
 			reset_colour()
 		end
 		display_net_info()
 		love.graphics.print("tick: "..tostring(tick), camera:worldCoords(3,15))
 
-        for i, projectile in ipairs(world["projectiles"]) do
+        for key, projectile in pairs(world["projectiles"]) do
             love.graphics.setColor(0, 255, 0, 255)
             love.graphics.circle('fill', projectile.position.x, projectile.position.y, 1, 16)
+            --love.graphics.draw('line', projectile.hitbox._polygon:unpack())
+            projectile.hitbox:draw('line')
+            --love.graphics.polygon('fill', projectile.hitbox._polygon:unpack())
             reset_colour()
         end
         for i, ent in pairs(world) do
             if ent.entity_type == "ENEMY" then
                 love.graphics.setColor(255, 10, 10, 255)
     			love.graphics.circle('fill', ent.position.x, ent.position.y, 2, 16)
-                ent.hitbox:draw()
+                ent.hitbox:draw('line')
     			reset_colour()
             end
         end
@@ -121,7 +124,7 @@ function game:draw()
         end
 
         --print last updated projectile hitbox vertices
-        love.graphics.setColor(255,192,203, 200)
+        love.graphics.setColor(255,30,30, 200)
         love.graphics.polygon('line', testX1, testY1, testX2, testY2,testX3, testY3,testX4, testY4)
         reset_font()
 	end

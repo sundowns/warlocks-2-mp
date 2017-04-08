@@ -199,7 +199,7 @@ function verify_player_correction_packet(payload)
     return verified, update
 end
 
-function verify_spawn_packet(payload)
+function verify_spawn_player_packet(payload)
     local update = {
         x = tonumber(payload.x),
         y = tonumber(payload.y),
@@ -239,6 +239,32 @@ function verify_spawn_packet(payload)
     return verified, update
 end
 
+function verify_spawn_projectile_packet(payload)
+    local update = {
+        x = tonumber(payload.x),
+        y = tonumber(payload.y),
+        x_vel = tonumber(payload.x_vel),
+        y_vel = tonumber(payload.y_vel),
+        entity_type = payload.entity_type,
+        alias = payload.alias,
+        width = tonumber(payload.width),
+        height = tonumber(payload.height),
+        projectile_type = payload.projectile_type
+    }
+
+    local verified = true
+    if not assert(update.x) then verified = false print("Failed to verify x for projectile spawn packet") end
+    if not assert(update.y) then verified = false print("Failed to verify y for projectile spawn packet") end
+    if not assert(update.x_vel) then verified = false print("Failed to verify x_vel for projectile spawn packet") end
+    if not assert(update.y_vel) then verified = false print("Failed to verify y_vel for projectile spawn packet") end
+    if not assert(update.entity_type  == 'PROJECTILE') or not type(update.entity_type) == 'string' then verified = false print("Failed to verify entity_type for projectile spawn packet") end
+    if not assert(update.alias) or not type(update.alias) == 'string' then verified = false print("Failed to verify alias for projectile spawn packet") end
+    if not assert(update.width) then verified = false print("Failed to verify width for projectile spawn packet") end
+    if not assert(update.height) then verified = false print("Failed to verify height for projectile spawn packet") end
+    if not assert(update.projectile_type) then verified = false print("Failed to verify projectile_type for projectile spawn packet") end
+    return verified, update
+end
+
 function network_run()
     if connected then
         network_gamerunning()
@@ -258,11 +284,6 @@ function network_loading()
             elseif payload.cmd == 'JOINACCEPTED' then
                 sync_client(payload.server_tick)
                 confirm_join(payload.stage_name, payload.colour)
-            elseif payload.cmd == 'SPAWN' then
-                local ok, update = verify_spawn_packet(payload)
-                if ok then
-                    prepare_player(update)
-                end
             end
         elseif event and event.type == "connect" then
             dbg("[WARNING] connect message received")
@@ -287,8 +308,8 @@ function network_gamerunning()
                     assert(payload.alias)
                     assert(payload.server_tick)
                     sync_client(payload.server_tick)
-                    if world[payload.alias] == nil and world['projectiles'][payload.alias] == nil then
-                        server_entity_create(payload)
+                    if world[payload.alias] == nil and payload.entity_type == "PLAYER" then
+                        add_entity(payload.alias, payload.entity_type, payload)
                     else
                         if payload.alias ~= settings.username then
                             server_entity_update(payload.alias, payload)
@@ -298,10 +319,15 @@ function network_gamerunning()
                     end
                 elseif payload.cmd == 'ENTITYDESTROY' then
                     remove_entity(payload.alias, payload.entity_type)
-                elseif payload.cmd == 'SPAWN' then
-                    local ok, update = verify_spawn_packet(payload)
+                elseif payload.cmd == 'SPAWN_PLAYER' then
+                    local ok, update = verify_spawn_player_packet(payload)
                     if ok then
                         prepare_player(update)
+                    end
+                elseif payload.cmd == 'SPAWN_PROJECTILE' then
+                    local ok, data = verify_spawn_projectile_packet(payload)
+                    if ok then
+                        server_entity_create(data)
                     end
                 elseif payload.cmd == 'PLAYERCORRECTION' then
                     local ok, update = verify_player_correction_packet(payload)
@@ -317,7 +343,6 @@ function network_gamerunning()
                 elseif payload.cmd == 'DEBUG' then
                     debug_log[#debug_log+1] = payload.message
 
-                    print_table(payload, true, "pizload")
                     testX1 = tonumber(payload.x1)
                     testX2 = tonumber(payload.x2)
                     testX3 = tonumber(payload.x3)
@@ -326,8 +351,6 @@ function network_gamerunning()
                     testY2 = tonumber(payload.y2)
                     testY3 = tonumber(payload.y3)
                     testY4 = tonumber(payload.y4)
-
-
                 else
                     dbg("unrecognised command:", payload.cmd)
                 end

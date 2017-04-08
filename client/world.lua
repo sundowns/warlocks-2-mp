@@ -122,7 +122,7 @@ function server_entity_update(entity, update)
         world[entity] = ent
     elseif update.entity_type == "PROJECTILE" then
         local ent = world['projectiles'][entity]
-    	if not ent then return nil end
+        if not ent then return nil end
         ent = update_entity(ent, x, y, x_vel, y_vel)
         world['projectiles'][entity] = ent
     end
@@ -163,13 +163,6 @@ function update_entities(dt)
 end
 
 function update_entity(entity, x, y, x_vel, y_vel, orientation)
-    -- if entity.entity_type == "PROJECTILE" then
-    --     entity.velocity.x = x_vel
-    --     entity.velocity.y = y_vel
-    -- elseif entity.entity_type == "ENEMY" then
-    --     if orientation then entity.orientation = orientation end
-    -- end
-
 	entity:move(vector(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2)))
     entity.orientation = orientation
 	entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
