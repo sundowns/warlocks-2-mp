@@ -259,7 +259,6 @@ function retroactive_player_state_calc(update)
 	--update player with result state
 	if updated then
 		apply_player_updates(result_state)
-		print("applying results of retroactive update")
 	end
 end
 

@@ -7,13 +7,6 @@ function game:init()
     require("spell")
 	require("player")
 	require("spritemanager")
-
-    -- if stage_file then
-    --     print("we loading stage i guess")
-    --     local hash = load_stage(stage_file)
-    --
-    --     print("wtf?")
-    -- end
 end
 
 function game:enter(previous)
@@ -75,9 +68,6 @@ function game:draw()
 	end
 
     for k, projectile in pairs(world['projectiles']) do
-    	--local perpendicular = projectile.velocity:perpendicular():angleTo()
-    	--local adjustedX = projectile.position.x - projectile.width/2*math.cos(perpendicular)
-    	--local adjustedY = projectile.position.y - projectile.width/2*math.sin(perpendicular)
         draw_instance(projectile.sprite_instance, projectile.position.x , projectile.position.y )
         love.graphics.circle('fill', projectile.position.x, projectile.position.y, 2, 16)
     end
@@ -104,9 +94,7 @@ function game:draw()
         for key, projectile in pairs(world["projectiles"]) do
             love.graphics.setColor(0, 255, 0, 255)
             love.graphics.circle('fill', projectile.position.x, projectile.position.y, 1, 16)
-            --love.graphics.draw('line', projectile.hitbox._polygon:unpack())
             projectile.hitbox:draw('line')
-            --love.graphics.polygon('fill', projectile.hitbox._polygon:unpack())
             reset_colour()
         end
         for i, ent in pairs(world) do

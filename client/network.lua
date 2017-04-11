@@ -7,13 +7,21 @@ connected = false
 connection_is_new = true
 connected_time = 0
 debug_log = {}
-
+--TODO: Create & use a new one for projectile/entity states to extrapolate position based on server updates
+--base class (NOTHING SPECIFIC TO ANY ENTITY!)
 StateBuffer = Class{
     init = function(self, size)
         self.max_size = size
         self.current_max_tick = 0
         self.largest_index = 0
         self.buffer = {}
+    end;
+}
+
+--for player (INCLUDES INPUTS)
+PlayerStateBuffer = Class{ _includes=StateBuffer,
+    init = function(self, size)
+        StateBuffer.init(self, size)
     end;
     add = function(self, state, input, client_tick)
         local state_snapshot = {player = state, input = input, tick = client_tick}
@@ -73,7 +81,7 @@ StateBuffer = Class{
     end;
 }
 
-player_state_buffer = StateBuffer(constants.PLAYER_BUFFER_LENGTH)
+player_state_buffer = PlayerStateBuffer(constants.PLAYER_BUFFER_LENGTH)
 
 function net_initialise()
 	host = enet.host_create()
@@ -132,7 +140,6 @@ function send_player_update(inPlayer, inName)
 end
 
 function send_action_packet(action, data)
-    print(action)
     if not connected then return end
     server:send(create_binary_packet(data, action, tick, settings.username))
 end
