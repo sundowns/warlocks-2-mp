@@ -27,11 +27,15 @@ Fireball = Class{ _includes = Projectile,
         self.hitbox:rotate(math.pi/2, position.x, position.y)
     end;
     move = function(self, new)
+        --[[TODO: This is currently just kind of estimating,
+            it needs to use a state buffer and calculate where it should be based on server tick it spawned
+            + ticks since. Should be able to do 100% because its constant speed!
+        --]]
         Projectile.move(self, new)
         local perpendicular = self.velocity:perpendicular():angleTo()
         local adjustedX = self.position.x + self.width/2*math.cos(perpendicular)
         local adjustedY = self.position.y + self.height/2*math.sin(perpendicular)
-        local delta = self.velocity:normalized() * self.acceleration * (constants.TICKRATE / 3.9) -- server net update rate!!
+        local delta = self.velocity:normalized() * self.acceleration * (constants.TICKRATE / 3.85) -- server net update rate!!
         self.hitbox:move(delta.x, delta.y)
     end;
 }

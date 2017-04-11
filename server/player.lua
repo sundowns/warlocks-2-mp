@@ -35,7 +35,7 @@ Player = Class{ _includes = Entity,
         end
     end;
     move = function(self, newX, newY)
-        print("new: " .. newX .. ", " .. newY)
+        --print("new: " .. newX .. ", " .. newY)
         Entity.move(self, newX, newY)
         self.hitbox:moveTo(newX, newY)
     end;

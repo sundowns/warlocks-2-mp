@@ -174,10 +174,10 @@ function update_entities(dt)
 end
 
 function update_entity(entity, x, y, x_vel, y_vel, orientation)
-	entity:move(vector(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2)))
-    entity.orientation = orientation
-	entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
+    entity.velocity.x = round_to_nth_decimal(x_vel, 2) -- y dis?
 	entity.velocity.y = round_to_nth_decimal(y_vel, 2)
+    entity.orientation = orientation
+	entity:move(vector(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2)))
 	return entity
 end
 
