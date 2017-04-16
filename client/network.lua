@@ -16,23 +16,15 @@ StateBuffer = Class{
         self.largest_index = 0
         self.buffer = {}
     end;
-}
-
---for player (INCLUDES INPUTS)
-PlayerStateBuffer = Class{ _includes=StateBuffer,
-    init = function(self, size)
-        StateBuffer.init(self, size)
-    end;
-    add = function(self, state, input, client_tick)
-        local state_snapshot = {player = state, input = input, tick = client_tick}
-        self.largest_index = table.insert(self.buffer, state_snapshot)
-        self.current_max_tick = client_tick
+    add = function(self, info_tick, snapshot)
+        self.largest_index = table.insert(self.buffer, snapshot)
+        self.current_max_tick = info_tick
         if #self.buffer > self.max_size then
             table.remove(self.buffer, 1)
         end
     end;
     getIndexByTick = function(self, in_tick)
-        if self:getMinimumTick() > in_tick then
+        if StateBuffer.getMinimumTick(self) > in_tick then
             return nil --this tick's state isnt in the buffers current range
         end
         --DONT DELETE THE FOLLOWING COMMENTED OUT DBG LINE.
@@ -41,9 +33,29 @@ PlayerStateBuffer = Class{ _includes=StateBuffer,
         --dbg("max: " .. self.current_max_tick .. " - " .. in_tick .. " = " .. (self.current_max_tick - in_tick) )
         return table.maxn(self.buffer) - (self.current_max_tick - in_tick)
     end;
+    replaceAndRemoveOld = function(self, in_tick, snapshot)
+        local index_to_replace = StateBuffer.replace(self, in_tick, snapshot)
+
+        --remove the older ones here too
+        for i = 1, index_to_replace - 1, 1 do
+            table.remove(self.buffer, i)
+        end
+    end;
+    replace = function(self, in_tick, snapshot)
+        local index_to_replace = StateBuffer.getIndexByTick(self,in_tick)
+        if not index_to_replace then return false end
+        self.buffer[index_to_replace] = snapshot
+        return index_to_replace
+    end;
+    getCurrentSize = function(self)
+        return #self.buffer
+    end;
+    getMinimumTick = function(self)
+        return self.current_max_tick - #self.buffer
+    end;
     get = function(self, in_tick)
         if self.current_max_tick == 0 then return nil end
-        local snapshot_index = self:getIndexByTick(in_tick)
+        local snapshot_index = StateBuffer.getIndexByTick(self,tonumber(in_tick))
         if not snapshot_index then return nil end
         local snapshot = self.buffer[snapshot_index]
         if not snapshot then return nil end
@@ -56,32 +68,40 @@ PlayerStateBuffer = Class{ _includes=StateBuffer,
 
         return snapshot
     end;
-    replaceAndRemoveOld = function(self, in_tick, snapshot)
-        local index_to_replace = self:replace(in_tick, snapshot)
+}
 
-        --remove the older ones here too
-        for i = 1, index_to_replace - 1, 1 do
-            table.remove(self.buffer, i)
-        end
+ProjectileStateBuffer = Class{_includes=StateBuffer,
+    init = function(self, size)
+        StateBuffer.init(self, size)
     end;
-    replace = function(self, in_tick, snapshot)
-        local index_to_replace = self:getIndexByTick(in_tick)
-        if not index_to_replace then return false end
-        self.buffer[index_to_replace] = snapshot
-        return index_to_replace
+    get = function(self, in_tick)
+        return StateBuffer.get(self, in_tick)
     end;
-    getCurrentSize = function(self)
-        return #self.buffer
+    add = function(self, state, server_tick)
+        local state_snapshot = {projectile = state, tick = server_tick}
+        StateBuffer.add(self, server_tick, state_snapshot)
     end;
-    getMinimumTick = function(self)
-        return self.current_max_tick - #self.buffer
+    printDump = function(self, force)
+        print_table(self.buffer, force, "[Projectile State Buffer Dump]")
+    end;
+}
+
+--for player (INCLUDES INPUTS)
+PlayerStateBuffer = Class{ _includes=StateBuffer,
+    init = function(self, size)
+        StateBuffer.init(self, size)
+    end;
+    get = function(self, in_tick)
+        return StateBuffer.get(self, in_tick)
+    end;
+    add = function(self, state, input, client_tick)
+        local state_snapshot = {player = state, input = input, tick = client_tick}
+        StateBuffer.add(self, client_tick, state_snapshot)
     end;
     printDump = function(self, force)
         print_table(self.buffer, force, "[Player State Buffer Dump]")
     end;
 }
-
-player_state_buffer = PlayerStateBuffer(constants.PLAYER_BUFFER_LENGTH)
 
 function net_initialise()
 	host = enet.host_create()

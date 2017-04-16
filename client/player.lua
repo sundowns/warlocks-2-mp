@@ -85,6 +85,7 @@ User = Class{ _includes = Player,
         }
         self.spellbook = {}
         self.spellbook['SPELL1'] = "FIREBALL"
+        self.state_buffer = PlayerStateBuffer(constants.PLAYER_BUFFER_LENGTH)
     end;
     centre = function(self)
         return Player.centre(self)
@@ -237,22 +238,22 @@ function get_player_state_snapshot()
 end
 
 function retroactive_player_state_calc(update)
-	local old = player_state_buffer:get(tonumber(update.server_tick))
+	local old = player.state_buffer:get(tonumber(update.server_tick))
 	local updated_state = create_player_state_snapshot(update.x, update.y, update.x_vel, update.y_vel, update.state,
 	old.player.acceleration, old.player.orientation, old.player.dash, old.player.max_movement_velocity)
 	old.player = updated_state
 
-    player_state_buffer:replaceAndRemoveOld(tonumber(update.server_tick), old)
+    player.state_buffer:replaceAndRemoveOld(tonumber(update.server_tick), old)
 
     local result_state = updated_state
 	local updated = false
     --TODO: SHOULD WE BE DOING THIS 2 AT A TIME?????
 	for index=update.server_tick, tick-last_offset,2 do --Lets make sure we're not correcting events as they happen.
-        local snapshot = player_state_buffer:get(index)
+        local snapshot = player.state_buffer:get(index)
         assert(snapshot)
         local input = snapshot.input
 		result_state = calc_new_player_state(result_state, input, constants.TICKRATE*2) --(dt = 2 ticks)
-        player_state_buffer:replace(index, {player=result_state,input=input,tick=index})
+        player.state_buffer:replace(index, {player=result_state,input=input,tick=index})
 		updated = true
 	end
 

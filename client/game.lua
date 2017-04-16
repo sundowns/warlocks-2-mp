@@ -28,7 +28,7 @@ function game:update(dt)
 		tick_timer = tick_timer - constants.TICKRATE
 
 		if connected and user_alive then
-            player_state_buffer:add(get_player_state_snapshot(), get_input_snapshot(), tick)
+            player.state_buffer:add(get_player_state_snapshot(), get_input_snapshot(), tick)
 	 	end
 		network_run()
 	end
@@ -146,7 +146,7 @@ function game:keyreleased(key, code)
         local player_x, player_y = player:centre()
         send_action_packet("CASTSPELL", {at_X=x, at_Y=y, player_x = player.x, player_y = player.y, spell_type=player.spellbook['SPELL1']})
     elseif key == "f5" then
-        print("[client_tick: " .. tick .. "][buffer_size ".. player_state_buffer:getCurrentSize() .. "][" .. "largest_tick " .. player_state_buffer.current_max_tick .. "]")
-        player_state_buffer:printDump(true)
+        print("[client_tick: " .. tick .. "][buffer_size ".. player.state_buffer:getCurrentSize() .. "][" .. "largest_tick " .. player.state_buffer.current_max_tick .. "]")
+        player.state_buffer:printDump(true)
     end
 end

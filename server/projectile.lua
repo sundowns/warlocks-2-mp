@@ -6,7 +6,6 @@ Projectile = Class{ _includes = Entity,
         self.owner = owner
         self.acceleration = acceleration
         self.velocity = velocity
-        --self.stateBuffer = StateBu
     end;
     asSpawnPacket = function(self)
         local packet = Entity.asSpawnPacket(self)

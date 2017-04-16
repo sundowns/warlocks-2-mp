@@ -85,7 +85,7 @@ function server_player_update(update, force_retroactive)
 	update.y = tonumber(update.y)
 	update.x_vel = tonumber(update.x_vel)
 	update.y_vel = tonumber(update.y_vel)
-	local player_state = player_state_buffer:get(tonumber(update.server_tick))
+	local player_state = player.state_buffer:get(tonumber(update.server_tick))
 	if player_state then
 		if force_retroactive then
             retroactive_player_state_calc(update)
@@ -103,7 +103,7 @@ function server_player_update(update, force_retroactive)
         end
 	else
 		--print("failed player_state condition")
-        dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][largest buffer tick ".. player_state_buffer.current_max_tick .. "]")
+        dbg("player state is null [svr_tick: " .. update.server_tick.."][client_tick: " .. tick .. "][largest buffer tick ".. player.state_buffer.current_max_tick .. "]")
 	end
 end
 
@@ -133,7 +133,7 @@ function server_entity_update(entity, update)
     elseif update.entity_type == "PROJECTILE" then
         local ent = world['projectiles'][entity]
         if not ent then return nil end
-        ent = update_entity(ent, x, y, x_vel, y_vel)
+        ent:serverUpdate({x_vel = x_vel, y_vel = y_vel, x = x, y = y}, update.server_tick)
         world['projectiles'][entity] = ent
     end
 end
@@ -156,6 +156,7 @@ function server_entity_create(entity)
 end
 
 function update_entities(dt)
+    --print("there r " .. #world["projectiles"] .. " projectiles in da mix")
 	for name, entity in pairs(world) do
         if entity.entity_type == "PLAYER" then
             update_sprite_instance(entity.sprite_instance, dt)
@@ -164,11 +165,12 @@ function update_entities(dt)
             update_sprite_instance(entity.sprite_instance, dt)
         end
 	end
-    for id, projectile in ipairs(world["projectiles"]) do
+    for id, projectile in pairs(world["projectiles"]) do
         if projectile.entity_type == "PROJECTILE" then
             local rotation = projectile.velocity:angleTo(vector(0,-1))
             update_sprite_instance(projectile.sprite_instance, dt, rotation)
             --print("updating projectile")
+            projectile:update(dt)
         end
     end
 end
@@ -180,6 +182,7 @@ function update_entity(entity, x, y, x_vel, y_vel, orientation)
 	entity:move(vector(round_to_nth_decimal(x, 2), round_to_nth_decimal(y, 2)))
 	return entity
 end
+
 
 function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
     if isRetroactive then

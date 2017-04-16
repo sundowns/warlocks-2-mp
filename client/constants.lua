@@ -12,5 +12,6 @@ return {
   PLAYER_FRICTION = 150,
   CLIENT_VERSION = "0.0.1",
   PLAYER_BUFFER_LENGTH = 256, -- maintain states for the last x amount of ticks
+  PROJECTILE_BUFFER_LENGTH = 64, -- could this being 2 small cause crashes? c how we go 
   NET_PARAMS = network_params.LAN
 }

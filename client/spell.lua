@@ -5,12 +5,38 @@ Projectile = Class{ _includes = Entity,
         self.projectile_type = projectile_type
         self.height = height
         self.width = width
+        self.state_buffer = ProjectileStateBuffer(constants.PROJECTILE_BUFFER_LENGTH)
+        self.spawn_data = { velocity = velocity:clone(), position = position:clone() }
     end;
     move = function(self, new)
         Entity.move(self, new)
     end;
-    updateState = function(self, newState)
-        Entity.updateState(self, newState)
+    updateState = function(self, new_state)
+        Entity.updateState(self, new_state)
+    end;
+    serverUpdate = function(self, update, update_tick)
+        self.state_buffer:add(update, update_tick)
+        --interpolate from server tick to now
+        --self.velocity.x = round_to_nth_decimal(update.x_vel, 2)
+    	--self.velocity.y = round_to_nth_decimal(update.y_vel, 2)
+    end;
+    update = function(self, dt)
+        local last_server_update = self.state_buffer:get(self.state_buffer.current_max_tick)
+        if last_server_update then
+            local extrapolated_pos = nil
+            print("extrapadoolin from " .. self.state_buffer.current_max_tick .. " to " .. tick)
+            local extrapolation_tick_difference = tick - self.state_buffer.current_max_tick
+            if extrapolation_tick_difference > 0 then
+                local last_velocity = vector(last_server_update.projectile.x_vel,last_server_update.projectile.y_vel)
+                extrapolated_pos = vector(last_server_update.projectile.x, last_server_update.projectile.y) + last_velocity * extrapolation_tick_difference * constants.TICKRATE
+                extrapolated_pos = extrapolated_pos + self.velocity * dt
+            end
+
+            return vector(
+                round_to_nth_decimal(extrapolated_pos.x,2),
+                round_to_nth_decimal(extrapolated_pos.y,2)
+            )
+        end
     end;
 }
 
@@ -27,16 +53,20 @@ Fireball = Class{ _includes = Projectile,
         self.hitbox:rotate(math.pi/2, position.x, position.y)
     end;
     move = function(self, new)
-        --[[TODO: This is currently just kind of estimating,
-            it needs to use a state buffer and calculate where it should be based on server tick it spawned
-            + ticks since. Should be able to do 100% because its constant speed!
-        --]]
         Projectile.move(self, new)
         local perpendicular = self.velocity:perpendicular():angleTo()
         local adjustedX = self.position.x + self.width/2*math.cos(perpendicular)
         local adjustedY = self.position.y + self.height/2*math.sin(perpendicular)
-        local delta = self.velocity:normalized() * self.acceleration * (constants.TICKRATE / 3.85) -- server net update rate!!
-        self.hitbox:move(delta.x, delta.y)
+        self.hitbox:moveTo(adjustedX, adjustedY)
+    end;
+    serverUpdate = function(self, update, update_tick)
+        Projectile.serverUpdate(self, update, update_tick)
+    end;
+    update = function(self, dt)
+        local new_position = Projectile.update(self, dt)
+        if new_position then
+            self:move(new_position)
+        end
     end;
 }
 
