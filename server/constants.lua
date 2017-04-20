@@ -18,6 +18,9 @@ local defaults = {
         dash_cancellable_after = "0.1", --after timer is 0.7, so after 0.3seconds
         width = 20,
 	  	height = 22,
+    },
+    FIREBALL = {
+        speed = 50
     }
 }
 

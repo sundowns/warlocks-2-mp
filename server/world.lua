@@ -28,16 +28,16 @@ end
 
 function update_entity_positions(dt)
 	update_player_positions(dt)
-
     for id,entity in pairs(world["entities"]) do
         if entity.entity_type == 'PROJECTILE' then
-            local delta = entity.velocity:normalized() * entity.acceleration * dt
+            local delta = entity.velocity * dt
             entity.position = entity.position + delta
             if entity.position.x < 0 or entity.position.x > STAGE_WIDTH_TOTAL or
                 entity.position.y < 0 or entity.position.y > STAGE_HEIGHT_TOTAL then
                 remove_entity(id)
             else
-                entity.hitbox:move(delta.x, delta.y)
+                entity.hitbox:moveTo(entity.position.x, entity.position.y)
+                --TODO: delete dis
                 local x1,y1,x2,y2,x3,y3,x4,y4 = entity.hitbox._polygon:unpack()
                 broadcast_debug_packet("+".. entity.entity_type .. " " .. id, {
                     x1=tostring(x1),y1=tostring(y1),

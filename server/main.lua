@@ -136,14 +136,14 @@ while running do
 		end
 
         --disabled for now (forever? just verify off the back of client-detected collisions instead? 100x easier)
-        process_collisions(dt)
-        update_entity_positions(dt)
+        process_collisions(constants.TICKRATE)
+        update_entity_positions(constants.TICKRATE)
 		if tick%constants.NET_PARAMS.NET_UPDATE_RATE == 0 then
 			send_world_update()
 			deleted = {}
 		end
 
-        update_client_timeout(dt)
+        update_client_timeout(constants.TICKRATE)
 	end
     send_buffered_corrections()
 end

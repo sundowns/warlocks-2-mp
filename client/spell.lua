@@ -1,11 +1,11 @@
 Projectile = Class{ _includes = Entity,
-    init = function(self, name, position, velocity, projectile_type, height, width, acceleration)
+    init = function(self, name, position, velocity, projectile_type, height, width, speed)
         Entity.init(self, name, position, velocity, "PROJECTILE", "DEFAULT")
-        self.acceleration = acceleration
+        self.speed = speed
         self.projectile_type = projectile_type
         self.height = height
         self.width = width
-        self.state_buffer = ProjectileStateBuffer(constants.PROJECTILE_BUFFER_LENGTH)
+        --self.state_buffer = ProjectileStateBuffer(constants.PROJECTILE_BUFFER_LENGTH)
         self.spawn_data = { velocity = velocity:clone(), position = position:clone() }
     end;
     move = function(self, new)
@@ -15,34 +15,21 @@ Projectile = Class{ _includes = Entity,
         Entity.updateState(self, new_state)
     end;
     serverUpdate = function(self, update, update_tick)
-        self.state_buffer:add(update, update_tick)
-        --interpolate from server tick to now
-        --self.velocity.x = round_to_nth_decimal(update.x_vel, 2)
-    	--self.velocity.y = round_to_nth_decimal(update.y_vel, 2)
+        --shouldnt be touched atm (only do it when things ACTUALLY CHANGE FROM WHAT WE EXPECT)
+        --self.state_buffer:add(update, update_tick)
     end;
     update = function(self, dt)
-        local last_server_update = self.state_buffer:get(self.state_buffer.current_max_tick)
-        if last_server_update then
-            local extrapolated_pos = nil
-            print("extrapadoolin from " .. self.state_buffer.current_max_tick .. " to " .. tick)
-            local extrapolation_tick_difference = tick - self.state_buffer.current_max_tick
-            if extrapolation_tick_difference > 0 then
-                local last_velocity = vector(last_server_update.projectile.x_vel,last_server_update.projectile.y_vel)
-                extrapolated_pos = vector(last_server_update.projectile.x, last_server_update.projectile.y) + last_velocity * extrapolation_tick_difference * constants.TICKRATE
-                extrapolated_pos = extrapolated_pos + self.velocity * dt
-            end
-
-            return vector(
-                round_to_nth_decimal(extrapolated_pos.x,2),
-                round_to_nth_decimal(extrapolated_pos.y,2)
-            )
-        end
+        local new_pos = self.position + self.velocity * dt
+        return vector(
+            round_to_nth_decimal(new_pos.x,2),
+            round_to_nth_decimal(new_pos.y,2)
+        )
     end;
 }
 
 Fireball = Class{ _includes = Projectile,
-    init = function(self, name, position, velocity, height, width, acceleration)
-        Projectile.init(self, name, position, velocity, "FIREBALL", height, width, acceleration)
+    init = function(self, name, position, velocity, height, width, speed)
+        Projectile.init(self, name, position, velocity, "FIREBALL", height, width, speed)
         self.sprite_instance = get_sprite_instance("assets/sprites/fireball.lua")
         self.sprite_instance.rotation = velocity:angleTo(vector(0,-1))
         self.hitbox = HC.polygon(calculateProjectileHitbox(
@@ -54,10 +41,13 @@ Fireball = Class{ _includes = Projectile,
     end;
     move = function(self, new)
         Projectile.move(self, new)
+        self.hitbox:moveTo(new.x, new.y)
+    end;
+    centre = function(self)
         local perpendicular = self.velocity:perpendicular():angleTo()
         local adjustedX = self.position.x + self.width/2*math.cos(perpendicular)
-        local adjustedY = self.position.y + self.height/2*math.sin(perpendicular)
-        self.hitbox:moveTo(adjustedX, adjustedY)
+        local adjustedY = self.position.y + self.width/2*math.sin(perpendicular)
+        return adjustedX, adjustedY
     end;
     serverUpdate = function(self, update, update_tick)
         Projectile.serverUpdate(self, update, update_tick)

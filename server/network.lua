@@ -38,15 +38,18 @@ function send_world_update()
 	end
 
     for id, entity in pairs(world["entities"]) do
-        local payload = entity:asUpdatePacket()
-        local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, id)
-		if ok then
-			host:broadcast(packet)
-		else
-			log("Error sending projectile " .. id .. " during world update. Dumping data:")
-			print_table(payload)
-			log("----------")
-		end
+        if entity.scheduleUpdate then
+            entity.scheduleUpdate = false
+            local payload = entity:asUpdatePacket()
+            local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, id)
+    		if ok then
+    			host:broadcast(packet)
+    		else
+    			log("Error sending projectile " .. id .. " during world update. Dumping data:")
+    			print_table(payload)
+    			log("----------")
+    		end
+        end
     end
 
 	for i, v in ipairs(deleted) do

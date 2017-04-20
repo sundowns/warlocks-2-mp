@@ -72,7 +72,7 @@ end
 
 function add_fireball(ent)
     local fireball = Fireball(ent.name, vector(ent.x, ent.y), vector(ent.x_vel, ent.y_vel),
-        ent.height, ent.width, ent.acceleration
+        ent.height, ent.width, ent.speed
     )
     world["projectiles"][fireball.name] = fireball
 end
@@ -143,7 +143,7 @@ function server_entity_create(entity)
 	assert(entity.y, "Undefined y coordinate value for entity creation")
 	assert(entity.entity_type, "Undefined entity_type value for entity creation")
 	x, y, x_vel, y_vel = tonumber(entity.x), tonumber(entity.y), tonumber(entity.x_vel), tonumber(entity.y_vel)
-    width, height, acceleration = tonumber(entity.width), tonumber(entity.height), tonumber(entity.acceleration)
+    width, height, speed = tonumber(entity.width), tonumber(entity.height), tonumber(entity.speed)
 	add_entity(entity.alias, entity.entity_type, {
         name = entity.alias,
         colour = entity.colour or nil,
@@ -151,7 +151,7 @@ function server_entity_create(entity)
         y_vel=y_vel or 0, state=entity.state or nil,
         projectile_type = entity.projectile_type or nil,
         width = width or 0, height = height or 0,
-        acceleration = acceleration
+        speed = speed
     })
 end
 
@@ -214,15 +214,17 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 end
 
 function process_collisions(dt)
-    for shape, delta in pairs(HC.collisions(player.hitbox)) do
-        if shape.type == "PROJECTILE" then
-            --Look at warlocks SP, `entityHit()` in player.lua
-            -- do collision stuff
-        elseif shape.type == "PLAYER" then
-            player:collidingWithEnemy(dt, world[shape.owner], vector(delta.x, delta.y))
-        elseif shape.type == "OBJECT" then
-            if shape.properties["collide_players"] then
-                player:collidingWithObject(dt, vector(delta.x, delta.y))
+    if user_alive then
+        for shape, delta in pairs(HC.collisions(player.hitbox)) do
+            if shape.type == "PROJECTILE" then
+                --Look at warlocks SP, `entityHit()` in player.lua
+                -- do collision stuff
+            elseif shape.type == "PLAYER" then
+                player:collidingWithEnemy(dt, world[shape.owner], vector(delta.x, delta.y))
+            elseif shape.type == "OBJECT" then
+                if shape.properties["collide_players"] then
+                    player:collidingWithObject(dt, vector(delta.x, delta.y))
+                end
             end
         end
     end

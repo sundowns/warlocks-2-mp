@@ -1,10 +1,10 @@
 Projectile = Class{ _includes = Entity,
-    init = function(self, id, position, owner, acceleration, velocity, width, height)
+    init = function(self, id, position, owner, speed, velocity, width, height)
         Entity.init(self, id, position, "PROJECTILE")
         self.width = width
         self.height = height
         self.owner = owner
-        self.acceleration = acceleration
+        self.speed = speed
         self.velocity = velocity
     end;
     asSpawnPacket = function(self)
@@ -13,7 +13,7 @@ Projectile = Class{ _includes = Entity,
         packet.y_vel = tostring(self.velocity.y)
         packet.owner = self.owner
         packet.entity_type = self.entity_type
-        packet.acceleration = self.acceleration
+        packet.speed = self.speed
         return packet
     end;
     asUpdatePacket = function(self)
@@ -21,18 +21,18 @@ Projectile = Class{ _includes = Entity,
         packet.x_vel = tostring(round_to_nth_decimal(self.velocity.x,2))
         packet.y_vel = tostring(round_to_nth_decimal(self.velocity.y,2))
         packet.entity_type = self.entity_type
-        packet.acceleration = self.acceleration
+        packet.speed = self.speed
         return packet
     end;
 }
 
 Fireball = Class{ _includes = Projectile,
-    init = function(self, id, position, owner, acceleration, velocity, width, height)
-        local perpendicular = velocity:perpendicular():angleTo()
+    init = function(self, id, position, owner, speed, direction, width, height)
+        local perpendicular = direction:perpendicular():angleTo()
         local adjustedX = position.x - width/2*math.cos(perpendicular)
         local adjustedY = position.y - height/2*math.sin(perpendicular)
-
-        Projectile.init(self, id, vector(adjustedX, adjustedY), owner, acceleration, velocity, width, height)
+        local velocity = direction*speed
+        Projectile.init(self, id, vector(adjustedX, adjustedY), owner, speed, velocity, width, height)
         self.projectile_type = "FIREBALL"
         self.hitbox = HC.polygon(calculateProjectileHitbox(
         		adjustedX, adjustedY, velocity,
@@ -62,7 +62,7 @@ Fireball = Class{ _includes = Projectile,
 function spawn_projectile(x, y, velocity_vector, owner)
     log("[DEBUG] Spawning projectile with owner: " .. owner)
     local id = random_string(12)
-    new_projectile = Fireball(id, vector(x,y), owner, 600, velocity_vector, 14, 19)
+    new_projectile = Fireball(id, vector(x,y), owner, constants.DEFAULTS.FIREBALL.speed, velocity_vector:normalized(), 14, 19)
 
     while world["entities"][id] ~= nil do
         id = id .. 'a'

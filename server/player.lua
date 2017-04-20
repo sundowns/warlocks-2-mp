@@ -35,7 +35,6 @@ Player = Class{ _includes = Entity,
         end
     end;
     move = function(self, newX, newY)
-        --print("new: " .. newX .. ", " .. newY)
         Entity.move(self, newX, newY)
         self.hitbox:moveTo(newX, newY)
     end;
@@ -54,7 +53,7 @@ Player = Class{ _includes = Entity,
     end;
     hitByProjectile = function(self, projectile_owner, projectile, delta, dt)
         --take a bit of damage for direct hit (more knockback too!!?)
-        self.velocity = self.velocity + delta * projectile.acceleration * dt
+        self.velocity = self.velocity + delta * projectile.speed * dt
         local new_pos = self.position +  delta * self.hitbox._radius * dt
         self:move(new_pos.x, new_pos.y)
     end;

@@ -40,7 +40,6 @@ function game:update(dt)
 		update_player_movement(player, input, dt, false)--/ KEEP THESE TWO ONE AFTER THE OTHER
 		update_camera()
 		player:updateCooldowns(dt)
-        process_collisions(dt)
 	end
 
     while #debug_log > 20 do
@@ -48,6 +47,7 @@ function game:update(dt)
     end
 
 	update_entities(dt)
+    process_collisions(dt)
 end
 
 function game:draw()
@@ -58,25 +58,25 @@ function game:draw()
     --draw players
 	for k, entity in pairs(world) do
         if entity.entity_type == "PLAYER" or entity.entity_type == "ENEMY" then
-            local ent_x, ent_y = entity:centre()
+            local cX, cY = entity:centre()
             if entity.orientation == "LEFT" then
-				draw_instance(entity.sprite_instance, ent_x, ent_y, true)
+				draw_instance(entity.sprite_instance, cX, cY, true)
 			elseif entity.orientation == "RIGHT" then
-				draw_instance(entity.sprite_instance, ent_x, ent_y)
+				draw_instance(entity.sprite_instance, cX, cY)
 			end
         end
 	end
 
     for k, projectile in pairs(world['projectiles']) do
-        draw_instance(projectile.sprite_instance, projectile.position.x , projectile.position.y )
-        love.graphics.circle('fill', projectile.position.x, projectile.position.y, 2, 16)
+        local cX, cY = projectile:centre()
+        draw_instance(projectile.sprite_instance, projectile.position.x, projectile.position.y)
     end
 
     draw_foreground()
 
 	if settings.debug then
 		local camX, camY = camera:position()
-		love.graphics.setColor(255, 0, 0, 255)
+		love.graphics.setColor(0, 0, 0, 100)
 		love.graphics.circle('fill', camX, camY, 2, 16)
 		love.graphics.rectangle('line', camX - love.graphics.getWidth()*cameraBoxWidth, camY - love.graphics.getHeight()*cameraBoxHeight, 2*cameraBoxWidth*love.graphics.getWidth(), 2*cameraBoxHeight*love.graphics.getHeight())
 		reset_colour()

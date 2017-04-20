@@ -3,6 +3,7 @@ Entity = Class{
         self.id = id
         self.position = position
         self.entity_type = type
+        self.scheduleUpdate = false
     end;
     move = function(self, inX, inY)
         self.position = vector(inX, inY)

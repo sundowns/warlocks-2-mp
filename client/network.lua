@@ -277,7 +277,7 @@ function verify_spawn_projectile_packet(payload)
         width = tonumber(payload.width),
         height = tonumber(payload.height),
         projectile_type = payload.projectile_type,
-        acceleration = payload.acceleration
+        speed = payload.speed
     }
 
     local verified = true
@@ -289,7 +289,7 @@ function verify_spawn_projectile_packet(payload)
     if not assert(update.alias) or not type(update.alias) == 'string' then verified = false print("Failed to verify alias for projectile spawn packet") end
     if not assert(update.width) then verified = false print("Failed to verify width for projectile spawn packet") end
     if not assert(update.height) then verified = false print("Failed to verify height for projectile spawn packet") end
-    if not assert(update.acceleration) then verified = false print("Failed to verify acceleration for projectile spawn packet") end
+    if not assert(update.speed) then verified = false print("Failed to verify speed for projectile spawn packet") end
     if not assert(update.projectile_type) then verified = false print("Failed to verify projectile_type for projectile spawn packet") end
     return verified, update
 end
