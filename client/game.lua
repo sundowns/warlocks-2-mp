@@ -68,7 +68,6 @@ function game:draw()
 	end
 
     for k, projectile in pairs(world['projectiles']) do
-        local cX, cY = projectile:centre()
         draw_instance(projectile.sprite_instance, projectile.position.x, projectile.position.y)
     end
 
@@ -112,8 +111,14 @@ function game:draw()
         end
 
         --print last updated projectile hitbox vertices
-        love.graphics.setColor(255,30,30, 200)
+        love.graphics.setColor(30,30,255, 200)
         love.graphics.polygon('line', testX1, testY1, testX2, testY2,testX3, testY3,testX4, testY4)
+
+        if testEntX and testEntY then
+            love.graphics.setColor(255, 0, 255, 200)
+            love.graphics.circle('fill', testEntX, testEntY, 2, 16)
+        end
+
         reset_font()
 	end
 

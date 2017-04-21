@@ -57,6 +57,7 @@ function send_world_update()
 	end
 end
 
+--TODO: change this to a function on player :asUpdatePacket()
 function create_player_payload(player)
 	return {
         x = tostring(player.position.x), y = tostring(player.position.y),
@@ -70,27 +71,6 @@ function create_player_payload(player)
     }
 end
 
-function create_spawn_player_payload(player)
-    return {
-		x = player.position.x,
-		y = player.position.y,
-	  	name = player.name,
-	  	entity_type = "PLAYER",
-	  	state = "STAND",
-		orientation = "RIGHT",
-        x_vel = player.velocity.x,
-        y_vel = player.velocity.y,
-	  	max_movement_velocity = player.max_movement_velocity,
-	  	movement_friction = player.movement_friction,
-		base_acceleration = player.base_acceleration,
-		acceleration = player.acceleration,
-		dash = player.dash,
-        width = player.width,
-	  	height = player.height,
-	  	colour = player.colour
-  	}
-end
-
 function send_error_packet(peer, message)
 	local data = { message = message }
 	peer:send(create_binary_packet(data, "SERVERERROR", tick))
@@ -98,7 +78,7 @@ end
 
 function send_player_spawn_packet(peer, player)
     log(player.name .. " spawned.")
-	peer:send(create_binary_packet(create_spawn_player_payload(player), "SPAWN_PLAYER", tick))
+	peer:send(create_binary_packet(player:asSpawnPacket(), "SPAWN_PLAYER", tick))
 end
 
 function broadcast_projectile_spawn_packet(projectile, id)

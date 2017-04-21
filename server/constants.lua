@@ -20,7 +20,7 @@ local defaults = {
 	  	height = 22,
     },
     FIREBALL = {
-        speed = 50
+        speed = 80
     }
 }
 

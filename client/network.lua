@@ -403,6 +403,8 @@ function network_gamerunning()
                     testY2 = tonumber(payload.y2)
                     testY3 = tonumber(payload.y3)
                     testY4 = tonumber(payload.y4)
+                    testEntX = tonumber(payload.entX)
+                    testEntY = tonumber(payload.entY)
                 else
                     dbg("unrecognised command:", payload.cmd)
                 end

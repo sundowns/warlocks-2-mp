@@ -19,11 +19,30 @@ function load_stage()
       STAGE_WIDTH_TOTAL = STAGE_WIDTH_TILES * current_stage.tilewidth
       STAGE_HEIGHT_TOTAL = STAGE_HEIGHT_TILES * current_stage.tileheight
       STAGE_HASH = md5.sumhexa(tostring(current_stage))
+      generate_tile_hitboxes()
       log("Loaded stage: '" .. config.STAGE .. "' succesfully")
     else
       log("[ERROR] Failed to load stage. " .. config.STAGE .. " File is incorrect format or corrupt")
     end
   end
+end
+
+function generate_tile_hitboxes()
+    local collidablesLayerExists = false
+    local count = 0
+    for i, layer in ipairs(current_stage.layers) do
+        if layer.type == "objectgroup" and layer.name == "Collidable Objects" then
+            collidablesLayerExists = true
+            for j, object in ipairs(layer.objects) do
+                object.hitbox = HC.rectangle(object.x, object.y, object.width, object.height)
+                object.hitbox.type = "OBJECT"
+                object.hitbox.owner = "__WORLD"
+                object.hitbox.properties = object.properties
+                count = count + 1
+            end
+        end
+    end
+    log("Generated " .. count .. " map collision objects")
 end
 
 function update_entity_positions(dt)
@@ -36,16 +55,18 @@ function update_entity_positions(dt)
                 entity.position.y < 0 or entity.position.y > STAGE_HEIGHT_TOTAL then
                 remove_entity(id)
             else
-                entity.hitbox:moveTo(entity.position.x, entity.position.y)
+                entity.hitbox:move(delta.x, delta.y)
                 --TODO: delete dis
-                local x1,y1,x2,y2,x3,y3,x4,y4 = entity.hitbox._polygon:unpack()
-                broadcast_debug_packet("+".. entity.entity_type .. " " .. id, {
-                    x1=tostring(x1),y1=tostring(y1),
-                    x2=tostring(x2),y2=tostring(y2),
-                    x3=tostring(x3),y3=tostring(y3),
-                    x4=tostring(x4),y4=tostring(y4)
-                    }
-                )
+                -- local x1,y1,x2,y2,x3,y3,x4,y4 = entity.hitbox._polygon:unpack()
+                -- broadcast_debug_packet("+".. entity.entity_type .. " " .. id, {
+                --     x1=tostring(x1),y1=tostring(y1),
+                --     x2=tostring(x2),y2=tostring(y2),
+                --     x3=tostring(x3),y3=tostring(y3),
+                --     x4=tostring(x4),y4=tostring(y4),
+                --     entX = tostring(entity.position.x),
+                --     entY = tostring(entity.position.y)
+                --     }
+                -- )
             end
         end
     end
@@ -83,29 +104,20 @@ function remove_entity(id)
     end
 end
 
---http://gamedev.stackexchange.com/questions/3884/should-collision-detection-be-done-server-side-or-cooperatively-between-client-s
--- Do collision detection mostly on the CLIENT and just use the server to verify when necessary
--- ur game isnt gonna be a AAA eSport so dont waste your life trying to make it bulletproof!
-
 function process_collisions(dt)
-    for alias, player in pairs(world["players"]) do
-        for shape, delta in pairs(HC.collisions(player.hitbox)) do
-            if shape.type == "PROJECTILE" then
-
-                if shape.owner ~= alias then
-                    player:hitByProjectile(shape.owner, world["entities"][shape.id], vector(delta.x, delta.y), dt)
-                    world["entities"][shape.id]:hitEnemy()
-                    remove_entity(shape.id)
-                    --remove_entity(shape.parent)
+    for id, ent in pairs(world["entities"]) do
+        if ent.entity_type == "PROJECTILE" then
+            for shape, delta in pairs(HC.collisions(ent.hitbox)) do
+                if shape.type == "OBJECT" and shape.properties["collide_projectiles"] then
+                    ent:hitObject()
+                    remove_entity(id)
+                elseif shape.type == "PLAYER" then
+                    if ent.owner ~= shape.owner then
+                        ent:hitObject()
+                        remove_entity(id)
+                    end
                 end
-            -- elseif shape.type == "PLAYER" then
-                -- if shape.owner ~= alias then
-                --
-                --     --players_colliding(player, shape.owner, delta, dt)
-                -- end
             end
-            --Look at warlocks SP, `entityHit()` in player.lua
-
         end
     end
 end

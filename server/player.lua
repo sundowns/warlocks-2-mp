@@ -27,6 +27,22 @@ Player = Class{ _includes = Entity,
     	-- self.hitbox.type = "PLAYER"
         --self.hasCollidedWith = {}
     end;
+    asSpawnPacket = function(self)
+        local packet = Entity.asSpawnPacket(self)
+        packet.x_vel = tostring(self.velocity.x)
+        packet.y_vel = tostring(self.velocity.y)
+        packet.state = self.state
+        packet.entity_type = self.entity_type
+        packet.orientation = self.orientation
+        packet.max_movement_velocity = self.max_movement_velocity
+        packet.movement_friction = self.movement_friction
+        packet.base_acceleration = self.base_acceleration
+        packet.acceleration = self.acceleration
+        packet.dash = self.dash
+        packet.colour = self.colour
+        packet.name = self.name
+        return packet
+    end;
     centre = function(self)
         if self.orientation == "LEFT" then
             return self.position.x + self.width/2, self.position.y - self.height/2

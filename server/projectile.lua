@@ -53,14 +53,13 @@ Fireball = Class{ _includes = Projectile,
     asUpdatePacket = function(self)
         return Projectile.asUpdatePacket(self)
     end;
-    hitEnemy = function(self)
+    hitObject = function(self)
         local cX, cY = self.hitbox:center()
         spawn_explosion(cX, cY, self.explosion_radius, self.hitbox.owner, self.explosion_ttl)
     end;
 }
 
 function spawn_projectile(x, y, velocity_vector, owner)
-    log("[DEBUG] Spawning projectile with owner: " .. owner)
     local id = random_string(12)
     new_projectile = Fireball(id, vector(x,y), owner, constants.DEFAULTS.FIREBALL.speed, velocity_vector:normalized(), 14, 19)
 

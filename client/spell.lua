@@ -19,11 +19,7 @@ Projectile = Class{ _includes = Entity,
         --self.state_buffer:add(update, update_tick)
     end;
     update = function(self, dt)
-        local new_pos = self.position + self.velocity * dt
-        return vector(
-            round_to_nth_decimal(new_pos.x,2),
-            round_to_nth_decimal(new_pos.y,2)
-        )
+        --nah
     end;
 }
 
@@ -39,9 +35,9 @@ Fireball = Class{ _includes = Projectile,
         self.hitbox.type = "PROJECTILE"
         self.hitbox:rotate(math.pi/2, position.x, position.y)
     end;
-    move = function(self, new)
-        Projectile.move(self, new)
-        self.hitbox:moveTo(new.x, new.y)
+    move = function(self, delta)
+        Projectile.move(self, self.position + delta)
+        self.hitbox:move(delta.x, delta.y)
     end;
     centre = function(self)
         local perpendicular = self.velocity:perpendicular():angleTo()
@@ -53,10 +49,7 @@ Fireball = Class{ _includes = Projectile,
         Projectile.serverUpdate(self, update, update_tick)
     end;
     update = function(self, dt)
-        local new_position = Projectile.update(self, dt)
-        if new_position then
-            self:move(new_position)
-        end
+        self:move(self.velocity*dt)
     end;
 }
 
