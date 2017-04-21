@@ -68,6 +68,6 @@ function spawn_explosion(x, y, radius, owner, time_to_live)
     broadcast_projectile_explosion_packet(new_explosion, id)
 
     Timer.after(new_explosion.time_to_live, function()
-        remove_entity(id)
+        remove_entity(id, "EXPLOSION")
     end)
 end

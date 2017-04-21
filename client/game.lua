@@ -68,9 +68,16 @@ function game:draw()
 	end
 
     for k, projectile in pairs(world['projectiles']) do
+        projectile:draw()
         draw_instance(projectile.sprite_instance, projectile.position.x, projectile.position.y)
     end
 
+    love.graphics.setColor(0, 100, 100, 255)
+    for k, explosion in pairs(world['explosions']) do
+        explosion:draw()
+    end
+
+    reset_colour()
     draw_foreground()
 
 	if settings.debug then

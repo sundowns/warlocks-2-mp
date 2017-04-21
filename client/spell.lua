@@ -51,6 +51,9 @@ Fireball = Class{ _includes = Projectile,
     update = function(self, dt)
         self:move(self.velocity*dt)
     end;
+    draw = function(self)
+        draw_instance(self.sprite_instance, self.position.x, self.position.y)
+    end;
 }
 
 --SHOULD MIRROR SERVER'S VERSION IN server/projectile.lua

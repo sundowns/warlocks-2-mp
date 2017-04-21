@@ -296,7 +296,7 @@ end
 
 function verify_spawn_explosion_packet(payload)
     local update = {
-        id = payload.alias,
+        alias = payload.alias,
         x = tonumber(payload.x),
         y = tonumber(payload.y),
         entity_type = payload.entity_type,
@@ -307,7 +307,7 @@ function verify_spawn_explosion_packet(payload)
     if not assert(update.x) then verified = false print("Failed to verify x for explosion spawn packet") end
     if not assert(update.y) then verified = false print("Failed to verify y for explosion spawn packet") end
     if not assert(update.entity_type  == 'EXPLOSION') or not type(update.entity_type) == 'string' then verified = false print("Failed to verify entity_type for explosion spawn packet") end
-    if not assert(update.id) or not type(update.id) == 'string' then verified = false print("Failed to verify id for explosion spawn packet") end
+    if not assert(update.alias) or not type(update.alias) == 'string' then verified = false print("Failed to verify alias for explosion spawn packet") end
     if not assert(update.radius) then verified = false print("Failed to verify radius for explosion spawn packet") end
     return verified, update
 end

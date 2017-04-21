@@ -1,5 +1,6 @@
 world = {}
 world["projectiles"] = {}
+world["explosions"] = {}
 local minCamX = 0
 local minCamY = 0
 local maxCamX = 2000
@@ -31,6 +32,23 @@ Entity = Class{
     end;
 }
 
+Explosion = Class {_include=Entity,
+    init = function(self, name, position, radius)
+        Entity.init(self, name, position, vector(0,0), "EXPLOSION", "SPAWN")
+        self.radius = radius
+        self.hitbox = HC.circle(position.x, position.y, radius)
+        self.hitbox.owner = name
+        self.hitbox.type = "EXPLOSION"
+    end;
+    draw = function(self)
+        love.graphics.circle('line', self.position.x, self.position.y, self.radius)
+        --draw_instance(self.sprite_instance, self.position.x, self.position.y)
+        if settings.debug then
+            self.hitbox:draw('fill')
+        end
+    end;
+}
+
 function add_entity(name, entity_type, ent)
 	if entity_type == "PLAYER" then
 		if ent.name == settings.username then
@@ -40,7 +58,10 @@ function add_entity(name, entity_type, ent)
 		end
     elseif entity_type == "PROJECTILE" then
         add_projectile(ent)
-	end
+    elseif entity_type == "EXPLOSION" then
+        add_explosion(ent)
+        --add_explosion(ent)
+    end
 end
 
 function remove_entity(name, entity_type)
@@ -55,11 +76,18 @@ function remove_entity(name, entity_type)
             end
             world['projectiles'][name] = nil
         end
+    elseif entity_type == "EXPLOSION" then
+        if world['explosions'][name] ~= nil then
+            if world['explosions'][name].hitbox ~= nil then
+                HC.remove(world['explosions'][name].hitbox)
+            end
+            world['explosions'][name] = nil
+        end
     end
 end
 
 function add_enemy(name, enemy)
-    local new_enemy = Enemy(vector(enemy.x, enemy.y), name, enemy.colour,
+    local new_enemy = Enemy(vector(enemy.x, enemy.y), enemy.name, enemy.colour,
      "STAND", "RIGHT", 22, 20, vector(enemy.x_vel, enemy.y_vel))
 	world[name] = new_enemy
 end
@@ -75,6 +103,12 @@ function add_fireball(ent)
         ent.height, ent.width, ent.speed
     )
     world["projectiles"][fireball.name] = fireball
+end
+
+function add_explosion(ent)
+    print_table(ent, true)
+    local explosion = Explosion(ent.name, vector(ent.x, ent.y), ent.radius)
+    world["explosions"][explosion.name] = explosion
 end
 
 function server_player_update(update, force_retroactive)
@@ -151,7 +185,7 @@ function server_entity_create(entity)
         y_vel=y_vel or 0, state=entity.state or nil,
         projectile_type = entity.projectile_type or nil,
         width = width or 0, height = height or 0,
-        speed = speed
+        speed = speed, radius = entity.radius or 0
     })
 end
 
