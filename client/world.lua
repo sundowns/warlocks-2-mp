@@ -106,7 +106,6 @@ function add_fireball(ent)
 end
 
 function add_explosion(ent)
-    print_table(ent, true)
     local explosion = Explosion(ent.name, vector(ent.x, ent.y), ent.radius)
     world["explosions"][explosion.name] = explosion
 end

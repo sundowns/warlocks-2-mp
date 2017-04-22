@@ -74,11 +74,3 @@ Player = Class{ _includes = Entity,
         self:move(new_pos.x, new_pos.y)
     end;
 }
-
-function spawn_player(name, x, y, client_index)
-    local colour =  client_list[client_index].colour
-	local new_player = Player(name, vector(x, y),colour, client_index)
-	world["players"][payload.alias] = new_player
-
-	return new_player
-end

@@ -10,6 +10,21 @@ local STAGE_WIDTH_TOTAL = nil
 local STAGE_HEIGHT_TOTAL = nil
 STAGE_HASH = nil
 
+SpawnManager = Class {
+    init = function(self, spawns, count)
+        self.spawns = spawns
+        self.total_spawns = count
+    end;
+    spawn = function(self, name, client_index)
+        local colour =  client_list[client_index].colour
+        local spawn_point = table.remove(self.spawns, 1)
+    	local new_player = Player(name, vector(spawn_point.x, spawn_point.y),colour, client_index)
+        table.insert(self.spawns, spawn_point)
+    	world["players"][name] = new_player
+        return world["players"][name]
+    end;
+}
+
 function load_stage()
   if not file_exists("stages/"..config.STAGE) then
     if pcall(dofile, "stages/"..config.STAGE..".lua") then
@@ -19,7 +34,7 @@ function load_stage()
       STAGE_WIDTH_TOTAL = STAGE_WIDTH_TILES * current_stage.tilewidth
       STAGE_HEIGHT_TOTAL = STAGE_HEIGHT_TILES * current_stage.tileheight
       STAGE_HASH = md5.sumhexa(tostring(current_stage))
-      generate_tile_hitboxes()
+      load_stage_data()
       log("Loaded stage: '" .. config.STAGE .. "' succesfully")
     else
       log("[ERROR] Failed to load stage. " .. config.STAGE .. " File is incorrect format or corrupt")
@@ -27,22 +42,45 @@ function load_stage()
   end
 end
 
-function generate_tile_hitboxes()
+function load_stage_data()
     local collidablesLayerExists = false
-    local count = 0
+    local spawnLayerExists = false
+    local collidablesCount = 0
+    local spawnsCount = 0
     for i, layer in ipairs(current_stage.layers) do
-        if layer.type == "objectgroup" and layer.name == "Collidable Objects" then
-            collidablesLayerExists = true
-            for j, object in ipairs(layer.objects) do
-                object.hitbox = HC.rectangle(object.x, object.y, object.width, object.height)
-                object.hitbox.type = "OBJECT"
-                object.hitbox.owner = "__WORLD"
-                object.hitbox.properties = object.properties
-                count = count + 1
+        if layer.type == "objectgroup" then
+            if layer.name == "Collidable Objects" then
+                collidablesLayerExists = true
+                for j, object in ipairs(layer.objects) do
+                    object.hitbox = HC.rectangle(object.x, object.y, object.width, object.height)
+                    object.hitbox.type = "OBJECT"
+                    object.hitbox.owner = "__WORLD"
+                    object.hitbox.properties = object.properties
+                    collidablesCount = collidablesCount + 1
+                end
+            elseif layer.name == "Player Spawns" then
+                spawnLayerExists = true
+                local spawns = {}
+                for j, object in ipairs(layer.objects) do
+                    table.insert(spawns, {x = object.x, y = object.y})
+                    spawnsCount = spawnsCount + 1
+                end
+                spawnManager = SpawnManager(spawns, spawnsCount)
             end
         end
     end
-    log("Generated " .. count .. " map collision objects")
+    log("Loaded " .. collidablesCount .. " collidable objects")
+    log("Loaded " .. spawnsCount .. " player spawn points")
+end
+
+function spawn_player(name, client_index)
+    local colour =  client_list[client_index].colour
+    local spawn_point = table.remove(spawns, 1)
+	local new_player = Player(name, vector(spawn_point.x, spawn_point.y),colour, client_index)
+    table.insert(spawns, spawn_point)
+	world["players"][payload.alias] = new_player
+
+	return new_player
 end
 
 function update_entity_positions(dt)

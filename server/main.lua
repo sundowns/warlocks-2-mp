@@ -28,6 +28,7 @@ local prevTime = socket.gettime()
 tick = 0
 local tick_timer = 0
 unused_colours = {"purple","green","red", "blue", "orange"}
+spawnManager = nil
 
 log("Initialising world...")
 load_stage()
@@ -94,7 +95,7 @@ while running do
 								remove_client(payload.alias, "Duplicate alias")
 							else
 								client_player_map[event.peer:index()] = payload.alias
-								send_player_spawn_packet(event.peer, spawn_player(payload.alias, 250, 250, event.peer:index()))
+								send_player_spawn_packet(event.peer, spawnManager:spawn(payload.alias, event.peer:index()))
 							end
 						end
 					elseif payload.cmd == 'UPDATE' then

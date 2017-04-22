@@ -8,7 +8,7 @@ return {
   height = 64,
   tilewidth = 16,
   tileheight = 16,
-  nextobjectid = 94,
+  nextobjectid = 107,
   properties = {},
   tilesets = {
     {
@@ -516,6 +516,147 @@ return {
             ["collide_players"] = true,
             ["collide_projectiles"] = false
           }
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      name = "Player Spawns",
+      visible = true,
+      opacity = 1,
+      offsetx = 1.54545,
+      offsety = -0.181818,
+      properties = {},
+      objects = {
+        {
+          id = 94,
+          name = "spawn1",
+          type = "spawn",
+          shape = "rectangle",
+          x = 760,
+          y = 150,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 98,
+          name = "spawn2",
+          type = "spawn",
+          shape = "rectangle",
+          x = 760.167,
+          y = 488.833,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 99,
+          name = "spawn3",
+          type = "spawn",
+          shape = "rectangle",
+          x = 303.5,
+          y = 160.167,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 100,
+          name = "spawn4",
+          type = "spawn",
+          shape = "rectangle",
+          x = 153.5,
+          y = 293.833,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 101,
+          name = "spawn5",
+          type = "spawn",
+          shape = "rectangle",
+          x = 279.833,
+          y = 332.5,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 102,
+          name = "spawn6",
+          type = "spawn",
+          shape = "rectangle",
+          x = 157.5,
+          y = 150.5,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 103,
+          name = "spawn7",
+          type = "spawn",
+          shape = "rectangle",
+          x = 581.5,
+          y = 500.5,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 104,
+          name = "spawn8",
+          type = "spawn",
+          shape = "rectangle",
+          x = 667,
+          y = 247.5,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 105,
+          name = "spawn9",
+          type = "spawn",
+          shape = "rectangle",
+          x = 396.5,
+          y = 212,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 106,
+          name = "spawn10",
+          type = "spawn",
+          shape = "rectangle",
+          x = 497.5,
+          y = 211.5,
+          width = 1,
+          height = 1,
+          rotation = 1,
+          visible = true,
+          properties = {}
         }
       }
     }

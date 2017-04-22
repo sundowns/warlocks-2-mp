@@ -42,7 +42,7 @@ Fireball = Class{ _includes = Projectile,
         self.hitbox.id = id
         self.hitbox.type = "PROJECTILE"
         self.hitbox:rotate(math.pi/2, adjustedX, adjustedY)
-        self.explosion_radius = 20
+        self.explosion_radius = 15
         self.explosion_ttl = 0.2
     end;
     asSpawnPacket = function(self)

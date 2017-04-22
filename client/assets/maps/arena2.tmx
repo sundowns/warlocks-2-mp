@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" nextobjectid="94">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" nextobjectid="107">
  <tileset firstgid="1" name="terrain_atlas" tilewidth="16" tileheight="16" tilecount="4096" columns="64">
   <image source="../tilesets/terrain_atlas.png" width="1024" height="1024"/>
  </tileset>
@@ -180,5 +180,17 @@
     <property name="collide_projectiles" type="bool" value="false"/>
    </properties>
   </object>
+ </objectgroup>
+ <objectgroup name="Player Spawns" offsetx="1.54545" offsety="-0.181818">
+  <object id="94" name="spawn1" type="spawn" x="760" y="150" width="1" height="1" rotation="1"/>
+  <object id="98" name="spawn2" type="spawn" x="760.167" y="488.833" width="1" height="1" rotation="1"/>
+  <object id="99" name="spawn3" type="spawn" x="303.5" y="160.167" width="1" height="1" rotation="1"/>
+  <object id="100" name="spawn4" type="spawn" x="153.5" y="293.833" width="1" height="1" rotation="1"/>
+  <object id="101" name="spawn5" type="spawn" x="279.833" y="332.5" width="1" height="1" rotation="1"/>
+  <object id="102" name="spawn6" type="spawn" x="157.5" y="150.5" width="1" height="1" rotation="1"/>
+  <object id="103" name="spawn7" type="spawn" x="581.5" y="500.5" width="1" height="1" rotation="1"/>
+  <object id="104" name="spawn8" type="spawn" x="667" y="247.5" width="1" height="1" rotation="1"/>
+  <object id="105" name="spawn9" type="spawn" x="396.5" y="212" width="1" height="1" rotation="1"/>
+  <object id="106" name="spawn10" type="spawn" x="497.5" y="211.5" width="1" height="1" rotation="1"/>
  </objectgroup>
 </map>
