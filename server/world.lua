@@ -147,11 +147,15 @@ function process_collisions(dt)
         if ent.entity_type == "PROJECTILE" then
             for shape, delta in pairs(HC.collisions(ent.hitbox)) do
                 if shape.type == "OBJECT" and shape.properties["collide_projectiles"] then
-                    ent:hitObject()
+                    print_table(shape)
+                    ent:hitObject(shape.owner)
                     remove_entity(id)
                 elseif shape.type == "PLAYER" then
-                    if ent.owner ~= shape.owner then
-                        ent:hitObject()
+                    if ent.owner ~= shape.owner and not ent.hitbox.collided_with[shape.owner] then
+                        if world["players"][shape.owner] then
+                             world["players"][shape.owner]:hitByProjectile(ent.owner, ent)
+                         end
+                        ent:hitObject(shape.owner)
                         remove_entity(id)
                     end
                 end

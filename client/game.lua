@@ -1,4 +1,5 @@
 game = {} -- the game state
+local scoreBoard = nil
 
 testX1, testWidth, testY1, testHeight, testRotation = 0
 
@@ -8,6 +9,7 @@ function game:init()
 	require("player")
 	require("spritemanager")
 end
+    require("scoremanager")
 
 function game:enter(previous)
     tick_timer = 0
@@ -18,6 +20,7 @@ function game:enter(previous)
         prepare_camera(0,0,0)
     end
     update_camera_boundaries()
+    scoreBoard = ScoreManager()
 end
 
 function game:update(dt)
@@ -79,6 +82,7 @@ function game:draw()
 
     reset_colour()
     draw_foreground()
+
 
 	if settings.debug then
 		local camX, camY = camera:position()
@@ -146,6 +150,10 @@ function game:draw()
 		love.graphics.print("Awaiting connection to server.", camera:worldCoords(0, 0))
 	end
 	if user_alive then camera:detach() end
+
+    if love.keyboard.isDown(settings.controls.SHOW_SCOREBOARD) then
+        scoreBoard:draw()
+    end
 end
 
 function game:keyreleased(key, code)

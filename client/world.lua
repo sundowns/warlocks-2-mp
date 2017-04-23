@@ -87,7 +87,7 @@ function remove_entity(name, entity_type)
 end
 
 function add_enemy(name, enemy)
-    local new_enemy = Enemy(vector(enemy.x, enemy.y), enemy.name, enemy.colour,
+    local new_enemy = Enemy(vector(enemy.x, enemy.y), name, enemy.colour,
      "STAND", "RIGHT", 22, 20, vector(enemy.x_vel, enemy.y_vel))
 	world[name] = new_enemy
 end
@@ -253,6 +253,7 @@ function process_collisions(dt)
                 --Look at warlocks SP, `entityHit()` in player.lua
                 -- do collision stuff
             elseif shape.type == "PLAYER" then
+                print_table(shape, true)
                 player:collidingWithEnemy(dt, world[shape.owner], vector(delta.x, delta.y))
             elseif shape.type == "OBJECT" then
                 if shape.properties["collide_players"] then

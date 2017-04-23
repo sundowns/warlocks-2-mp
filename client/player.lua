@@ -117,6 +117,7 @@ User = Class{ _includes = Player,
     	end
     end;
     collidingWithEnemy = function(self, dt, collided_with, delta)
+
         if not collided_with then return end
         self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
         self:move(self.position +  delta * self.hitbox._radius * dt)
@@ -124,7 +125,8 @@ User = Class{ _includes = Player,
     end;
     collidingWithObject = function(self, dt, delta)
         self:move(self.position +  delta * self.hitbox._radius * dt)
-        self.velocity = self.velocity + delta * self.velocity:len2()/2 * dt
+        local magnitude = math.clamp(self.velocity:len2()/2, 0, 500)
+        self.velocity =self.velocity + delta * magnitude * dt
     end
 }
 

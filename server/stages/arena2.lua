@@ -547,7 +547,7 @@ return {
           type = "spawn",
           shape = "rectangle",
           x = 760.167,
-          y = 488.833,
+          y = 250,
           width = 1,
           height = 1,
           rotation = 1,
@@ -556,7 +556,7 @@ return {
         },
         {
           id = 99,
-          name = "spawn3",
+          name = "spawn8",
           type = "spawn",
           shape = "rectangle",
           x = 303.5,
@@ -621,7 +621,7 @@ return {
         },
         {
           id = 104,
-          name = "spawn8",
+          name = "spawn3",
           type = "spawn",
           shape = "rectangle",
           x = 667,

@@ -1,11 +1,12 @@
 Projectile = Class{ _includes = Entity,
-    init = function(self, id, position, owner, speed, velocity, width, height)
+    init = function(self, id, position, owner, speed, velocity, width, height, damage)
         Entity.init(self, id, position, "PROJECTILE")
         self.width = width
         self.height = height
         self.owner = owner
         self.speed = speed
         self.velocity = velocity
+        self.damage = damage
     end;
     asSpawnPacket = function(self)
         local packet = Entity.asSpawnPacket(self)
@@ -32,7 +33,9 @@ Fireball = Class{ _includes = Projectile,
         local adjustedX = position.x - width/2*math.cos(perpendicular)
         local adjustedY = position.y - height/2*math.sin(perpendicular)
         local velocity = direction*speed
-        Projectile.init(self, id, vector(adjustedX, adjustedY), owner, speed, velocity, width, height)
+        Projectile.init(self, id, vector(adjustedX, adjustedY), owner, speed,
+            velocity, width, height, constants.DEFAULTS.FIREBALL.damage
+        )
         self.projectile_type = "FIREBALL"
         self.hitbox = HC.polygon(calculateProjectileHitbox(
         		adjustedX, adjustedY, velocity,
@@ -42,6 +45,7 @@ Fireball = Class{ _includes = Projectile,
         self.hitbox.id = id
         self.hitbox.type = "PROJECTILE"
         self.hitbox:rotate(math.pi/2, adjustedX, adjustedY)
+        self.hitbox.collided_with = {}
         self.explosion_radius = 15
         self.explosion_ttl = 0.2
     end;
@@ -53,7 +57,8 @@ Fireball = Class{ _includes = Projectile,
     asUpdatePacket = function(self)
         return Projectile.asUpdatePacket(self)
     end;
-    hitObject = function(self)
+    hitObject = function(self, id)
+        self.hitbox.collided_with[id] = true
         local cX, cY = self.hitbox:center()
         spawn_explosion(cX, cY, self.explosion_radius, self.hitbox.owner, self.explosion_ttl)
     end;

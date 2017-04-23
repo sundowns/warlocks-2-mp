@@ -12,7 +12,8 @@ return {
   	SPELL2 = '2',
   	SPELL3 = '3',
   	SPELL4 = '4',
-  	SPELL5 = '5'
+  	SPELL5 = '5',
+    SHOW_SCOREBOARD = 'tab'
     },
   IP = "localhost",
   port = "12345"

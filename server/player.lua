@@ -22,6 +22,7 @@ Player = Class{ _includes = Entity,
         self.hitbox = HC.circle(position.x,position.y,constants.DEFAULTS.PLAYER.width/2)
         self.hitbox.owner = name
         self.hitbox.type = "PLAYER"
+        self.health = constants.DEFAULTS.PLAYER.health
         -- self.hitbox = HC.circle(self.x,self.y,self.width/2)
         -- self.hitbox.owner = self.name
     	-- self.hitbox.type = "PLAYER"
@@ -67,10 +68,15 @@ Player = Class{ _includes = Entity,
         local spawnY = self.position.y + nVector.y*self.height
         spawn_projectile(spawnX, spawnY, vector, self.name)
     end;
-    hitByProjectile = function(self, projectile_owner, projectile, delta, dt)
+    hitByProjectile = function(self, projectile_owner, projectile)
         --take a bit of damage for direct hit (more knockback too!!?)
-        self.velocity = self.velocity + delta * projectile.speed * dt
-        local new_pos = self.position +  delta * self.hitbox._radius * dt
+        local final_delta = (projectile.velocity + self.velocity):normalizeInplace()
+        self.velocity = self.velocity + projectile.velocity
+        local new_pos = self.position +  final_delta * self.hitbox._radius
         self:move(new_pos.x, new_pos.y)
+        if projectile.damage then
+            self.health = self.health - projectile.damage
+            print("new health is " .. self.health)
+        end
     end;
 }
