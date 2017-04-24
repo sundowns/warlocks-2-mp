@@ -31,6 +31,10 @@ Entity = Class{
     	 end
     end;
 }
+--
+-- local explosion_sound = love.audio.play("assets/sfx/explosion.wav", "stream", true)
+--
+-- explosion_sound:setVolume(0.1)
 
 Explosion = Class {_include=Entity,
     init = function(self, name, position, radius)
@@ -40,6 +44,7 @@ Explosion = Class {_include=Entity,
         self.hitbox.owner = name
         self.hitbox.type = "EXPLOSION"
         self.sprite_instance = get_sprite_instance("assets/sprites/explosion.lua", 0.4)
+        --explosion_sound:play()
     end;
     draw = function(self)
         --love.graphics.circle('line', self.position.x, self.position.y, self.radius)

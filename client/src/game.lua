@@ -5,6 +5,7 @@ local hud = nil
 testX1, testWidth, testY1, testHeight, testRotation = 0
 
 function game:init()
+    require("src.soundmanager")
 	require("src.world")
     require("src.spell")
 	require("src.player")
