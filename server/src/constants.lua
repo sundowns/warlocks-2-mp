@@ -22,7 +22,7 @@ local defaults = {
     },
     FIREBALL = {
         cooldown = 1,
-        speed = 80,
+        speed = 120,
         damage = 10
     }
 }
