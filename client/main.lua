@@ -8,14 +8,15 @@ function love.load()
 	GamestateManager = require "libs.gamestate"
     Class = require "libs.class"
     HC = require "libs.HC"
-    require("util")
-    settings = require("settings")
-	constants = require("constants")
-	require("error_screen")
-	require("network")
-	require("game")
-    require("loading")
-    require("menu")
+    suit = require 'libs.suit'
+    require("src.util")
+    settings = require("src.settings")
+	constants = require("src.constants")
+	require("src.error_screen")
+	require("src.network")
+	require("src.game")
+    require("src.loading")
+    require("src.menu")
 
     user_alive = false
 	GamestateManager.registerEvents()

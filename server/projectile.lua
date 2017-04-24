@@ -47,7 +47,7 @@ Fireball = Class{ _includes = Projectile,
         self.hitbox:rotate(math.pi/2, adjustedX, adjustedY)
         self.hitbox.collided_with = {}
         self.explosion_radius = 15
-        self.explosion_ttl = 0.2
+        self.explosion_ttl = 0.7
     end;
     asSpawnPacket = function(self)
         local packet = Projectile.asSpawnPacket(self)
