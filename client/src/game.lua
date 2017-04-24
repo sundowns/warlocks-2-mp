@@ -79,13 +79,12 @@ function game:draw()
         draw_instance(projectile.sprite_instance, projectile.position.x, projectile.position.y)
     end
 
-    for k, explosion in pairs(world['explosions']) do
-        explosion:draw()
-    end
-
     reset_colour()
     draw_foreground()
 
+    for k, explosion in pairs(world['explosions']) do
+        explosion:draw()
+    end
 
 	if settings.debug then
 		local camX, camY = camera:position()

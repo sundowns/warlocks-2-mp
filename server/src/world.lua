@@ -19,6 +19,7 @@ SpawnManager = Class {
         local colour =  client_list[client_index].colour
         local spawn_point = table.remove(self.spawns, 1)
     	local new_player = Player(name, vector(spawn_point.x, spawn_point.y),colour, client_index)
+        new_player:addSpell(Fireball())
         table.insert(self.spawns, spawn_point)
     	world["players"][name] = new_player
         return world["players"][name]
@@ -73,15 +74,15 @@ function load_stage_data()
     log("Loaded " .. spawnsCount .. " player spawn points")
 end
 
-function spawn_player(name, client_index)
-    local colour =  client_list[client_index].colour
-    local spawn_point = table.remove(spawns, 1)
-	local new_player = Player(name, vector(spawn_point.x, spawn_point.y),colour, client_index)
-    table.insert(spawns, spawn_point)
-	world["players"][payload.alias] = new_player
-
-	return new_player
-end
+-- function spawn_player(name, client_index)
+--     local colour =  client_list[client_index].colour
+--     local spawn_point = table.remove(spawns, 1)
+-- 	local new_player = Player(name, vector(spawn_point.x, spawn_point.y),colour, client_index)
+--     table.insert(spawns, spawn_point)
+-- 	world["players"][payload.alias] = new_player
+--
+-- 	return new_player
+-- end
 
 function update_entity_positions(dt)
 	update_player_positions(dt)
@@ -143,23 +144,33 @@ function remove_entity(id)
 end
 
 function process_collisions(dt)
+    local markedForDeletion = {}
+
     for id, ent in pairs(world["entities"]) do
         if ent.entity_type == "PROJECTILE" then
             for shape, delta in pairs(HC.collisions(ent.hitbox)) do
                 if shape.type == "OBJECT" and shape.properties["collide_projectiles"] then
-                    ent:hitObject(shape.owner)
-                    remove_entity(id)
+                    if not ent.dirty then
+                        ent:hitObject(shape.owner, vector(-1*delta.x, -1*delta.y))
+                        table.insert(markedForDeletion, id)
+                        ent.dirty = true
+                    end
                 elseif shape.type == "PLAYER" then
-                    if ent.owner ~= shape.owner and not ent.hitbox.collided_with[shape.owner] then
+                    if not ent.dirty and ent.owner ~= shape.owner and not ent.hitbox.collided_with[shape.owner] then
                         if world["players"][shape.owner] then
                              world["players"][shape.owner]:hitByProjectile(ent.owner, ent)
                          end
-                        ent:hitObject(shape.owner)
-                        remove_entity(id)
+                        ent:hitObject(shape.owner, vector(-1*delta.x, -1*delta.y))
+                        table.insert(markedForDeletion, id)
+                        ent.dirty = true
                     end
                 end
             end
         end
+    end
+
+    for i,v in ipairs(markedForDeletion) do
+        remove_entity(v)
     end
 end
 
