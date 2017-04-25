@@ -15,12 +15,22 @@ HudManager = Class{
                 love.graphics.setColor(constants.COLOURS.HUD_BACKGROUND:get())
                 love.graphics.rectangle('fill', 0,0, self.canvas:getWidth(), self.canvas:getHeight())
                 local currentX = 0
-                love.graphics.setColor(255,255,255,255)
-                for k,v in pairs(player.spellbook) do
-                    if self.images[k] ~= nil then
+
+                for k, spell in pairs(player.spellbook.spells) do
+                    local image = self.images[k]
+                    if image ~= nil then
                         -- spellbook should be a table with this image data, this manager should simply handle loading them in/out of memory
-                        love.graphics.draw(self.images[k], currentX, 0, 0,  self.imageSize/(self.images[k]:getWidth()), self.imageSize/(self.images[k]:getHeight()))
+                        love.graphics.setColor(255,255,255,255)
+                        love.graphics.draw(image, currentX, 0, 0, self.imageSize/(image:getWidth()), self.imageSize/(image:getHeight()))
+                        if spell.ready == false then
+                            love.graphics.setColor(200,200,200,150)
+                            love.graphics.rectangle('fill', currentX, 0, self.imageSize, self.imageSize*spell.cooldown/spell.cooldown_duration)
+                            love.graphics.setColor(0,0,0,200)
+                            set_font(28, 'debug')
+                            love.graphics.print(round_to_nth_decimal(spell.cooldown,1), currentX + self.imageSize*0.1, 0)
+                        end
                         currentX = currentX + self.imageSize
+
                     end
                 end
             love.graphics.setCanvas()
@@ -29,5 +39,8 @@ HudManager = Class{
     end;
     draw = function(self)
         love.graphics.draw(self.canvas, self.origin.x, self.origin.y)
+    end;
+    markDirty = function(self)
+        self.canvasDirty = true
     end;
 }

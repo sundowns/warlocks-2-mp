@@ -266,7 +266,7 @@ function verify_spawn_player_packet(payload)
     return verified, update
 end
 
-function verify_spawn_projectile_packet(payload)
+function verify_cast_fireball_packet(payload)
     local update = {
         x = tonumber(payload.x),
         y = tonumber(payload.y),
@@ -277,7 +277,8 @@ function verify_spawn_projectile_packet(payload)
         width = tonumber(payload.width),
         height = tonumber(payload.height),
         projectile_type = payload.projectile_type,
-        speed = payload.speed
+        speed = payload.speed,
+        owner = payload.owner
     }
 
     local verified = true
@@ -291,6 +292,7 @@ function verify_spawn_projectile_packet(payload)
     if not assert(update.height) then verified = false print("Failed to verify height for projectile spawn packet") end
     if not assert(update.speed) then verified = false print("Failed to verify speed for projectile spawn packet") end
     if not assert(update.projectile_type) then verified = false print("Failed to verify projectile_type for projectile spawn packet") end
+    if not assert(update.owner) then verified = false print("Failed to verify projectile_type for projectile spawn packet") end
     return verified, update
 end
 
@@ -371,10 +373,14 @@ function network_gamerunning()
                     if ok then
                         prepare_player(update)
                     end
-                elseif payload.cmd == 'SPAWN_PROJECTILE' then
-                    local ok, data = verify_spawn_projectile_packet(payload)
+                elseif payload.cmd == 'PLAYER_CAST_FIREBALL' then
+                    local ok, data = verify_cast_fireball_packet(payload)
                     if ok then
                         server_entity_create(data)
+                        if data.owner == settings.username then
+                            local elapsed = (tick - payload.server_tick) * constants.TICKRATE
+                            player:startCooldown(data.projectile_type, elapsed)
+                        end
                     end
                 elseif payload.cmd == 'SPAWN_EXPLOSION' then
                     local ok, data = verify_spawn_explosion_packet(payload)

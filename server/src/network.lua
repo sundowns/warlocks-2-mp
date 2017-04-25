@@ -81,8 +81,8 @@ function send_player_spawn_packet(peer, player)
 	peer:send(create_binary_packet(player:asSpawnPacket(), "SPAWN_PLAYER", tick))
 end
 
-function broadcast_projectile_spawn_packet(projectile, id)
-    host:broadcast(create_binary_packet(projectile:asSpawnPacket(), "SPAWN_PROJECTILE", tick, id))
+function broadcast_cast_spell_packet(projectile, id)
+    host:broadcast(create_binary_packet(projectile:asSpawnPacket(), "PLAYER_CAST_FIREBALL", tick, id))
 end
 
 function broadcast_projectile_explosion_packet(explosion, id)
@@ -120,7 +120,7 @@ function send_client_correction_packet(peer, alias, retroactive, tick_to_use)
 end
 
 function remove_client(peer, msg)
-    if peer == nil or peer.index == nil then return end
+    if peer == nil or type(peer) == 'number' or peer.index == nil then return end
 	if (msg) then log(msg) end
 	local entId = client_player_map[peer:index()]
 	if entId then

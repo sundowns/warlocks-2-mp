@@ -106,7 +106,7 @@ function add_projectile(ent)
 end
 
 function add_fireball(ent)
-    local fireball = Fireball(ent.name, vector(ent.x, ent.y), vector(ent.x_vel, ent.y_vel),
+    local fireball = FireballProjectile(ent.name, vector(ent.x, ent.y), vector(ent.x_vel, ent.y_vel),
         ent.height, ent.width, ent.speed
     )
     world["projectiles"][fireball.name] = fireball

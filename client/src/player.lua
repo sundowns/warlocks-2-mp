@@ -83,8 +83,8 @@ User = Class{ _includes = Player,
             timer = tonumber(player_data.dash.timer),
             cancellable_after = tonumber(player_data.dash.cancellable_after) --after timer is 0.7, so after 0.3seconds
         }
-        self.spellbook = {}
-        self.spellbook['SPELL1'] = "FIREBALL"
+        self.spellbook = SpellBook()
+        self.spellbook:addSpell('SPELL1', Fireball())
         self.state_buffer = PlayerStateBuffer(constants.PLAYER_BUFFER_LENGTH)
     end;
     centre = function(self)
@@ -116,8 +116,11 @@ User = Class{ _includes = Player,
     		self:endDash()
     	end
     end;
+    startCooldown = function(self, spell_id, elapsed)
+        if not elapsed then elapsed = 0 end
+        self.spellbook:getSpellById(spell_id):startCooldown(elapsed)
+    end;
     collidingWithEnemy = function(self, dt, collided_with, delta)
-
         if not collided_with then return end
         self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
         self:move(self.position +  delta * self.hitbox._radius * dt)

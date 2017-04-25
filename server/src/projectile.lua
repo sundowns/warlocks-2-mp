@@ -78,7 +78,7 @@ function spawn_projectile(x, y, velocity_vector, owner)
     world["entities"][id] = new_projectile
     --TODO: Start player cooldown (and check the skill is ready in the first place)
 
-    broadcast_projectile_spawn_packet(new_projectile, id)
+    broadcast_cast_spell_packet(new_projectile, id)
 
     Timer.after(5, function()
         remove_entity(id)

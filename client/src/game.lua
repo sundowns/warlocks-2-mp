@@ -1,6 +1,6 @@
 game = {} -- the game state
 local scoreBoard = nil
-local hud = nil
+hud = nil
 
 testX1, testWidth, testY1, testHeight, testRotation = 0
 
@@ -30,6 +30,7 @@ end
 function game:update(dt)
 	tick_timer = tick_timer + dt
 	update_connection(dt)
+    Timer.update(dt)
     if tick_timer > constants.TICKRATE then -- THIS SHOULD BE USED FOR COMMUNCATION TO/FROM SERVER/KEEPING IN SYNC
 		tick = tick + 1
 		tick_timer = tick_timer - constants.TICKRATE
@@ -167,12 +168,13 @@ end
 function game:keyreleased(key, code)
     if key == settings.controls['SPELL1'] then
         if not user_alive then return end
-        if not player.spellbook['SPELL1'] then end
-
-        local x, y = love.mouse.getPosition()
-        x,y = camera:worldCoords(x,y)
+        local spell = player.spellbook:getSpellBySlot('SPELL1')
+        if not spell or not spell.ready then return end
+        local at_x, at_y = love.mouse.getPosition()
+        at_x,at_y = camera:worldCoords(at_x,at_y)
         local player_x, player_y = player:centre()
-        send_action_packet("CASTSPELL", {at_X=x, at_Y=y, player_x = player.x, player_y = player.y, spell_type=player.spellbook['SPELL1']})
+        spell:cast(at_x, at_y, player.x, player.y)
+
     elseif key == "f5" then
         print("[client_tick: " .. tick .. "][buffer_size ".. player.state_buffer:getCurrentSize() .. "][" .. "largest_tick " .. player.state_buffer.current_max_tick .. "]")
         player.state_buffer:printDump(true)
