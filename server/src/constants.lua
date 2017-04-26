@@ -21,7 +21,7 @@ local defaults = {
         health = 100
     },
     FIREBALL = {
-        cooldown = 1,
+        cooldown = 3,
         speed = 120,
         damage = 10
     }

@@ -23,7 +23,7 @@ Player = Class{ _includes = Entity,
         self.hitbox = HC.circle(self.position.x,self.position.y,self.width/2)
         self.hitbox.owner = self.name
         self.hitbox.type = "PLAYER"
-        --self.hasCollidedWith = {}
+        self.hasCollidedWith = {}
         self.sprite_instance = get_sprite_instance("assets/sprites/player-" .. self.colour ..".lua")
     end;
     centre = function(self)
@@ -130,7 +130,15 @@ User = Class{ _includes = Player,
         self:move(self.position +  delta * self.hitbox._radius * dt)
         local magnitude = math.clamp(self.velocity:len2()/2, 0, 500)
         self.velocity =self.velocity + delta * magnitude * dt
-    end
+    end;
+    collidingWithProjectile = function(self, dt, collided_with, delta)
+        if not collided_with or self.hasCollidedWith[collided_with.name] then return end
+        --TODO: This needs work, sometimes we acknowledge collision but dont move at all!
+        self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
+        self:move(self.position +  delta * self.hitbox._radius * dt)
+        print("we collided with stuff")
+        self.hasCollidedWith[collided_with.name] = true
+    end;
 }
 
 function prepare_player(player_data)

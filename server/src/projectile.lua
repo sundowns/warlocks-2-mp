@@ -41,7 +41,6 @@ FireballProjectile = Class{ _includes = Projectile,
         		adjustedX, adjustedY, velocity,
         		width, height))
         self.hitbox.owner = owner
-        self.hitbox.parent = self
         self.hitbox.id = id
         self.hitbox.type = "PROJECTILE"
         self.hitbox:rotate(math.pi/2, adjustedX, adjustedY)

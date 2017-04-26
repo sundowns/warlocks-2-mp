@@ -24,7 +24,7 @@ Projectile = Class{ _includes = Entity,
 }
 
 FireballProjectile = Class{ _includes = Projectile,
-    init = function(self, name, position, velocity, height, width, speed)
+    init = function(self, name, position, velocity, owner, height, width, speed)
         Projectile.init(self, name, position, velocity, "FIREBALL", height, width, speed)
         self.sprite_instance = get_sprite_instance("assets/sprites/fireball.lua")
         self.sprite_instance.rotation = velocity:angleTo(vector(0,-1))
@@ -32,6 +32,7 @@ FireballProjectile = Class{ _includes = Projectile,
         		position.x, position.y, velocity,
         		width, height))
         self.hitbox.owner = owner
+        self.hitbox.id = name
         self.hitbox.type = "PROJECTILE"
         self.hitbox:rotate(math.pi/2, position.x, position.y)
     end;
@@ -100,7 +101,7 @@ Spell = Class{
 
 Fireball = Class{_includes=Spell,
     init = function(self)
-        Spell.init(self, 'FIREBALL', 5) --cooldown needs 2 come from server
+        Spell.init(self, 'FIREBALL', 3) --cooldown needs 2 come from server
     end;
     startCooldown = function(self, elapsed)
         Spell.startCooldown(self, elapsed)
