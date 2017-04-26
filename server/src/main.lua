@@ -1,9 +1,9 @@
-package.path = '..\\?.lua' .. '.\\?.lua;'.. '.\\libs\\?.lua;' .. '.\\libs\\?\\init.lua;' .. package.path
+package.path = '.\\?.lua;'.. '.\\src\\?.lua;' .. '.\\libs\\?.lua;' .. '.\\libs\\?\\init.lua;' .. package.path
 package.cpath = '.\\libs\\?.dll;' .. package.cpath
 
 require "socket" -- to keep track of time
 binser = require "binser"
-constants = require "src.constants"
+constants = require "constants"
 enet = require "enet"
 host = enet.host_create("*:12345")
 vector = require "vector"
