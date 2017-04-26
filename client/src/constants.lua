@@ -20,7 +20,7 @@ Colour = Class {
 }
 
 local colours = {
-    HUD_BACKGROUND = Colour(255, 120, 120, 150)
+    HUD_BACKGROUND = Colour(139, 69, 19, 230)
 }
 
 return {
