@@ -56,14 +56,11 @@ FireballProjectile = Class{ _includes = Projectile,
     asUpdatePacket = function(self)
         return Projectile.asUpdatePacket(self)
     end;
-    hitObject = function(self, id, delta)
+    hitObject = function(self, id, delta, obj_position)
         self.hitbox.collided_with[id] = true
         local cX, cY = self.hitbox:center()
-        --move the spawn point to roughly where the hitboxes met (hypotenuse of width/height would be better really)
-        local hitboxHypotenuse = math.clamp(math.sqrt(math.pow(self.width, 2) + math.pow(self.height,2)), -self.explosion_radius, self.explosion_radius)
-        local contactX = cX + delta.x * hitboxHypotenuse
-        local contactY = cY + delta.y * hitboxHypotenuse
-        spawn_explosion(contactX, contactY, self.explosion_radius, self.hitbox.owner, self.explosion_ttl)
+        local midX, midY = calc_mid_point(cX, cY, obj_position.x, obj_position.y) -- need a different solution for static objects (use delta?)
+        spawn_explosion(midX, midY, self.explosion_radius, self.hitbox.owner, self.explosion_ttl)
     end;
 }
 

@@ -1,3 +1,0 @@
-Handling player on player collisions
- -- Can I do one sweeping fix to make server-based changes STICK?
- -- Currently the client seems to just be un-do'ing what the server tells it to change

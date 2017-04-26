@@ -85,6 +85,7 @@ User = Class{ _includes = Player,
         }
         self.spellbook = SpellBook()
         self.spellbook:addSpell('SPELL1', Fireball())
+        self.spellbook:addSpell('SPELL2', Portal())
         self.state_buffer = PlayerStateBuffer(constants.PLAYER_BUFFER_LENGTH)
     end;
     centre = function(self)

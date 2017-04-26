@@ -151,16 +151,17 @@ function process_collisions(dt)
             for shape, delta in pairs(HC.collisions(ent.hitbox)) do
                 if shape.type == "OBJECT" and shape.properties["collide_projectiles"] then
                     if not ent.dirty then
-                        ent:hitObject(shape.owner, vector(-1*delta.x, -1*delta.y))
+                        ent:hitObject(shape.owner, vector(-1*delta.x, -1*delta.y), shape._polygon.centroid) --bit yolo but eh we good ok
                         table.insert(markedForDeletion, id)
                         ent.dirty = true
                     end
                 elseif shape.type == "PLAYER" then
                     if not ent.dirty and ent.owner ~= shape.owner and not ent.hitbox.collided_with[shape.owner] then
-                        if world["players"][shape.owner] then
-                             world["players"][shape.owner]:hitByProjectile(ent.owner, ent)
-                         end
-                        ent:hitObject(shape.owner, vector(-1*delta.x, -1*delta.y))
+                        local hitPlayer = world["players"][shape.owner]
+                        if hitPlayer then
+                            hitPlayer:hitByProjectile(ent.owner, ent)
+                        end
+                        ent:hitObject(shape.owner, vector(-1*delta.x, -1*delta.y), hitPlayer.position)
                         table.insert(markedForDeletion, id)
                         ent.dirty = true
                     end

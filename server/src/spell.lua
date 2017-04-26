@@ -22,6 +22,7 @@ Spell = Class {
 Fireball = Class { _includes = Spell,
     init = function(self)
         Spell.init(self, "FIREBALL", constants.DEFAULTS.FIREBALL.cooldown)
+        self.impact_force = 60 -- TODO: use this for knockback stuff
     end;
     cast = function(self, caster, at_X, at_Y)
         local vector = calc_vector_from_points(caster.position.x, caster.position.y, at_X, at_Y)

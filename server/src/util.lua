@@ -89,3 +89,7 @@ function calc_vector_from_points(fromX, fromY, toX, toY)
     local vec = vector(toX-fromX, toY-fromY)
     return vec
 end
+
+function calc_mid_point(x1,y1,x2,y2)
+    return (x1+x2)/2,(y1+y2)/2
+end

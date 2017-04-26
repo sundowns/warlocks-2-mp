@@ -7,6 +7,7 @@ testX1, testWidth, testY1, testHeight, testRotation = 0
 function game:init()
     require("src.soundmanager")
 	require("src.world")
+    require("src.projectile")
     require("src.spell")
 	require("src.player")
 	require("src.spritemanager")
@@ -168,13 +169,19 @@ end
 function game:keyreleased(key, code)
     if key == settings.controls['SPELL1'] then
         if not user_alive then return end
-        local spell = player.spellbook:getSpellBySlot('SPELL1')
-        if not spell or not spell.ready then return end
-        local at_x, at_y = love.mouse.getPosition()
-        at_x,at_y = camera:worldCoords(at_x,at_y)
-        local player_x, player_y = player:centre()
-        spell:cast(at_x, at_y, player.x, player.y)
-
+        player.spellbook:spellKeyPressed('SPELL1')
+    elseif key == settings.controls['SPELL2'] then
+        if not user_alive then return end
+        player.spellbook:spellKeyPressed('SPELL2')
+    elseif key == settings.controls['SPELL3'] then
+        if not user_alive then return end
+        player.spellbook:spellKeyPressed('SPELL3')
+    elseif key == settings.controls['SPELL4'] then
+        if not user_alive then return end
+        player.spellbook:spellKeyPressed('SPELL4')
+    elseif key == settings.controls['SPELL5'] then
+        if not user_alive then return end
+        player.spellbook:spellKeyPressed('SPELL5')
     elseif key == "f5" then
         print("[client_tick: " .. tick .. "][buffer_size ".. player.state_buffer:getCurrentSize() .. "][" .. "largest_tick " .. player.state_buffer.current_max_tick .. "]")
         player.state_buffer:printDump(true)
