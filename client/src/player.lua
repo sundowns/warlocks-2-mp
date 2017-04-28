@@ -261,7 +261,6 @@ function retroactive_player_state_calc(update)
 
     local result_state = updated_state
 	local updated = false
-    --TODO: SHOULD WE BE DOING THIS 2 AT A TIME?????
 	for index=update.server_tick, tick-last_offset,2 do --Lets make sure we're not correcting events as they happen.
         local snapshot = player.state_buffer:get(index)
         assert(snapshot)

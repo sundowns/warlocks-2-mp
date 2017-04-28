@@ -21,7 +21,7 @@ Entity = Class{
         return {
             id = id,
             x = tostring(round_to_nth_decimal(self.position.x,2)),
-            y = tostring(round_to_nth_decimal(self.position.y)),
+            y = tostring(round_to_nth_decimal(self.position.y,2)),
             width = self.width,
             height = self.height
         }

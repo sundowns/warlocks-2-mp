@@ -24,10 +24,6 @@ Player = Class{ _includes = Entity,
         self.hitbox.type = "PLAYER"
         self.health = constants.DEFAULTS.PLAYER.health
         self.spellbook = {}
-        -- self.hitbox = HC.circle(self.x,self.y,self.width/2)
-        -- self.hitbox.owner = self.name
-    	-- self.hitbox.type = "PLAYER"
-        -- self.hasCollidedWith = {}
     end;
     asSpawnPacket = function(self)
         local packet = Entity.asSpawnPacket(self)
@@ -43,6 +39,16 @@ Player = Class{ _includes = Entity,
         packet.dash = self.dash
         packet.colour = self.colour
         packet.name = self.name
+        return packet
+    end;
+    asUpdatePacket = function(self)
+        local packet = Entity.asSpawnPacket(self)
+        packet.x_vel = tostring(round_to_nth_decimal(self.velocity.x, 2))
+        packet.y_vel = tostring(round_to_nth_decimal(self.velocity.y, 2))
+        packet.colour = self.colour -- this is just for the initial creation on the client, kinda shit???
+        packet.state = self.state
+        packet.orientation = self.orientation
+        packet.entity_type = self.entity_type
         return packet
     end;
     centre = function(self)

@@ -7,7 +7,7 @@ connected = false
 connection_is_new = true
 connected_time = 0
 debug_log = {}
---TODO: Create & use a new one for projectile/entity states to extrapolate position based on server updates
+
 --base class (NOTHING SPECIFIC TO ANY ENTITY!)
 StateBuffer = Class{
     init = function(self, size)

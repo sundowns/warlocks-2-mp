@@ -9,7 +9,7 @@ function queue_correction(alias, tick)
     if player then
         local queue_item = {
             alias = alias,
-            player = create_player_payload(player),
+            player = player:asUpdatePacket(),
             tick = tick,
             client_index = player.index
         }
@@ -26,7 +26,7 @@ end
 
 function send_world_update()
 	for k, player in pairs(world["players"]) do
-		local payload = create_player_payload(player)
+		local payload = player:asUpdatePacket()
 		local ok, packet = pcall(create_binary_packet, payload, "ENTITYUPDATE", tick, k)
 		if ok then
 			host:broadcast(packet)
@@ -55,20 +55,6 @@ function send_world_update()
 	for i, v in ipairs(deleted) do
 		host:broadcast(create_binary_packet(v, "ENTITYDESTROY", tostring(tick), v.id))
 	end
-end
-
---TODO: change this to a function on player :asUpdatePacket()
-function create_player_payload(player)
-	return {
-        x = tostring(player.position.x), y = tostring(player.position.y),
-        x_vel = tostring(round_to_nth_decimal(player.velocity.x,2)),
-        y_vel = tostring(round_to_nth_decimal(player.velocity.y,2)),
-        colour = player.colour, entity_type = "PLAYER",
-        state = player.state,
-        width = tostring(player.width),
-        height = tostring(player.height),
-        orientation = tostring(player.orientation)
-    }
 end
 
 function send_error_packet(peer, message)
@@ -106,7 +92,7 @@ end
 function send_client_correction_packet(peer, alias, retroactive, tick_to_use)
     if not tick_to_use then tick_to_use = tick end
     if world["players"][alias] then
-        local player_payload = create_player_payload(world["players"][alias])
+        local player_payload = world["players"][alias]:asUpdatePacket()
         if retroactive then
             player_payload.retroactive = true
         else
