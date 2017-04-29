@@ -135,6 +135,7 @@ User = Class{ _includes = Player,
     collidingWithProjectile = function(self, dt, collided_with, delta)
         if not collided_with or self.hasCollidedWith[collided_with.name] then return end
         --TODO: This needs work, sometimes we acknowledge collision but dont move at all!
+        --TODO: It should just mirror what happens on the server no? Currently its different
         self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
         self:move(self.position +  delta * self.hitbox._radius * dt)
         print("we collided with stuff")
