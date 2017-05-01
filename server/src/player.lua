@@ -73,12 +73,13 @@ Player = Class{ _includes = Entity,
     hitByProjectile = function(self, projectile_owner, projectile)
         --take a bit of damage for direct hit (more knockback too!!?)
         local final_delta = (projectile.velocity + self.velocity):normalizeInplace()
-        self.velocity = self.velocity + projectile.velocity
+        self.velocity = self.velocity + projectile.velocity + projectile.impact_force * final_delta
         local new_pos = self.position +  final_delta * self.hitbox._radius
         self:move(new_pos.x, new_pos.y)
         if projectile.damage then
             self.health = self.health - projectile.damage
             print("new health is " .. self.health)
         end
+        send_player_hit_packet(self.index, projectile, final_delta)
     end;
 }

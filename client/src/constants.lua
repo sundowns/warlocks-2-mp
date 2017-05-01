@@ -20,7 +20,15 @@ Colour = Class {
 }
 
 local colours = {
-    HUD_BACKGROUND = Colour(139, 69, 19, 230)
+    HUD_BACKGROUND = Colour(139, 69, 19, 230),
+    HUD_HEALTH = {
+        FULL = Colour(0, 255, 34, 255),
+        DAMAGED = Colour(144, 255, 0, 255),
+        HURT = Colour(255, 234, 0, 255),
+        WOUNDED = Colour(255, 162, 0, 255),
+        DYING = Colour(255, 0, 0, 255),
+        DEAD = Colour(0, 0, 0, 255)
+    }
 }
 
 return {

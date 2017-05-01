@@ -204,6 +204,23 @@ function create_binary_packet(payload, cmd, tick, alias)
 	return binser.serialize(payload, tostring(tick), cmd, alias)
 end
 
+function verify_hit_by_projectile_packet(payload)
+    local update = {
+        damage = tonumber(payload.damage) or 0,
+        velocity = vector(tonumber(payload.x_vel), tonumber(payload.y_vel)),
+        name = payload.name,
+        delta = vector(tonumber(payload.delta_x), tonumber(payload.delta_y)),
+        impact_force = payload.impact_force or 0
+    }
+    local verified = true
+    if not assert(update.damage) then verified = false print("Failed to verify damage for hit by projectile packet") end
+    if not assert(update.velocity) then verified = false print("Failed to verify velocity for hit by projectile packet") end
+    if not assert(update.name) then verified = false print("Failed to verify name for hit by projectile packet") end
+    if not assert(update.delta) then verified = false print("Failed to verify delta for hit by projectile packet") end
+    if not assert(update.impact_force) then verified = false print("Failed to verify impact force for hit by projectile packet") end
+    return verified, update
+end
+
 function verify_player_correction_packet(payload)
     local update = {
         x = tonumber(payload.x),
@@ -386,6 +403,11 @@ function network_gamerunning()
                     local ok, data = verify_spawn_explosion_packet(payload)
                     if ok then
                         server_entity_create(data)
+                    end
+                elseif payload.cmd == 'HITBYPROJECTILE' then
+                    local ok, update = verify_hit_by_projectile_packet(payload)
+                    if ok then
+                        player:projectileImpact({name = update.name, velocity = update.velocity, damage = update.damage, impact_force = update.impact_force}, update.delta)
                     end
                 elseif payload.cmd == 'PLAYERCORRECTION' then
                     local ok, update = verify_player_correction_packet(payload)

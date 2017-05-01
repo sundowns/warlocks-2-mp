@@ -1,5 +1,7 @@
 Projectile = Class{ _includes = Entity,
-    init = function(self, id, position, owner, speed, velocity, width, height, damage)
+    init = function(self, id, position, owner, speed, velocity, width, height, damage,
+        impact_force
+    )
         Entity.init(self, id, position, "PROJECTILE")
         self.width = width
         self.height = height
@@ -7,6 +9,7 @@ Projectile = Class{ _includes = Entity,
         self.speed = speed
         self.velocity = velocity
         self.damage = damage
+        self.impact_force = impact_force
     end;
     asSpawnPacket = function(self)
         local packet = Entity.asSpawnPacket(self)
@@ -28,13 +31,13 @@ Projectile = Class{ _includes = Entity,
 }
 
 FireballProjectile = Class{ _includes = Projectile,
-    init = function(self, id, position, owner, speed, direction, width, height)
+    init = function(self, id, position, owner, speed, direction, width, height, impact_force)
         local perpendicular = direction:perpendicular():angleTo()
         local adjustedX = position.x - width/2*math.cos(perpendicular)
         local adjustedY = position.y - height/2*math.sin(perpendicular)
         local velocity = direction*speed
         Projectile.init(self, id, vector(adjustedX, adjustedY), owner, speed,
-            velocity, width, height, constants.DEFAULTS.FIREBALL.damage
+            velocity, width, height, constants.DEFAULTS.FIREBALL.damage, impact_force
         )
         self.projectile_type = "FIREBALL"
         self.hitbox = HC.polygon(calculateProjectileHitbox(
@@ -64,9 +67,11 @@ FireballProjectile = Class{ _includes = Projectile,
     end;
 }
 
-function spawn_projectile(x, y, velocity_vector, owner)
+function spawn_projectile(x, y, velocity_vector, owner, impact_force)
     local id = random_string(12)
-    new_projectile = FireballProjectile(id, vector(x,y), owner, constants.DEFAULTS.FIREBALL.speed, velocity_vector:normalized(), 14, 19)
+    new_projectile = FireballProjectile(id, vector(x,y), owner, constants.DEFAULTS.FIREBALL.speed, velocity_vector:normalized(), 14, 19,
+        impact_force
+    )
 
     while world["entities"][id] ~= nil do
         id = id .. 'a'

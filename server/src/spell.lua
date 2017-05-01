@@ -30,7 +30,7 @@ Fireball = Class { _includes = Spell,
         local spawnPosition = nVector*caster.velocity:len()*constants['TICKRATE']
         local spawnX = caster.position.x + nVector.x*caster.width
         local spawnY = caster.position.y + nVector.y*caster.height
-        spawn_projectile(spawnX, spawnY, vector, caster.name)
+        spawn_projectile(spawnX, spawnY, vector, caster.name, self.impact_force)
 
         Spell.cast(self)
     end;

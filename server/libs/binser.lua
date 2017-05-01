@@ -119,6 +119,7 @@ end
 -- number serialization code modified from https://github.com/fperrad/lua-MessagePack
 -- Encode a number as a big-endian ieee-754 double, big-endian signed 64 bit integer, or a small integer
 local function number_to_str(n)
+    print(n)
     if isInteger(n) then -- int
         if n <= 100 and n >= -27 then -- 1 byte, 7 bits of data
             return char(n + 27)

@@ -67,6 +67,21 @@ function send_player_spawn_packet(peer, player)
 	peer:send(create_binary_packet(player:asSpawnPacket(), "SPAWN_PLAYER", tick))
 end
 
+function send_player_hit_packet(peer_index, projectile, delta)
+    local peer = host:get_peer(peer_index)
+    local data = {
+        damage = projectile.damage,
+        x_vel = tostring(round_to_nth_decimal(projectile.velocity.x,2)),
+        y_vel = tostring(round_to_nth_decimal(projectile.velocity.y,2)),
+        name = projectile.id,
+        delta_x = tostring(round_to_nth_decimal(delta.x,4)),
+        delta_y = tostring(round_to_nth_decimal(delta.y,4)),
+        impact_force = projectile.impact_force
+    }
+    print_table(data)
+	peer:send(create_binary_packet(data, "HITBYPROJECTILE", tick, data.name))
+end
+
 function broadcast_cast_spell_packet(projectile, id)
     host:broadcast(create_binary_packet(projectile:asSpawnPacket(), "PLAYER_CAST_FIREBALL", tick, id))
 end

@@ -38,7 +38,7 @@ Spell = Class{
         self.ready = false
         self.cooldown = self.cooldown_duration - elapsed
         Timer.every(0.1, function()
-            hud:markDirty()
+            hud:markSkillsDirty()
             self.cooldown = self.cooldown - 0.1
             if self.cooldown <= 0 then
                 self.cooldown = 0

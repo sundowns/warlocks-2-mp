@@ -87,6 +87,8 @@ User = Class{ _includes = Player,
         self.spellbook:addSpell('SPELL1', Fireball())
         self.spellbook:addSpell('SPELL2', Portal())
         self.state_buffer = PlayerStateBuffer(constants.PLAYER_BUFFER_LENGTH)
+        self.health = 100 -- should come from spawn data
+        self.max_health = 100
     end;
     centre = function(self)
         return Player.centre(self)
@@ -134,13 +136,34 @@ User = Class{ _includes = Player,
     end;
     collidingWithProjectile = function(self, dt, collided_with, delta)
         if not collided_with or self.hasCollidedWith[collided_with.name] then return end
-        --TODO: This needs work, sometimes we acknowledge collision but dont move at all!
-        --TODO: It should just mirror what happens on the server no? Currently its different
-        self.velocity = self.velocity +  delta * collided_with.velocity:len() * dt
-        self:move(self.position +  delta * self.hitbox._radius * dt)
-        print("we collided with stuff")
-        self.hasCollidedWith[collided_with.name] = true
+
+        -- self.hasCollidedWith[collided_with.name] = true
+
+        print("client side collish with projectile")
+        --TODO: PARTICLE EFFECTS/SCREEN SHAKE!?!?!
     end;
+    projectileImpact = function(self, projectile, delta)
+        self.velocity = self.velocity + projectile.velocity + projectile.impact_force * delta
+        local new_pos = self.position + delta * self.hitbox._radius
+        self:move(new_pos)
+        if projectile.damage then
+            self.health = self.health - projectile.damage
+            hud:markHealthDirty()
+            print("new health is " .. self.health)
+        end
+    end;
+    -- hitByProjectile = function(self, projectile_owner, projectile)
+    --     --take a bit of damage for direct hit (more knockback too!!?)
+    --     local final_delta = (projectile.velocity + self.velocity):normalizeInplace()
+    --     self.velocity = self.velocity + projectile.velocity
+    --     local new_pos = self.position +  final_delta * self.hitbox._radius
+    --     self:move(new_pos.x, new_pos.y)
+    --     if projectile.damage then
+    --         self.health = self.health - projectile.damage
+    --         print("new health is " .. self.health)
+    --     end
+    --     send_player_hit_packet(self.index, projectile, final_delta)
+    -- end;
 }
 
 function prepare_player(player_data)
