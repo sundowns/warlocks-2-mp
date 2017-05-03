@@ -78,7 +78,6 @@ Player = Class{ _includes = Entity,
         self:move(new_pos.x, new_pos.y)
         if projectile.damage then
             self.health = self.health - projectile.damage
-            print("new health is " .. self.health)
         end
         send_player_hit_packet(self.index, projectile, final_delta)
     end;

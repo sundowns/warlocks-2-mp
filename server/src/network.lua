@@ -78,7 +78,6 @@ function send_player_hit_packet(peer_index, projectile, delta)
         delta_y = tostring(round_to_nth_decimal(delta.y,4)),
         impact_force = projectile.impact_force
     }
-    print_table(data)
 	peer:send(create_binary_packet(data, "HITBYPROJECTILE", tick, data.name))
 end
 
