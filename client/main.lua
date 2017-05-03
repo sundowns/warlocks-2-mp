@@ -52,5 +52,5 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 function love.textinput(t)
-    suit.textinput(t)
+    forwardTextInputToMenu(t)
 end

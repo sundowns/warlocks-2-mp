@@ -105,7 +105,7 @@ PlayerStateBuffer = Class{ _includes=StateBuffer,
 
 function net_initialise()
 	host = enet.host_create()
-	server = host:connect(settings.IP..':'..settings.port)
+	server = host:connect(settings.IP..':'..settings.port) --wrap this in a pcall statement and error state if failed
     print("connecting to " .. settings.IP .. ":" .. settings.port .."...")
 end
 

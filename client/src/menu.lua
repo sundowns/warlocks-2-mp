@@ -106,3 +106,7 @@ function menu:keypressed(key)
         try_connect()
     end
 end
+
+function forwardTextInputToMenu(key)
+    menuUI:textinput(key)
+end
