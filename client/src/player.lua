@@ -89,6 +89,7 @@ User = Class{ _includes = Player,
         self.state_buffer = PlayerStateBuffer(constants.PLAYER_BUFFER_LENGTH)
         self.health = 100 -- should come from spawn data
         self.max_health = 100
+        self.staggered = false -- under the influence of a projectile hit!
     end;
     centre = function(self)
         return Player.centre(self)
@@ -145,25 +146,19 @@ User = Class{ _includes = Player,
     projectileImpact = function(self, projectile, delta)
         self.velocity = self.velocity + projectile.velocity + projectile.impact_force * delta
         local new_pos = self.position + delta * self.hitbox._radius
-        self:move(new_pos)
+        --self:move(new_pos)
         if projectile.damage then
             self.health = self.health - projectile.damage
             hud:markHealthDirty()
             print("new health is " .. self.health)
         end
     end;
-    -- hitByProjectile = function(self, projectile_owner, projectile)
-    --     --take a bit of damage for direct hit (more knockback too!!?)
-    --     local final_delta = (projectile.velocity + self.velocity):normalizeInplace()
-    --     self.velocity = self.velocity + projectile.velocity
-    --     local new_pos = self.position +  final_delta * self.hitbox._radius
-    --     self:move(new_pos.x, new_pos.y)
-    --     if projectile.damage then
-    --         self.health = self.health - projectile.damage
-    --         print("new health is " .. self.health)
-    --     end
-    --     send_player_hit_packet(self.index, projectile, final_delta)
-    -- end;
+    stagger = function(self)
+        self.staggered = true;
+        Timer.after(3, function()
+            self.staggered = false;
+        end)
+    end;
 }
 
 function prepare_player(player_data)

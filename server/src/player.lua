@@ -75,7 +75,7 @@ Player = Class{ _includes = Entity,
         local final_delta = (projectile.velocity + self.velocity):normalizeInplace()
         self.velocity = self.velocity + projectile.velocity + projectile.impact_force * final_delta
         local new_pos = self.position +  final_delta * self.hitbox._radius
-        self:move(new_pos.x, new_pos.y)
+        --self:move(new_pos.x, new_pos.y)
         if projectile.damage then
             self.health = self.health - projectile.damage
         end

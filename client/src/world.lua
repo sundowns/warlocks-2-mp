@@ -253,7 +253,7 @@ function update_entity_movement(dt, entity, friction, isPlayer, isRetroactive)
 			end
 		end
     else
-        -- apply friction
+        
         entity.velocity = entity.velocity + friction_vector * friction * dt
 	end
 
